@@ -20,6 +20,13 @@ concurrency:
   group: pages
   cancel-in-progress: false
 
+# Note: there is deliberately no actions/configure-pages step.
+# The Pages base path is hardcoded in astro.config.mjs, so nothing needs to be
+# discovered at build time, and its enablement:true option cannot work here --
+# creating a Pages site requires repo-admin rights that GITHUB_TOKEN lacks.
+# Pages must therefore be switched on once by hand:
+#   Settings -> Pages -> Build and deployment -> Source: GitHub Actions
+
 jobs:
   build:
     name: Build site
@@ -33,13 +40,6 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: npm
-
-      - name: Configure Pages
-        # enablement:true turns Pages on via the API if it is not enabled yet,
-        # so the repo needs no manual toggling in Settings.
-        uses: actions/configure-pages@v5
-        with:
-          enablement: true
 
       - name: Install dependencies
         run: npm ci
