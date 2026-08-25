@@ -17,11 +17,11 @@ const monthPx = TIMELINE.days / 12.45; // ~30.4px, one month
 
 <section class="zone2" aria-labelledby="z2-title">
   <div class="zone2__inner">
-    <h2 class="zone2__title" id="z2-title">Doi ani, două magazine.</h2>
+    <h2 class="zone2__title" id="z2-title" data-reveal>Doi ani, două magazine.</h2>
 
     {/* The measured segment sits ON the band; the labels sit either side of it.
         Nothing crosses the gap -- that is the one rule the whole page rests on. */}
-    <div class="zone2__axis" style={`--days: ${TIMELINE.days}px; --month: ${monthPx}px; --year: ${TIMELINE.yearMark}px;`}>
+    <div class="zone2__axis" data-reveal style={`--i: 1`} style={`--days: ${TIMELINE.days}px; --month: ${monthPx}px; --year: ${TIMELINE.yearMark}px;`}>
       <ol class="zone2__events">
         <li class="zone2__event zone2__event--first">
           <span class="zone2__date tnum">{TIMELINE.first.label}</span>
@@ -43,7 +43,7 @@ const monthPx = TIMELINE.days / 12.45; // ~30.4px, one month
       </div>
     </div>
 
-    <dl class="zone2__facts">
+    <dl class="zone2__facts" data-reveal style={`--i: 2`}>
       {
         FACTS.map((f) => (
           <div class="zone2__fact">
@@ -56,7 +56,7 @@ const monthPx = TIMELINE.days / 12.45; // ~30.4px, one month
 
     {/* Sits on the same object as the count, not buried in the footer: the
         "4 branduri" figure is qualified where it is stated. */}
-    <p class="zone2__legal">{MOLDOVA_OPERATOR}</p>
+    <p class="zone2__legal" data-reveal style={`--i: 3`}>{MOLDOVA_OPERATOR}</p>
   </div>
 </section>
 

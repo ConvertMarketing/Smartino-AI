@@ -20,33 +20,37 @@ const hoursLine = SUPERMARKET_HOURS.map((h) => `${h.days} ${h.open}–${h.close}
 
   <section class="hero" id="continut">
     <div class="hero__inner">
-      <h1 class="hero__title">Un grup crescut<br />dintr-un singur magazin.</h1>
+      <h1 class="hero__title" data-reveal>Un grup crescut<br />dintr-un singur magazin.</h1>
 
-      <p class="hero__deck">
+      <p class="hero__deck" data-reveal style="--i: 1">
         Primul magazin s-a deschis pe {TIMELINE.first.label}, în Snagov Plaza.<br />
         Al doilea, <span class="tnum">{TIMELINE.days}</span> de zile mai târziu, vizavi.
       </p>
 
-      <p class="hero__pill tnum">{hoursLine}</p>
+      <p class="hero__pill tnum" data-reveal data-schedule style="--i: 2">{hoursLine}</p>
 
       {/* The band starts here, not at the top of the section. The H1 still
           crosses the axis, but marks running through the letterforms read as a
           rendering glitch rather than as a measure. */}
-      <div class="hero__rows">
+      <div class="hero__rows" data-rows>
         <Band tone="dark" />
 
       {/* Row A -- the physical pair. The only one allowed to sit either side of
           the gap, because it is the only one that actually stands that way. */}
-      <div class="hero__rowA">
-        <UnitCard unit={supermarket} size="large" align="end" />
-        <div class="hero__gap" aria-hidden="true"></div>
-        <UnitCard unit={home} size="large" align="start" />
+      <div class="hero__rowA" data-reveal style="--i: 3">
+        <UnitCard unit={supermarket} size="large" align="end" dataUnit="01" />
+        <div class="hero__gap" aria-hidden="true">
+          <span class="hero__rule"></span>
+          <span class="hero__tag" data-for="01">01 →</span>
+          <span class="hero__tag" data-for="02">← 02</span>
+        </div>
+        <UnitCard unit={home} size="large" align="start" dataUnit="02" />
       </div>
 
       {/* Row B -- the online pair. It does NOT straddle the gap, it crosses it:
           these two do not face each other anywhere, so they do not pretend to.
           The 96px rupture falls before 04. */}
-      <div class="hero__rowB">
+      <div class="hero__rowB" data-reveal style="--i: 4">
         <UnitCard unit={shop} size="compact" />
         <div class="hero__rupture" aria-hidden="true"></div>
         <UnitCard unit={moldova} size="compact" />
@@ -128,9 +132,80 @@ const hoursLine = SUPERMARKET_HOURS.map((h) => `${h.days} ${h.open}–${h.close}
     grid-template-columns: 1fr 96px 1fr;
   }
 
-  .hero__gap,
+  /* The gap stays empty of CONTENT. What crosses it is the response itself:
+   * a rule and a direction label, both decorative and aria-hidden. */
+  .hero__gap {
+    position: relative;
+    display: grid;
+    place-items: center;
+  }
+
   .hero__rupture {
-    /* Deliberately empty. The gap is the signature; it never gets content. */
+    /* Deliberately empty. */
+  }
+
+  .hero__rule {
+    position: absolute;
+    top: 50%;
+    left: 8%;
+    width: 84%;
+    height: 2px;
+    background-color: var(--t);
+    transform: scaleX(0);
+    transition: transform var(--d-micro) var(--ease-out);
+  }
+
+  [data-active='01'] .hero__rule {
+    transform-origin: left center;
+    transform: scaleX(1);
+  }
+
+  [data-active='02'] .hero__rule {
+    transform-origin: right center;
+    transform: scaleX(1);
+  }
+
+  .hero__tag {
+    position: absolute;
+    top: calc(50% + 0.875rem);
+    font-family: var(--font-display);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    color: var(--t);
+    opacity: 0;
+    transition: opacity var(--d-micro) var(--ease-out);
+  }
+
+  [data-landed][data-active='01'] .hero__tag[data-for='01'],
+  [data-landed][data-active='02'] .hero__tag[data-for='02'] {
+    opacity: 1;
+  }
+
+  /* The answer: the card OPPOSITE the active one takes the edge. Hovering 01
+   * lights 02; hovering 02 sends it back. */
+  /* :global because the cards are rendered by UnitCard.astro, so Astro's
+   * per-component style scoping would otherwise never match them from here. */
+  [data-active='01'] :global([data-unit='02']),
+  [data-active='02'] :global([data-unit='01']) {
+    box-shadow:
+      0 0 0 3px var(--t),
+      var(--lift-t);
+  }
+
+  :global([data-unit]) {
+    transition: box-shadow var(--d-micro) var(--ease-out);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    /* The rule does not travel and the label does not fade. The meaning still
+     * arrives in full: which unit answers is carried by the edge and the label,
+     * not by the movement. */
+    .hero__rule,
+    .hero__tag,
+    :global([data-unit]) {
+      transition-duration: 0ms;
+    }
   }
 
   @media (max-width: 899px) {

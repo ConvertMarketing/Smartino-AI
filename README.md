@@ -70,18 +70,35 @@ public/       fișiere servite ca atare
 
 ## Stare
 
-**Faza 2 — schelet static.** Toate cele cinci zone, conținut real, responsive complet,
-**zero animație și zero JavaScript livrat**. Mișcarea intră în Faza 3.
+**Faza 3 — mișcare.** Reveal-uri la scroll, interacțiunea de răspuns dintre cele două
+magazine fizice, tenta de ieșire, starea live a programului. **1.370 bytes gzip de
+JavaScript, în total** — 0,9% din bugetul de 150 KB.
 
-Reguli de sistem stabilite aici, valabile mai departe:
+Fără GSAP, fără ScrollTrigger, fără Lenis: măsurate pe fișierele reale din acest repo,
+însumau 50.625 bytes gzip, adică 33% din tot bugetul, pentru mișcări pe care le fac un
+IntersectionObserver și tranziții CSS. Lenis a ieșit și dintr-un al doilea motiv — scroll
+hijacking e cel mai agresiv element vestibular pe care îl poate livra o pagină, iar
+absența lui rezolvă problema prin construcție, nu prin media query.
 
-- **Banda nu primește niciodată conținut.** Este singura regulă pe care se sprijină
-  întreaga semnătură. Verificată automat: niciun element de text nu o intersectează.
-- **Culorile se declară în `:root`, nu în `@theme`.** Tailwind v4 elimină variabilele
-  de temă pe care nu le vede referențiate static, iar accentele per unitate sunt
-  construite în runtime — au fost eliminate în tăcere din CSS-ul compilat.
-- **Contrastul se măsoară pe pixelii randați, nu pe paletă.** Fundalurile sunt tente
-  `color-mix`, care se calculează la `oklab()`; verificarea paletei pe `Canvas` pur
-  ratează exact cazurile care pică.
-- **`latin-ext` este obligatoriu.** Este singurul subset care conține ș și ț cu
-  virgulă dedesubt (U+0218–021B); subsetul `latin` are 0 din 4.
+Reguli de sistem, valabile mai departe:
+
+- **Banda nu primește niciodată conținut.** Singura excepție e mecanismul de răspuns
+  însuși — riglă, marcaj de poziție, etichetă de direcție — toate `aria-hidden`.
+  Verificat automat, cu excepția explicită în verificator.
+- **Timing-ul se ia din `src/lib/motion.ts`.** Nimic nu-și inventează propria durată.
+- **Reveal-urile sunt scoped pe `[data-js]`**, setat de un script inline înainte de
+  primul paint, cu un timeout de siguranță: dacă modulul nu se încarcă, flag-ul cade și
+  totul devine vizibil. Un bundle eșuat degradează la o pagină lizibilă, nu la una albă.
+- **Navigarea nu e niciodată întârziată.** Tenta de ieșire rulează în paralel cu o
+  navigare deja pornită: fără `preventDefault`, deci middle-click, cmd-click și
+  ctrl-click își păstrează comportamentul nativ. Guard pe `pageshow.persisted` pentru
+  întoarcerea din bfcache.
+- **Starea programului se calculează doar după hidratare.** Workflow-ul de deploy nu are
+  trigger de tip `schedule`, deci orice stare coaptă la build ar îngheța la ultimul deploy
+  și ar fi indexată așa. În zi de sărbătoare legală pagina spune că programul e special,
+  nu calculează un răspuns de zi normală.
+- **Culorile se declară în `:root`, nu în `@theme`.** Tailwind v4 elimină variabilele de
+  temă pe care nu le vede referențiate static.
+- **Contrastul se măsoară pe pixelii randați**, compunând transparențele peste părintele
+  real. Fundalurile sunt `color-mix`, care se calculează la `oklab()`.
+- **`latin-ext` este obligatoriu** — singurul subset cu ș și ț cu virgulă dedesubt.

@@ -8,7 +8,7 @@ const mapsQuery = encodeURIComponent(
 
 <section class="plaza" id="snagov-plaza" aria-labelledby="plaza-title">
   <div class="plaza__inner">
-    <h2 class="plaza__title" id="plaza-title">Snagov Plaza</h2>
+    <h2 class="plaza__title" id="plaza-title" data-reveal>Snagov Plaza</h2>
     <p class="plaza__lede">
       Cele două magazine fizice ale grupului, unul în fața celuilalt.
     </p>
@@ -21,7 +21,7 @@ const mapsQuery = encodeURIComponent(
         TODO(client): the geometry below is schematic. Replace with the real site
         plan or an overhead photo -- "vizavi" says they face each other, not at
         what distance, with what between them, or how they sit against the DN-1. */}
-    <figure class="plaza__figure">
+    <figure class="plaza__figure" data-reveal style="--i: 1">
       <svg viewBox="0 0 640 300" role="img" aria-labelledby="plan-title plan-desc">
         <title id="plan-title">Plan schematic al amplasamentului din Snagov Plaza</title>
         <desc id="plan-desc">
@@ -53,7 +53,7 @@ const mapsQuery = encodeURIComponent(
       </figcaption>
     </figure>
 
-    <div class="plaza__cols">
+    <div class="plaza__cols" data-reveal style="--i: 2">
       <div>
         <h3 class="plaza__h3">Adresă</h3>
         <address class="plaza__address">

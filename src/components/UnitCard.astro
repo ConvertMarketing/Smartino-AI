@@ -6,8 +6,12 @@ interface Props {
   unit: Unit;
   size: 'large' | 'compact';
   align?: 'start' | 'end';
+  /** Marks a card as a participant in the response interaction. Only the two
+   *  physical units carry it -- they are the only pair that actually faces
+   *  across the gap. */
+  dataUnit?: string;
 }
-const { unit, size, align = 'start' } = Astro.props;
+const { unit, size, align = 'start', dataUnit } = Astro.props;
 
 /**
  * Smartino Supermarket has no site, no logo and no asset anywhere in the
@@ -33,6 +37,7 @@ const label = external
   href={href}
   aria-label={label}
   data-align={align}
+  data-unit={dataUnit}
   {...external ? { rel: 'noopener' } : {}}
 >
   <span class="card__index tnum">{unit.index}</span>

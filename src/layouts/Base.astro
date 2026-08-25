@@ -66,12 +66,27 @@ const organizationLd = {
         docs/assets-needed.md. A broken card is worse than none, so it is omitted. */}
     <meta name="twitter:card" content="summary" />
 
+    {/* Set before first paint so revealed elements never flash in and out.
+        The timeout is the safety net: if the module fails to load, the flag is
+        dropped and everything becomes visible rather than staying hidden. */}
+    <script is:inline>
+      document.documentElement.setAttribute('data-js', '');
+      setTimeout(function () {
+        var r = document.documentElement;
+        if (!r.hasAttribute('data-ready')) r.removeAttribute('data-js');
+      }, 2500);
+    </script>
+
     <script is:inline type="application/ld+json" set:html={JSON.stringify(organizationLd)} />
   </head>
 
   <body>
     <a href="#continut" class="skip">Sari la conținut</a>
     <slot />
+    <div class="exit-tint" aria-hidden="true"></div>
+    <script>
+      import '../scripts/site';
+    </script>
     <style>
       .skip {
         position: absolute;

@@ -25,7 +25,7 @@ const isSupermarket = !unit.href;
   <Band marks={!isMoldova} tone="light" />
 
   <div class="unit__inner">
-    <div class="unit__col">
+    <div class="unit__col" data-reveal>
       <p class="unit__index tnum">{unit.index}</p>
       <h2 class="unit__name" id={`unit-${unit.index}-title`}>{unit.name}</h2>
       <p class="unit__presence">{unit.presence}</p>
@@ -91,7 +91,7 @@ const isSupermarket = !unit.href;
     {/* The far side of the gap. The group owns no photography, so the "large
         visual" the brief asks for here is a turquoise field carrying the unit's
         number. Decorative: the real index and slogan are in the column above. */}
-    <div class="unit__panel" aria-hidden="true">
+    <div class="unit__panel" aria-hidden="true" data-reveal style="--i: 1">
       <span class="unit__panelIndex tnum">{unit.index}</span>
       {unit.slogan && <span class="unit__panelSlogan">{unit.slogan}</span>}
     </div>

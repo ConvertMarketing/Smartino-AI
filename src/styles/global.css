@@ -56,6 +56,18 @@
   --lift-t: 0 2px 6px rgba(10, 91, 101, 0.28), 0 22px 60px rgba(10, 91, 101, 0.35);
 }
 
+/* Motion system -- mirrors src/lib/motion.ts. Nothing on this page invents its
+ * own timing. */
+:root {
+  --ease-out: cubic-bezier(0.165, 0.84, 0.44, 1);
+  --ease-in-out: cubic-bezier(0.455, 0.03, 0.515, 0.955);
+  --d-micro: 220ms;
+  --d-reveal: 900ms;
+  --d-state: 400ms;
+  --d-exit: 160ms;
+  --stagger: 70ms;
+}
+
 /* The empty band is the spine of the page. Its width is the one measurement
  * every zone is built around, so it lives as a global custom property. */
 :root {
@@ -99,4 +111,58 @@ body {
   outline: 3px solid var(--t);
   outline-offset: 3px;
   border-radius: 2px;
+}
+
+
+/* ---------------------------------------------------------------------------
+ * Reveals
+ *
+ * Scoped to [data-js], set by an inline script before first paint. Without
+ * JavaScript nothing is ever hidden, so a failed bundle degrades to a fully
+ * readable page rather than a blank one.
+ * ------------------------------------------------------------------------ */
+@media (prefers-reduced-motion: no-preference) {
+  [data-js] [data-reveal] {
+    opacity: 0;
+    transform: translate3d(0, 20px, 0);
+    transition:
+      opacity var(--d-reveal) var(--ease-out),
+      transform var(--d-reveal) var(--ease-out);
+    transition-delay: calc(var(--i, 0) * var(--stagger));
+  }
+
+  [data-js] [data-reveal][data-in] {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * The exit tint
+ *
+ * Runs in parallel with a navigation that has ALREADY started: no
+ * preventDefault, no delay before the link fires, so middle-click, cmd-click
+ * and ctrl-click all keep working. The pageshow guard clears it when the user
+ * comes back through bfcache, which would otherwise strand them on a coloured
+ * screen.
+ * ------------------------------------------------------------------------ */
+.exit-tint {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background-image: linear-gradient(160deg, var(--t-glow), var(--t-dark));
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--d-exit) var(--ease-out);
+}
+
+[data-exiting] .exit-tint {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* No sweep of colour across the viewport on the way out. */
+  .exit-tint {
+    display: none;
+  }
 }
