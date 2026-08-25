@@ -1,6 +1,5 @@
 ---
 import Base from '../layouts/Base.astro';
-import Fascia from '../components/Fascia.astro';
 import Hero from '../components/Hero.astro';
 import Timeline from '../components/Timeline.astro';
 import UnitSection from '../components/UnitSection.astro';
@@ -15,11 +14,10 @@ const description =
 ---
 
 <Base title={title} description={description}>
-  <Fascia />
   <main>
     <Hero />
     <Timeline />
-    {UNITS.map((unit) => <UnitSection unit={unit} />)}
+    {UNITS.map((unit, i) => <UnitSection unit={unit} alt={i % 2 === 1} />)}
     <SnagovPlaza />
   </main>
   <SiteFooter />

@@ -8,46 +8,52 @@
 
 /* Declared in a plain :root, NOT in @theme.
  *
- * Tailwind v4 prunes theme variables it cannot see referenced statically in the
- * source. The per-unit accents are referenced as var(--color-${unit.token}-deep),
- * built at runtime, so the scanner never sees them and silently dropped
- * --color-u2-deep, --color-u3-deep and --color-u4-deep from the compiled CSS.
- * The page still rendered -- the CTAs just went white-on-white.
+ * Tailwind v4 prunes theme variables it cannot see referenced statically, and
+ * these are consumed only by hand-written component CSS. :root is their home.
  *
- * These are consumed by hand-written component CSS, never by Tailwind
- * utilities, so :root is the correct home for them regardless. */
+ * ONE brand colour. Measured, not assumed:
+ *   #13B4C6 + white text ......... 2.51:1  never do this
+ *   #13B4C6 + near-black text .... 7.68:1  this is the pairing
+ *   #13B4C6 as text on near-black  7.68:1  the turquoise belongs on dark
+ *
+ * So the rule is absolute: the turquoise is a SURFACE. It carries near-black,
+ * never white. Where turquoise must be text on a light ground, it steps down
+ * to --t-deep, which is the same hue at 70% lightness and clears AA at 4.80:1.
+ */
 :root {
-  /* ---- Neutrals ------------------------------------------------------- */
-  --color-canvas: #f7f6f3;
-  --color-ink: #14252a;
-  --color-slate: #5a6a6e;
-  --color-slate-inv: #9baeb2;
-  --color-line: #dde5e6;
-  --color-line-strong: #6e8f94;
+  /* ---- The brand ------------------------------------------------------ */
+  --t: #13b4c6;
+  --t-glow: #4bd8e8;   /* lighter gradient stop; surface only */
+  --t-dark: #0a5b65;   /* deep stop for LARGE FIELDS ONLY -- near-black on it is
+                        * 2.47:1, so no text may sit on this stop. */
+  --t-floor: #0f8998;  /* the darkest stop that still carries near-black (4.63:1) */
+  --t-deep: #0c7985;   /* the only turquoise allowed to be text on light.
+                        * 5.14:1 on white, 4.74:1 on --paper. The lighter #0d7e8b
+                        * passed on white but fell to 4.43:1 on paper. */
 
-  /* ---- Group ---------------------------------------------------------- */
-  --color-teal: #15b7c6;
-  --color-teal-deep: #0e7a85;
-  --color-fascia-deep: #08747e;
+  /* ---- Ground --------------------------------------------------------- */
+  --white: #ffffff;
+  --paper: #f4f6f7;    /* light section alternate */
+  --ink: #0b0f10;      /* near-black: the dark ground */
+  --ink-2: #14191b;    /* dark section alternate */
 
-  /* ---- Per-unit accents.
-   * One axis of variation: hue only, ~9 deg apart, identical lightness, so the
-   * four read as variants of one thing. The DEEP step carries any words; the
-   * ACCENT step is surface and graphics only and never carries text. ------ */
-  --color-u1: #10bc98;
-  --color-u1-deep: #0a7861;
-  --color-u2: #12bab0;
-  --color-u2-deep: #0b7670;
-  --color-u3: #08b3c4;
-  --color-u3-deep: #057580;
-  --color-u4: #0c94c0;
-  --color-u4-deep: #097193;
+  /* ---- Text ----------------------------------------------------------- */
+  --fg: #0b0f10;
+  --fg-2: #55605f;     /* secondary on light */
+  --fg-inv: #ffffff;
+  --fg-inv-2: #9dabad; /* secondary on dark */
 
-  --color-signal: #d62828;
+  /* ---- Lines ---------------------------------------------------------- */
+  --line: #e2e7e8;
+  --line-strong: #77807f;   /* control borders on light, >=3:1 */
+  --line-dark: #263033;     /* separators on dark */
+  --line-dark-strong: #47555a;
 
-  /* ---- Type ----------------------------------------------------------- */
-  --font-display: "Archivo Variable", "Arimo", "Helvetica Neue", Arial, sans-serif;
-  --font-text: "Onest Variable", "Segoe UI", system-ui, sans-serif;
+  /* ---- Depth. Layered rather than one blurry drop: the near shadow gives
+   * the edge, the far one gives the lift. -------------------------------- */
+  --lift-1: 0 1px 2px rgba(11, 15, 16, 0.06), 0 8px 24px rgba(11, 15, 16, 0.07);
+  --lift-2: 0 2px 4px rgba(11, 15, 16, 0.08), 0 18px 48px rgba(11, 15, 16, 0.12);
+  --lift-t: 0 2px 6px rgba(10, 91, 101, 0.28), 0 22px 60px rgba(10, 91, 101, 0.35);
 }
 
 /* The empty band is the spine of the page. Its width is the one measurement
@@ -77,8 +83,8 @@ html {
 }
 
 body {
-  background-color: var(--color-canvas);
-  color: var(--color-ink);
+  background-color: var(--white);
+  color: var(--fg);
   font-family: var(--font-text);
   -webkit-font-smoothing: antialiased;
 }
@@ -90,7 +96,7 @@ body {
 }
 
 :where(a, button, [tabindex]):focus-visible {
-  outline: 3px solid var(--color-teal-deep);
+  outline: 3px solid var(--t);
   outline-offset: 3px;
   border-radius: 2px;
 }

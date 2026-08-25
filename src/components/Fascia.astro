@@ -1,24 +1,21 @@
 ---
 import { COMPANY } from '../lib/data';
-
-/**
- * The 72px band at the head of the page. One typographic level only: white on
- * this gradient is 5.51:1, but Slate Inverted would be 2.39:1, so a second,
- * quieter level is not available here and is not faked.
- */
 ---
 
-<header class="fascia">
+<div class="fascia">
   <div class="fascia__inner">
     <span class="fascia__mark">SMARTINO</span>
     <span class="fascia__where">{COMPANY.address.oneLine}</span>
   </div>
-</header>
+</div>
 
 <style>
+  /* Transparent: it sits on the hero's own gradient rather than carrying one of
+   * its own, so the top of the page reads as a single dark surface. */
   .fascia {
-    background-image: linear-gradient(100deg, var(--color-fascia-deep), var(--color-ink));
-    color: #fff;
+    position: relative;
+    z-index: 2;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.09);
   }
 
   .fascia__inner {
@@ -30,13 +27,14 @@ import { COMPANY } from '../lib/data';
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
+    color: var(--fg-inv);
   }
 
   .fascia__mark {
     font-family: var(--font-display);
-    font-weight: 700;
-    font-size: 1.0625rem;
-    letter-spacing: 0.14em;
+    font-weight: 800;
+    font-size: 1.125rem;
+    letter-spacing: 0.16em;
   }
 
   .fascia__where {
@@ -44,6 +42,7 @@ import { COMPANY } from '../lib/data';
     letter-spacing: 0.1em;
     text-transform: uppercase;
     text-align: right;
+    color: var(--fg-inv-2);
   }
 
   @media (max-width: 599px) {
@@ -51,8 +50,8 @@ import { COMPANY } from '../lib/data';
       min-height: 56px;
     }
     .fascia__where {
-      font-size: 0.625rem;
-      max-width: 11rem;
+      font-size: 0.5625rem;
+      max-width: 10rem;
     }
   }
 </style>

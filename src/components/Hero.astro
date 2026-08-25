@@ -1,4 +1,5 @@
 ---
+import Fascia from './Fascia.astro';
 import Band from './Band.astro';
 import UnitCard from './UnitCard.astro';
 import { UNITS, TIMELINE, SUPERMARKET_HOURS } from '../lib/data';
@@ -7,50 +8,72 @@ const [supermarket, home, shop, moldova] = UNITS;
 
 /**
  * The pill renders the NEUTRAL hours string, never a computed "open now".
- * The deploy workflow has no schedule trigger, so any state baked at build time
- * would freeze at the last deploy and get indexed that way. Live state belongs
- * to Faza 3, after hydration, with public holidays handled -- otherwise on
- * 25 December the site tells someone driving to Tâncăbești something false.
+ * The deploy workflow has no schedule trigger, so state baked at build time
+ * would freeze at the last deploy and be indexed that way. Live state is Faza 3,
+ * after hydration, with public holidays handled.
  */
 const hoursLine = SUPERMARKET_HOURS.map((h) => `${h.days} ${h.open}–${h.close}`).join(' · ');
 ---
 
-<section class="hero" id="continut">
-  <Band />
+<div class="top">
+  <Fascia />
 
-  <div class="hero__inner">
-    <h1 class="hero__title">Un grup crescut<br />dintr-un singur magazin.</h1>
+  <section class="hero" id="continut">
+    <div class="hero__inner">
+      <h1 class="hero__title">Un grup crescut<br />dintr-un singur magazin.</h1>
 
-    <p class="hero__deck">
-      Primul magazin s-a deschis pe {TIMELINE.first.label}, în Snagov Plaza.<br />
-      Al doilea, <span class="tnum">{TIMELINE.days}</span> de zile mai târziu, vizavi.
-    </p>
+      <p class="hero__deck">
+        Primul magazin s-a deschis pe {TIMELINE.first.label}, în Snagov Plaza.<br />
+        Al doilea, <span class="tnum">{TIMELINE.days}</span> de zile mai târziu, vizavi.
+      </p>
 
-    <p class="hero__pill tnum">{hoursLine}</p>
+      <p class="hero__pill tnum">{hoursLine}</p>
 
-    {/* Row A -- the physical pair. The only one allowed to sit either side of
-        the gap, because it is the only one that actually stands that way. */}
-    <div class="hero__rowA">
-      <UnitCard unit={supermarket} size="large" align="end" />
-      <div class="hero__gap" aria-hidden="true"></div>
-      <UnitCard unit={home} size="large" align="start" />
+      {/* The band starts here, not at the top of the section. The H1 still
+          crosses the axis, but marks running through the letterforms read as a
+          rendering glitch rather than as a measure. */}
+      <div class="hero__rows">
+        <Band tone="dark" />
+
+      {/* Row A -- the physical pair. The only one allowed to sit either side of
+          the gap, because it is the only one that actually stands that way. */}
+      <div class="hero__rowA">
+        <UnitCard unit={supermarket} size="large" align="end" />
+        <div class="hero__gap" aria-hidden="true"></div>
+        <UnitCard unit={home} size="large" align="start" />
+      </div>
+
+      {/* Row B -- the online pair. It does NOT straddle the gap, it crosses it:
+          these two do not face each other anywhere, so they do not pretend to.
+          The 96px rupture falls before 04. */}
+      <div class="hero__rowB">
+        <UnitCard unit={shop} size="compact" />
+        <div class="hero__rupture" aria-hidden="true"></div>
+        <UnitCard unit={moldova} size="compact" />
+      </div>
+      </div>
     </div>
-
-    {/* Row B -- the online pair. It does NOT straddle the gap, it crosses it:
-        smartinoshop.ro and smartino.md do not face each other anywhere, so they
-        do not pretend to. The 96px rupture falls before 04. */}
-    <div class="hero__rowB">
-      <UnitCard unit={shop} size="compact" />
-      <div class="hero__rupture" aria-hidden="true"></div>
-      <UnitCard unit={moldova} size="compact" />
-    </div>
-  </div>
-</section>
+  </section>
+</div>
 
 <style>
+  /* One continuous dark surface from the first pixel to the end of the hero.
+   * The turquoise is a large field here, not a thin accent -- a wide glow
+   * behind the cards plus a deep stop at the foot. */
+  .top {
+    position: relative;
+    background-color: var(--ink);
+    background-image:
+      radial-gradient(120% 85% at 18% 0%, rgba(19, 180, 198, 0.38) 0%, transparent 62%),
+      radial-gradient(90% 70% at 92% 26%, rgba(75, 216, 232, 0.2) 0%, transparent 58%),
+      linear-gradient(180deg, transparent 55%, rgba(10, 91, 101, 0.55) 100%);
+    color: var(--fg-inv);
+    overflow: hidden;
+  }
+
   .hero {
     position: relative;
-    padding-block: 3.5rem 4rem;
+    padding-block: 5rem 5.5rem;
   }
 
   .hero__inner {
@@ -63,33 +86,38 @@ const hoursLine = SUPERMARKET_HOURS.map((h) => `${h.days} ${h.open}–${h.close}
 
   .hero__title {
     font-family: var(--font-display);
-    font-size: clamp(2rem, 1.2rem + 2.6vw, 3.5rem);
-    font-weight: 700;
-    line-height: 1.06;
-    letter-spacing: -0.02em;
+    font-size: clamp(2.5rem, 1.4rem + 4.4vw, 5rem);
+    font-weight: 800;
+    line-height: 1.02;
+    letter-spacing: -0.035em;
     text-wrap: balance;
   }
 
   .hero__deck {
-    margin-top: 1.5rem;
-    max-width: 34rem;
-    font-size: 1.0625rem;
+    margin-top: 1.75rem;
+    max-width: 36rem;
+    font-size: clamp(1rem, 0.95rem + 0.3vw, 1.1875rem);
     line-height: 1.55;
-    color: var(--color-slate);
+    color: var(--fg-inv-2);
   }
 
   .hero__pill {
     display: inline-block;
-    margin-top: 1.25rem;
-    padding: 0.4375rem 1rem;
+    margin-top: 1.5rem;
+    padding: 0.5rem 1.125rem;
     border-radius: 999px;
-    border: 1px solid var(--color-line-strong);
+    border: 1px solid rgba(19, 180, 198, 0.5);
+    background-color: rgba(19, 180, 198, 0.08);
     font-size: 0.8125rem;
-    color: var(--color-ink);
+    color: var(--t);
+  }
+
+  .hero__rows {
+    position: relative;
   }
 
   .hero__rowA {
-    margin-top: 2.5rem;
+    margin-top: 3rem;
     display: grid;
     grid-template-columns: 1fr var(--band) 1fr;
   }
@@ -105,21 +133,20 @@ const hoursLine = SUPERMARKET_HOURS.map((h) => `${h.days} ${h.open}–${h.close}
     /* Deliberately empty. The gap is the signature; it never gets content. */
   }
 
-  /* Below 900 the gap rotates: the physical pair stacks and the emptiness
-   * becomes horizontal. Same mechanism, turned 90 degrees -- not a fallback. */
   @media (max-width: 899px) {
+    .hero {
+      padding-block: 3rem 3.5rem;
+    }
     .hero__rowA {
       grid-template-columns: 1fr;
       gap: var(--band);
     }
-    .hero__rowA .hero__gap {
-      display: none;
-    }
     .hero__rowB {
       grid-template-columns: 1fr;
-      gap: 1.5rem;
+      gap: 1rem;
     }
-    .hero__rowB .hero__rupture {
+    .hero__gap,
+    .hero__rupture {
       display: none;
     }
   }

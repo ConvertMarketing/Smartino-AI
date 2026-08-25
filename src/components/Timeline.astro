@@ -64,7 +64,7 @@ const monthPx = TIMELINE.days / 12.45; // ~30.4px, one month
   .zone2 {
     position: relative;
     padding-block: 4.5rem;
-    border-top: 1px solid var(--color-line);
+    border-top: 1px solid var(--line);
   }
 
   .zone2__inner {
@@ -119,12 +119,12 @@ const monthPx = TIMELINE.days / 12.45; // ~30.4px, one month
 
   .zone2__unit {
     font-size: 0.9375rem;
-    color: var(--color-teal-deep);
+    color: var(--t-deep);
   }
 
   .zone2__note {
     font-size: 0.875rem;
-    color: var(--color-slate);
+    color: var(--fg-2);
   }
 
   /* 1px = 1 day. A real, checkable mapping, not a decorative rhythm. */
@@ -135,7 +135,7 @@ const monthPx = TIMELINE.days / 12.45; // ~30.4px, one month
     height: 100%;
     background-image: repeating-linear-gradient(
       to bottom,
-      var(--color-line-strong) 0 1px,
+      var(--line-strong) 0 1px,
       transparent 1px var(--month)
     );
   }
@@ -149,7 +149,7 @@ const monthPx = TIMELINE.days / 12.45; // ~30.4px, one month
     top: var(--year);
     width: 36px;
     height: 2px;
-    background-color: var(--color-ink);
+    background-color: var(--ink);
   }
 
   .zone2__marks {
@@ -161,7 +161,7 @@ const monthPx = TIMELINE.days / 12.45; // ~30.4px, one month
     top: 0;
     left: 0;
     font-size: 0.8125rem;
-    color: var(--color-slate);
+    color: var(--fg-2);
   }
 
   .zone2__year {
@@ -177,7 +177,7 @@ const monthPx = TIMELINE.days / 12.45; // ~30.4px, one month
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 1.5rem;
-    border-top: 1px solid var(--color-line);
+    border-top: 1px solid var(--line);
     padding-top: 1.5rem;
   }
 
@@ -191,13 +191,13 @@ const monthPx = TIMELINE.days / 12.45; // ~30.4px, one month
   .zone2__factLabel {
     margin-top: 0.125rem;
     font-size: 0.875rem;
-    color: var(--color-slate);
+    color: var(--fg-2);
   }
 
   .zone2__legal {
     margin-top: 1.25rem;
     font-size: 0.8125rem;
-    color: var(--color-slate);
+    color: var(--fg-2);
   }
 
   @media (max-width: 899px) {
@@ -210,7 +210,7 @@ const monthPx = TIMELINE.days / 12.45; // ~30.4px, one month
     .zone2__rule {
       background-image: repeating-linear-gradient(
         to bottom,
-        var(--color-line-strong) 0 1px,
+        var(--line-strong) 0 1px,
         transparent 1px calc(var(--month) / 2)
       );
     }

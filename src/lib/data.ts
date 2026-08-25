@@ -11,7 +11,8 @@ export type Unit = {
   /** Two-digit ordinal shown on the card; also the reading order of the page. */
   index: '01' | '02' | '03' | '04';
   name: string;
-  /** Accent token stem, e.g. "u1" resolves to --color-u1 / --color-u1-deep. */
+  /** Ordinal stem, kept for stable ids and ordering. The group uses ONE brand
+   *  colour, so this no longer selects a palette. */
   token: 'u1' | 'u2' | 'u3' | 'u4';
   /** Absent for Smartino Supermarket, which has no site. That absence is the
    *  reason its card is drawn rather than filled -- it is not an oversight. */

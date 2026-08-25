@@ -259,3 +259,48 @@ Semnalarea era greșită și a fost retrasă: se referea la `#749499`, valoarea 
 sinteza cromatică intermediară, care într-adevăr dă doar 3,02:1 pe Canvas. Planul final
 folosește `#6E8F94`, care dă 3,23:1 și trece confortabil. **Valoarea corectă de
 implementat este `#6E8F94`.**
+
+---
+
+## Revizuire de client — paletă mono (25 august 2026)
+
+Clientul a cerut **o singură culoare de brand, `#13B4C6`**, cu alb, gradienturi, negru
+și gri închis. Rampa de patru accente pe hue descrisă mai sus **nu se mai aplică**.
+
+### Ce a dispărut și ce ia locul
+
+Mecanismul prin care sub-brandurile rămâneau înrudite era rampa de hue la luminozitate
+constantă. Cu o singură culoare, diferențierea cromatică per unitate nu mai există.
+Ea se face acum prin **structură**: numerotare, alternanță de fundal, și tratamentul
+distinct al cardului Supermarket — desenat, nu umplut.
+
+### Măsurători care au decis sistemul
+
+| Pereche | Contrast | Consecință |
+|---|---|---|
+| `#13B4C6` + text alb | **2,51:1** | interzis — e chiar defectul din magazinele live |
+| `#13B4C6` + text negru | **8,37:1** | turcoazul poartă negru, niciodată alb |
+| `#13B4C6` ca text pe fond închis | **7,68:1** | turcoazul aparține întunericului |
+
+De aici rezultă regula: **turcoazul este suprafață.** Unde trebuie să fie text pe fundal
+deschis, coboară la `--t-deep #0C7985` (5,14:1 pe alb, 4,74:1 pe `paper`).
+
+### Două capcane găsite prin măsurare
+
+1. **Stopul închis al gradientului nu poate purta text.** Negru pe `#0A5B65` dă 2,47:1.
+   Panourile se opresc la `--t-floor #0F8998`, ultima treaptă care mai poartă negru (4,63:1).
+2. **`--t-deep` trecea pe alb dar pica pe `paper`.** 4,80:1 față de 4,43:1. Coborât la `#0C7985`.
+
+### Risc de clișeu, asumat explicit
+
+Brief-ul interzice „negru cu un singur accent acid", iar o paletă mono pe fond închis
+trece foarte aproape de asta. Se evită prin două decizii: turcoazul ocupă **suprafețe
+mari** — panouri întregi, câmpuri de gradient — nu accente subțiri; și pagina alternează
+zone închise cu zone luminoase, deci are ritm, nu un singur fundal negru.
+
+### Impact vizual
+
+Clientul a semnalat că scheletul static nu are suficient impact. Planul alesese deliberat
+„un singur moment wow, restul disciplinat". Registrul s-a schimbat: hero pe gradient
+închis cu H1 la 80 px, panouri de turcoaz cu umbre stratificate, tipografie mult mai mare.
+Impactul static trebuie să existe **înainte** de animație.
