@@ -1,0 +1,91 @@
+---
+import '../styles/global.css';
+import { withBase } from '../lib/paths';
+import { COMPANY, UNITS } from '../lib/data';
+
+interface Props {
+  title: string;
+  description: string;
+}
+const { title, description } = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+
+/**
+ * subOrganization asserts ownership, so smartino.md is deliberately absent:
+ * the store is operated by RINCOM-GRUP SRL and the relationship with Smartino
+ * International SRL is not established.
+ * TODO(client): add it here only once the legal relationship is confirmed.
+ */
+const organizationLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: COMPANY.legalName,
+  vatID: COMPANY.vat,
+  url: canonical,
+  email: COMPANY.email,
+  telephone: COMPANY.phones.map((p) => p.value),
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: `${COMPANY.address.venue}, ${COMPANY.address.street}`,
+    postalCode: '075100',
+    addressLocality: 'Tâncăbești',
+    addressRegion: 'Ilfov',
+    addressCountry: 'RO',
+  },
+  subOrganization: UNITS.filter((u) => u.token !== 'u4').map((u) => ({
+    '@type': 'Organization',
+    name: u.name,
+    ...(u.href ? { url: u.href } : {}),
+  })),
+};
+---
+
+<!doctype html>
+<html lang="ro">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+
+    <link rel="icon" href={withBase('/favicon.svg')} type="image/svg+xml" />
+
+    {/* TODO(faza-4): preload the two Archivo subsets once the build emits hashed
+        font URLs. Latin-ext is not optional -- it is the only subset carrying ș and ț,
+        so leaving it to lazy discovery would flash fallback glyphs on every diacritic. */}
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Smartino International" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content="ro_RO" />
+    {/* TODO(client): og:image 1200x630. The group owns no usable artwork yet -- see
+        docs/assets-needed.md. A broken card is worse than none, so it is omitted. */}
+    <meta name="twitter:card" content="summary" />
+
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(organizationLd)} />
+  </head>
+
+  <body>
+    <a href="#continut" class="skip">Sari la conținut</a>
+    <slot />
+    <style>
+      .skip {
+        position: absolute;
+        left: -9999px;
+        top: 0;
+        z-index: 50;
+        background: var(--color-ink);
+        color: #fff;
+        padding: 0.75rem 1.25rem;
+        border-radius: 0 0 0.75rem 0;
+      }
+      .skip:focus {
+        left: 0;
+      }
+    </style>
+  </body>
+</html>

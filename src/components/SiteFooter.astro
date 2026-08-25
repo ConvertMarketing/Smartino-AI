@@ -1,0 +1,161 @@
+---
+import { COMPANY, UNITS, CONSUMER_LINKS, MOLDOVA_OPERATOR } from '../lib/data';
+const year = new Date().getFullYear();
+---
+
+<footer class="foot">
+  <div class="foot__inner">
+    <div class="foot__cols">
+      <div>
+        <h2 class="foot__h">Compania</h2>
+        <p class="foot__legal">
+          {COMPANY.legalName}<br />
+          <span class="tnum">CUI {COMPANY.vat}</span>
+        </p>
+        <address class="foot__address">
+          {COMPANY.address.venue}<br />
+          {COMPANY.address.street}<br />
+          {COMPANY.address.locality}
+        </address>
+      </div>
+
+      <div>
+        <h2 class="foot__h">Contact</h2>
+        <ul class="foot__list tnum">
+          {
+            COMPANY.phones.map((p) => (
+              <li>
+                <a href={p.href}>{p.value}</a>
+                <span class="foot__phoneLabel">{p.label}</span>
+              </li>
+            ))
+          }
+          <li><a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h2 class="foot__h">Branduri</h2>
+        <ul class="foot__list">
+          {
+            UNITS.map((u) => (
+              <li>
+                {u.href ? (
+                  <a href={u.href} rel="noopener">
+                    {u.name}
+                  </a>
+                ) : (
+                  <a href="#snagov-plaza">{u.name}</a>
+                )}
+              </li>
+            ))
+          }
+        </ul>
+        <p class="foot__operator">{MOLDOVA_OPERATOR}</p>
+      </div>
+
+      <div>
+        <h2 class="foot__h">Protecția consumatorului</h2>
+        <ul class="foot__list">
+          {
+            CONSUMER_LINKS.map((l) => (
+              <li>
+                <a href={l.href} rel="noopener">
+                  {l.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+
+    <p class="foot__copy tnum">© {year} {COMPANY.legalName}</p>
+  </div>
+</footer>
+
+<style>
+  /* Continuous with zone 4 -- same Ink ground, no seam between them. */
+  .foot {
+    background-color: var(--color-ink);
+    color: #fff;
+    padding-block: 3rem 3.5rem;
+  }
+
+  .foot__inner {
+    max-width: var(--content);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+    border-top: 1px solid #2a3d43;
+    padding-top: 3rem;
+  }
+
+  .foot__cols {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 2.5rem;
+  }
+
+  .foot__h {
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-slate-inv);
+  }
+
+  .foot__legal {
+    margin-top: 0.875rem;
+    line-height: 1.6;
+  }
+
+  .foot__address {
+    margin-top: 0.75rem;
+    font-style: normal;
+    line-height: 1.6;
+    color: var(--color-slate-inv);
+    font-size: 0.9375rem;
+  }
+
+  .foot__list {
+    margin-top: 0.875rem;
+    list-style: none;
+    display: grid;
+    gap: 0.5rem;
+    font-size: 0.9375rem;
+  }
+
+  .foot__list a {
+    color: #fff;
+  }
+
+  .foot__phoneLabel {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--color-slate-inv);
+  }
+
+  .foot__operator {
+    margin-top: 0.875rem;
+    font-size: 0.75rem;
+    color: var(--color-slate-inv);
+  }
+
+  .foot__copy {
+    margin-top: 3rem;
+    font-size: 0.8125rem;
+    color: var(--color-slate-inv);
+  }
+
+  @media (max-width: 899px) {
+    .foot__cols {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 599px) {
+    .foot__cols {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+  }
+</style>

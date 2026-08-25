@@ -1,0 +1,58 @@
+---
+import { COMPANY } from '../lib/data';
+
+/**
+ * The 72px band at the head of the page. One typographic level only: white on
+ * this gradient is 5.51:1, but Slate Inverted would be 2.39:1, so a second,
+ * quieter level is not available here and is not faked.
+ */
+---
+
+<header class="fascia">
+  <div class="fascia__inner">
+    <span class="fascia__mark">SMARTINO</span>
+    <span class="fascia__where">{COMPANY.address.oneLine}</span>
+  </div>
+</header>
+
+<style>
+  .fascia {
+    background-image: linear-gradient(100deg, var(--color-fascia-deep), var(--color-ink));
+    color: #fff;
+  }
+
+  .fascia__inner {
+    max-width: var(--content);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+    min-height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .fascia__mark {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.0625rem;
+    letter-spacing: 0.14em;
+  }
+
+  .fascia__where {
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-align: right;
+  }
+
+  @media (max-width: 599px) {
+    .fascia__inner {
+      min-height: 56px;
+    }
+    .fascia__where {
+      font-size: 0.625rem;
+      max-width: 11rem;
+    }
+  }
+</style>

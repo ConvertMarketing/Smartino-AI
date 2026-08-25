@@ -70,6 +70,18 @@ public/       fișiere servite ca atare
 
 ## Stare
 
-Faza 0 — schelă + pipeline de deploy. Pagina curentă este un **placeholder**
-temporar, cu paletă neutră deliberat, ca să nu anticipeze direcția de design.
-Se înlocuiește integral în Faza 2.
+**Faza 2 — schelet static.** Toate cele cinci zone, conținut real, responsive complet,
+**zero animație și zero JavaScript livrat**. Mișcarea intră în Faza 3.
+
+Reguli de sistem stabilite aici, valabile mai departe:
+
+- **Banda nu primește niciodată conținut.** Este singura regulă pe care se sprijină
+  întreaga semnătură. Verificată automat: niciun element de text nu o intersectează.
+- **Culorile se declară în `:root`, nu în `@theme`.** Tailwind v4 elimină variabilele
+  de temă pe care nu le vede referențiate static, iar accentele per unitate sunt
+  construite în runtime — au fost eliminate în tăcere din CSS-ul compilat.
+- **Contrastul se măsoară pe pixelii randați, nu pe paletă.** Fundalurile sunt tente
+  `color-mix`, care se calculează la `oklab()`; verificarea paletei pe `Canvas` pur
+  ratează exact cazurile care pică.
+- **`latin-ext` este obligatoriu.** Este singurul subset care conține ș și ț cu
+  virgulă dedesubt (U+0218–021B); subsetul `latin` are 0 din 4.

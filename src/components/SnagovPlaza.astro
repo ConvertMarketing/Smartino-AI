@@ -1,0 +1,256 @@
+---
+import { COMPANY, SUPERMARKET_HOURS, TIMELINE } from '../lib/data';
+
+const mapsQuery = encodeURIComponent(
+  `${COMPANY.address.venue}, ${COMPANY.address.street}, ${COMPANY.address.locality}`
+);
+---
+
+<section class="plaza" id="snagov-plaza" aria-labelledby="plaza-title">
+  <div class="plaza__inner">
+    <h2 class="plaza__title" id="plaza-title">Snagov Plaza</h2>
+    <p class="plaza__lede">
+      Cele două magazine fizice ale grupului, unul în fața celuilalt.
+    </p>
+
+    {/* Inline SVG, no third party: zero consent banners, zero external requests,
+        full colour control. Only TWO footprints are drawn -- the group has two
+        physical stores, and drawing four would imply a spatial claim over the
+        one whose ownership cannot be asserted.
+
+        TODO(client): the geometry below is schematic. Replace with the real site
+        plan or an overhead photo -- "vizavi" says they face each other, not at
+        what distance, with what between them, or how they sit against the DN-1. */}
+    <figure class="plaza__figure">
+      <svg viewBox="0 0 640 300" role="img" aria-labelledby="plan-title plan-desc">
+        <title id="plan-title">Plan schematic al amplasamentului din Snagov Plaza</title>
+        <desc id="plan-desc">
+          Două clădiri așezate una în fața celeilalte, separate de un spațiu deschis, cu
+          șoseaua DN-1 pe o latură.
+        </desc>
+
+        <rect x="0" y="0" width="640" height="300" fill="var(--color-ink)"></rect>
+
+        <rect x="0" y="248" width="640" height="52" fill="#1d3238"></rect>
+        <text x="24" y="279" class="plan__road">ȘOSEAUA BUCUREȘTI–PLOIEȘTI · DN-1</text>
+
+        <rect x="52" y="46" width="228" height="150" rx="16" fill="var(--color-u1)"></rect>
+        <text x="76" y="86" class="plan__idx">01</text>
+        <text x="76" y="116" class="plan__name">Supermarket</text>
+        <text x="76" y="140" class="plan__meta">deschis 11 iulie 2025</text>
+
+        <rect x="360" y="46" width="228" height="150" rx="16" fill="var(--color-u2)"></rect>
+        <text x="384" y="86" class="plan__idx">02</text>
+        <text x="384" y="116" class="plan__name">Home</text>
+        <text x="384" y="140" class="plan__meta">deschis 25 iulie 2026 · 1.200 m²</text>
+
+        {/* The band, opened to full width: it was this space all along. */}
+        <line x1="320" y1="46" x2="320" y2="196" stroke="var(--color-slate-inv)" stroke-width="1" stroke-dasharray="4 8"></line>
+        <text x="320" y="222" class="plan__gap">vizavi</text>
+      </svg>
+      <figcaption class="plaza__caption">
+        Plan schematic. Geometria exactă urmează planului de amplasament.
+      </figcaption>
+    </figure>
+
+    <div class="plaza__cols">
+      <div>
+        <h3 class="plaza__h3">Adresă</h3>
+        <address class="plaza__address">
+          {COMPANY.address.venue}<br />
+          {COMPANY.address.street}<br />
+          {COMPANY.address.locality}
+        </address>
+        <a
+          class="plaza__maps"
+          href={`https://www.google.com/maps/search/?api=1&query=${mapsQuery}`}
+          rel="noopener"
+        >
+          Deschide în hărți <span aria-hidden="true">↗</span>
+        </a>
+      </div>
+
+      <div>
+        <h3 class="plaza__h3">Program — Smartino Supermarket</h3>
+        <table class="plaza__hours tnum">
+          <tbody>
+            {
+              SUPERMARKET_HOURS.map((h) => (
+                <tr>
+                  <th scope="row">{h.days}</th>
+                  <td>
+                    {h.open}–{h.close}
+                  </td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+
+        <h3 class="plaza__h3 plaza__h3--spaced">Program — Smartino Home</h3>
+        {/* Not guessed. This is the largest store in the group and a wrong time
+            sends someone driving to Tâncăbești for nothing.
+            TODO(client): opening hours for Smartino Home. */}
+        <p class="plaza__pending">
+          Se anunță în curând. Până atunci, ne poți suna la
+          <a href={COMPANY.phones[0].href}>{COMPANY.phones[0].value}</a>.
+        </p>
+      </div>
+    </div>
+
+    <p class="plaza__opened tnum">
+      Supermarket, {TIMELINE.first.label}. Home, {TIMELINE.second.label}.
+    </p>
+  </div>
+</section>
+
+<style>
+  .plaza {
+    position: relative;
+    background-color: var(--color-ink);
+    color: #fff;
+    padding-block: 4.5rem 3.5rem;
+  }
+
+  .plaza__inner {
+    max-width: var(--content);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  .plaza__title {
+    font-family: var(--font-display);
+    font-size: clamp(1.75rem, 1.3rem + 1.8vw, 2.75rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .plaza__lede {
+    margin-top: 0.5rem;
+    color: var(--color-slate-inv);
+  }
+
+  .plaza__figure {
+    margin-top: 2rem;
+  }
+
+  .plaza__figure svg {
+    width: 100%;
+    height: auto;
+    border-radius: 20px;
+    display: block;
+  }
+
+  .plan__idx {
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    fill: var(--color-ink);
+  }
+
+  .plan__name {
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 700;
+    fill: var(--color-ink);
+  }
+
+  .plan__meta {
+    font-size: 13px;
+    fill: var(--color-ink);
+  }
+
+  .plan__road {
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    fill: var(--color-slate-inv);
+  }
+
+  .plan__gap {
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-anchor: middle;
+    fill: var(--color-slate-inv);
+  }
+
+  .plaza__caption {
+    margin-top: 0.625rem;
+    font-size: 0.75rem;
+    color: var(--color-slate-inv);
+  }
+
+  .plaza__cols {
+    margin-top: 3rem;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2.5rem;
+  }
+
+  .plaza__h3 {
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-slate-inv);
+  }
+
+  .plaza__h3--spaced {
+    margin-top: 2rem;
+  }
+
+  .plaza__address {
+    margin-top: 0.75rem;
+    font-style: normal;
+    line-height: 1.65;
+  }
+
+  .plaza__maps,
+  .plaza__pending a {
+    color: #fff;
+  }
+
+  .plaza__maps {
+    display: inline-block;
+    margin-top: 1rem;
+    font-size: 0.9375rem;
+  }
+
+  .plaza__hours {
+    margin-top: 0.75rem;
+    border-collapse: collapse;
+    width: 100%;
+    max-width: 22rem;
+  }
+
+  .plaza__hours th,
+  .plaza__hours td {
+    text-align: left;
+    padding-block: 0.5rem;
+    border-bottom: 1px solid #2a3d43;
+    font-weight: 400;
+  }
+
+  .plaza__hours td {
+    text-align: right;
+  }
+
+  .plaza__pending {
+    margin-top: 0.75rem;
+    color: var(--color-slate-inv);
+    font-size: 0.9375rem;
+    max-width: 22rem;
+  }
+
+  .plaza__opened {
+    margin-top: 2.5rem;
+    font-size: 0.8125rem;
+    color: var(--color-slate-inv);
+  }
+
+  @media (max-width: 899px) {
+    .plaza__cols {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+  }
+</style>

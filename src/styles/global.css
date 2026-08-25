@@ -1,11 +1,96 @@
 @import "tailwindcss";
 
-/*
- * Design tokens are intentionally empty for now.
- * They get filled in after the Faza 1 brand audit extracts the real Smartino
- * palette from smartinoshop.ro / smartinohome.ro / smartino.md.
- * TODO(faza-1): define --color-* and --font-* tokens here.
- */
-@theme {
-  --font-placeholder: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+/* Latin-ext carries the Romanian comma-below forms (U+0218-021B). Verified
+ * against the actual woff2 subsets: the plain latin subset has 0/4 of them,
+ * so dropping latin-ext would silently fall back on every ș and ț. */
+@import "@fontsource-variable/archivo/index.css";
+@import "@fontsource-variable/onest/index.css";
+
+/* Declared in a plain :root, NOT in @theme.
+ *
+ * Tailwind v4 prunes theme variables it cannot see referenced statically in the
+ * source. The per-unit accents are referenced as var(--color-${unit.token}-deep),
+ * built at runtime, so the scanner never sees them and silently dropped
+ * --color-u2-deep, --color-u3-deep and --color-u4-deep from the compiled CSS.
+ * The page still rendered -- the CTAs just went white-on-white.
+ *
+ * These are consumed by hand-written component CSS, never by Tailwind
+ * utilities, so :root is the correct home for them regardless. */
+:root {
+  /* ---- Neutrals ------------------------------------------------------- */
+  --color-canvas: #f7f6f3;
+  --color-ink: #14252a;
+  --color-slate: #5a6a6e;
+  --color-slate-inv: #9baeb2;
+  --color-line: #dde5e6;
+  --color-line-strong: #6e8f94;
+
+  /* ---- Group ---------------------------------------------------------- */
+  --color-teal: #15b7c6;
+  --color-teal-deep: #0e7a85;
+  --color-fascia-deep: #08747e;
+
+  /* ---- Per-unit accents.
+   * One axis of variation: hue only, ~9 deg apart, identical lightness, so the
+   * four read as variants of one thing. The DEEP step carries any words; the
+   * ACCENT step is surface and graphics only and never carries text. ------ */
+  --color-u1: #10bc98;
+  --color-u1-deep: #0a7861;
+  --color-u2: #12bab0;
+  --color-u2-deep: #0b7670;
+  --color-u3: #08b3c4;
+  --color-u3-deep: #057580;
+  --color-u4: #0c94c0;
+  --color-u4-deep: #097193;
+
+  --color-signal: #d62828;
+
+  /* ---- Type ----------------------------------------------------------- */
+  --font-display: "Archivo Variable", "Arimo", "Helvetica Neue", Arial, sans-serif;
+  --font-text: "Onest Variable", "Segoe UI", system-ui, sans-serif;
+}
+
+/* The empty band is the spine of the page. Its width is the one measurement
+ * every zone is built around, so it lives as a global custom property. */
+:root {
+  --band: 120px;
+  --gutter: 92px;
+  --content: 1256px;
+}
+
+@media (max-width: 1279px) {
+  :root { --band: 96px; --gutter: 48px; }
+}
+
+/* Below 900 the band rotates: the two physical units stack and the gap between
+ * them becomes horizontal. The band never degrades into a decorative stripe. */
+@media (max-width: 899px) {
+  :root { --band: 56px; --gutter: 24px; }
+}
+
+@media (max-width: 599px) {
+  :root { --band: 44px; --gutter: 20px; }
+}
+
+html {
+  scroll-behavior: auto; /* Faza 2 is motion-free by design. */
+}
+
+body {
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Tabular figures wherever a number is meant to be read as a measurement:
+ * opening hours, CUI, square metres, dates, the measured segment in zone 2. */
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+:where(a, button, [tabindex]):focus-visible {
+  outline: 3px solid var(--color-teal-deep);
+  outline-offset: 3px;
+  border-radius: 2px;
 }

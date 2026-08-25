@@ -1,0 +1,232 @@
+---
+import { TIMELINE, FACTS, MOLDOVA_OPERATOR } from '../lib/data';
+
+/**
+ * The two openings sit on the SAME axis, one below the other -- not alternating
+ * either side of it. In time their relation is descent, not opposition; facing
+ * each other is a relation of SPACE and lives in zones 1 and 4.
+ *
+ * The segment is exactly 379px tall at >=1280px: 1px = 1 day, a real and
+ * checkable mapping. The major mark at 365px is labelled "un an", so the eye
+ * sees unaided that the second store came 14 days after the first anniversary.
+ *
+ * The arc is closed and in the past tense: today is later than both dates.
+ */
+const monthPx = TIMELINE.days / 12.45; // ~30.4px, one month
+---
+
+<section class="zone2" aria-labelledby="z2-title">
+  <div class="zone2__inner">
+    <h2 class="zone2__title" id="z2-title">Doi ani, două magazine.</h2>
+
+    {/* The measured segment sits ON the band; the labels sit either side of it.
+        Nothing crosses the gap -- that is the one rule the whole page rests on. */}
+    <div class="zone2__axis" style={`--days: ${TIMELINE.days}px; --month: ${monthPx}px; --year: ${TIMELINE.yearMark}px;`}>
+      <ol class="zone2__events">
+        <li class="zone2__event zone2__event--first">
+          <span class="zone2__date tnum">{TIMELINE.first.label}</span>
+          <span class="zone2__unit">{TIMELINE.first.unit}</span>
+          <span class="zone2__note">Primul magazin fizic al grupului, în Snagov Plaza.</span>
+        </li>
+        <li class="zone2__event zone2__event--second">
+          <span class="zone2__date tnum">{TIMELINE.second.label}</span>
+          <span class="zone2__unit">{TIMELINE.second.unit}</span>
+          <span class="zone2__note">Peste 1.200 m², vizavi de primul.</span>
+        </li>
+      </ol>
+
+      <div class="zone2__rule" aria-hidden="true"></div>
+
+      <div class="zone2__marks">
+        <span class="zone2__span tnum">{TIMELINE.days} de zile</span>
+        <span class="zone2__year tnum">un an</span>
+      </div>
+    </div>
+
+    <dl class="zone2__facts">
+      {
+        FACTS.map((f) => (
+          <div class="zone2__fact">
+            <dt class="zone2__factValue tnum">{f.value}</dt>
+            <dd class="zone2__factLabel">{f.label}</dd>
+          </div>
+        ))
+      }
+    </dl>
+
+    {/* Sits on the same object as the count, not buried in the footer: the
+        "4 branduri" figure is qualified where it is stated. */}
+    <p class="zone2__legal">{MOLDOVA_OPERATOR}</p>
+  </div>
+</section>
+
+<style>
+  .zone2 {
+    position: relative;
+    padding-block: 4.5rem;
+    border-top: 1px solid var(--color-line);
+  }
+
+  .zone2__inner {
+    max-width: var(--content);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  .zone2__title {
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 1.1rem + 1.4vw, 2.25rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+  }
+
+  .zone2__axis {
+    position: relative;
+    margin-top: 2.5rem;
+    height: var(--days);
+    display: grid;
+    grid-template-columns: 1fr var(--band) 1fr;
+  }
+
+  .zone2__events {
+    list-style: none;
+    position: relative;
+  }
+
+  .zone2__event {
+    position: absolute;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    text-align: right;
+    max-width: 22rem;
+  }
+
+  .zone2__event--first {
+    top: 0;
+  }
+
+  .zone2__event--second {
+    bottom: 0;
+  }
+
+  .zone2__date {
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    font-weight: 600;
+  }
+
+  .zone2__unit {
+    font-size: 0.9375rem;
+    color: var(--color-teal-deep);
+  }
+
+  .zone2__note {
+    font-size: 0.875rem;
+    color: var(--color-slate);
+  }
+
+  /* 1px = 1 day. A real, checkable mapping, not a decorative rhythm. */
+  .zone2__rule {
+    position: relative;
+    justify-self: center;
+    width: 22px;
+    height: 100%;
+    background-image: repeating-linear-gradient(
+      to bottom,
+      var(--color-line-strong) 0 1px,
+      transparent 1px var(--month)
+    );
+  }
+
+  /* The major mark: one year. The eye sees unaided that the second store came
+   * 14 days after the first anniversary. */
+  .zone2__rule::after {
+    content: '';
+    position: absolute;
+    left: -7px;
+    top: var(--year);
+    width: 36px;
+    height: 2px;
+    background-color: var(--color-ink);
+  }
+
+  .zone2__marks {
+    position: relative;
+  }
+
+  .zone2__span {
+    position: absolute;
+    top: 0;
+    left: 0;
+    font-size: 0.8125rem;
+    color: var(--color-slate);
+  }
+
+  .zone2__year {
+    position: absolute;
+    top: calc(var(--year) - 0.65em);
+    left: 0;
+    font-size: 0.8125rem;
+    font-weight: 600;
+  }
+
+  .zone2__facts {
+    margin-top: 3rem;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    border-top: 1px solid var(--color-line);
+    padding-top: 1.5rem;
+  }
+
+  .zone2__factValue {
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .zone2__factLabel {
+    margin-top: 0.125rem;
+    font-size: 0.875rem;
+    color: var(--color-slate);
+  }
+
+  .zone2__legal {
+    margin-top: 1.25rem;
+    font-size: 0.8125rem;
+    color: var(--color-slate);
+  }
+
+  @media (max-width: 899px) {
+    /* Half scale, and the scale label says so rather than silently lying
+     * about 1px = 1 day. */
+    .zone2__axis {
+      height: calc(var(--days) / 2);
+      grid-template-columns: 1fr 44px;
+    }
+    .zone2__rule {
+      background-image: repeating-linear-gradient(
+        to bottom,
+        var(--color-line-strong) 0 1px,
+        transparent 1px calc(var(--month) / 2)
+      );
+    }
+    .zone2__rule::after {
+      top: calc(var(--year) / 2);
+    }
+    .zone2__marks {
+      display: none;
+    }
+    .zone2__event {
+      max-width: none;
+      padding-right: 1rem;
+    }
+    .zone2__facts {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+</style>

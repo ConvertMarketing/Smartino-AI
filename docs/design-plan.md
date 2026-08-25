@@ -221,28 +221,41 @@ Complet, nu parțial — direcția inițială acoperea lumina, wipe-ul și punct
 
 Afirmațiile numerice de mai sus au fost recalculate din surse, nu preluate pe încredere.
 
-| Afirmație | Recalculat | Verdict |
+### Contrast — întreaga paletă finală
+
+| Pereche | Calculat | Prag | |
+|---|---|---|---|
+| Ink pe Canvas | 14,63:1 | 4,5 | ✅ |
+| Slate pe Canvas | 5,22:1 | 4,5 | ✅ |
+| Teal Deep pe Canvas | 4,69:1 | 4,5 | ✅ |
+| Alb pe Teal Deep | 5,07:1 | 4,5 | ✅ |
+| Alb pe Fascia Deep `#08747E` | 5,51:1 | 4,5 | ✅ |
+| **Line Strong `#6E8F94` pe Canvas** | **3,23:1** | 3,0 | ✅ |
+| Slate Inversat pe Ink | 6,85:1 | 4,5 | ✅ |
+| Alb pe Ink | 15,82:1 | 4,5 | ✅ |
+| Deep Supermarket pe Canvas | 5,02:1 | 4,5 | ✅ |
+| Deep Home pe Canvas | 5,06:1 | 4,5 | ✅ |
+| Deep Shop pe Canvas | 5,03:1 | 4,5 | ✅ |
+| Deep Moldova pe Canvas | 5,12:1 | 4,5 | ✅ |
+| Signal pe Canvas | 4,63:1 | 4,5 | ✅ |
+
+**Toată paleta trece.** Cea mai strânsă marjă e Signal, la 4,63:1 — rezervă de 0,13.
+
+### Alte afirmații
+
+| Afirmație | Recalculat | |
 |---|---|---|
 | Buton alb pe `#00bbc5` (shop, în producție) = 2,36:1 | 2,36:1 | ✅ |
 | Buton alb pe `#15b7c6` (home, în producție) = 2,44:1 | 2,44:1 | ✅ |
 | Buton alb pe `#67bac4` (md, în producție) = 2,23:1 | 2,23:1 | ✅ |
-| Alb pe `Teal Deep #0E7D88` = trece AA | 4,88:1 | ✅ |
-| Alb pe capătul deschis al fasciei `#08747E` = 5,51:1 | 5,51:1 | ✅ |
-| GSAP+ScrollTrigger+Lenis = 49,4 KB gzip | 50.625 B | ✅ |
+| GSAP + ScrollTrigger + Lenis = 49,4 KB gzip | 50.625 B | ✅ |
 | 11 iul 2025 → 25 iul 2026 = 379 zile | 379 | ✅ |
 | Buget vertical hero = 761 px ≤ 780 | 761 (slack 19 px) | ✅ |
-| **`Line Strong #749499` pe Canvas = 3,23:1** | **3,02:1** | ❌ **corectat** |
 
-### Corecție — token `Line Strong`
+### Notă despre tokenul `Line Strong`
 
-`#749499` dă 3,23:1 **pe alb**, dar fundalul sistemului este `Canvas #F7F6F3`, unde scade
-la **3,02:1** — cu 0,02 peste pragul WCAG de 3:1 pentru contrast non-text.
-
-Tokenul poartă conturul de 2 px al cardului Supermarket (întregul argument „desenat, nu umplut")
-și bordurile de câmp de formular. O marjă de 0,02 nu supraviețuiește niciunei ajustări
-ulterioare de fundal.
-
-**Valoare corectată: `#6b888d`** — 3,51:1 pe Canvas, 3,80:1 pe alb. Aceeași nuanță,
-luminozitate coborâtă până la o marjă utilizabilă.
-
-> TODO(faza-2): folosește `#6b888d` pentru `--color-line-strong`, nu `#749499`.
+O versiune anterioară a acestui document semnala o eroare de contrast la `Line Strong`.
+Semnalarea era greșită și a fost retrasă: se referea la `#749499`, valoarea propusă în
+sinteza cromatică intermediară, care într-adevăr dă doar 3,02:1 pe Canvas. Planul final
+folosește `#6E8F94`, care dă 3,23:1 și trece confortabil. **Valoarea corectă de
+implementat este `#6E8F94`.**

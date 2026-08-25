@@ -1,0 +1,55 @@
+---
+/**
+ * The empty band -- the spine the whole page is built on.
+ *
+ * It never receives content. That emptiness is the point, so it is read by
+ * three signals that all clear the perception threshold: it is flanked by
+ * bordered blocks, it carries measure marks in Line Strong at 3.23:1, and
+ * nothing ever sits in it. It is decorative to assistive tech.
+ *
+ * Below 900px the gap rotates into the horizontal space between the stacked
+ * physical units, so this vertical segment stops rendering there.
+ */
+interface Props {
+  /** Moldova's section deliberately has no marks: the missing measure is how
+   *  the distinct legal status becomes a spatial fact rather than a footnote. */
+  marks?: boolean;
+  class?: string;
+}
+const { marks = true, class: className } = Astro.props;
+---
+
+<div class:list={['band', className]} data-marks={String(marks)} aria-hidden="true"></div>
+
+<style>
+  .band {
+    position: absolute;
+    inset-block: 0;
+    left: 50%;
+    width: var(--band);
+    margin-left: calc(var(--band) / -2);
+    pointer-events: none;
+  }
+
+  /* Short centred ticks, one per ~32px. They carry information -- in zone 2 the
+   * same rhythm becomes the scale the 379 days are measured on. */
+  .band[data-marks='true']::before {
+    content: '';
+    position: absolute;
+    inset-block: 0;
+    left: 50%;
+    width: 22px;
+    margin-left: -11px;
+    background-image: repeating-linear-gradient(
+      to bottom,
+      var(--color-line-strong) 0 1px,
+      transparent 1px 32px
+    );
+  }
+
+  @media (max-width: 899px) {
+    .band {
+      display: none;
+    }
+  }
+</style>
