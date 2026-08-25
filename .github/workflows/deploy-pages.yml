@@ -58,6 +58,10 @@ jobs:
   deploy:
     name: Deploy
     needs: build
+    # Only the default branch publishes. Pushes to a working branch still run
+    # the build job above as a CI gate, but must not overwrite the live site --
+    # and the github-pages environment restricts deployments to main anyway.
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
