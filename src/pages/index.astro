@@ -1,0 +1,101 @@
+---
+/**
+ * TEMPORARY HOLDING PAGE.
+ *
+ * Its only job is to prove the GitHub Pages pipeline works end to end.
+ * It deliberately uses a neutral palette so it does not pre-empt the design
+ * direction, which is decided in Faza 1 after the brand audit.
+ *
+ * This whole file is replaced in Faza 2.
+ */
+import '../styles/global.css';
+import { withBase } from '../lib/paths';
+
+const buildStamp = new Date().toISOString().replace('T', ' ').slice(0, 16) + ' UTC';
+
+// Verified data only — see brief section 1. Nothing here is invented.
+const brands = [
+  { name: 'Smartino Shop', href: 'https://smartinoshop.ro', note: 'Îngrijire, igienă, curățenie' },
+  { name: 'Smartino Home', href: 'https://smartinohome.ro', note: 'Home & deco, mobilier, grădină' },
+  { name: 'Smartino Supermarket', href: null, note: 'Magazin fizic — Snagov Plaza' },
+  { name: 'Smartino Moldova', href: 'https://smartino.md', note: 'Republica Moldova' },
+];
+---
+
+<!doctype html>
+<html lang="ro">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Smartino International — în construcție</title>
+    <meta
+      name="description"
+      content="Smartino International SRL — grup cu patru direcții de retail. Site în construcție."
+    />
+    <link rel="icon" href={withBase('/favicon.svg')} type="image/svg+xml" />
+  </head>
+
+  <body class="min-h-dvh bg-neutral-950 text-neutral-100 antialiased [font-family:var(--font-placeholder)]">
+    <main class="mx-auto flex min-h-dvh max-w-3xl flex-col justify-between px-6 py-12 sm:px-10 sm:py-16">
+      <header>
+        <p class="text-[0.7rem] font-medium uppercase tracking-[0.3em] text-neutral-500">
+          Site în construcție
+        </p>
+        <h1 class="mt-6 text-4xl font-semibold leading-[1.05] tracking-tight sm:text-6xl">
+          Smartino<br /><span class="text-neutral-400">International</span>
+        </h1>
+        <p class="mt-6 max-w-md text-base leading-relaxed text-neutral-400">
+          Un grup cu patru direcții. Pagina completă este în lucru — până atunci,
+          magazinele funcționează normal.
+        </p>
+      </header>
+
+      <section class="my-14" aria-label="Brandurile grupului">
+        <ul class="divide-y divide-neutral-800 border-y border-neutral-800">
+          {
+            brands.map((brand) => (
+              <li>
+                {brand.href ? (
+                  <a
+                    href={brand.href}
+                    rel="noopener"
+                    class="group flex items-baseline justify-between gap-4 py-4 transition-colors hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-neutral-400"
+                    aria-label={`${brand.name} — deschide ${brand.href}`}
+                  >
+                    <span class="text-lg font-medium">{brand.name}</span>
+                    <span class="hidden flex-1 border-b border-dashed border-neutral-800 sm:block" />
+                    <span class="text-sm text-neutral-500 group-hover:text-neutral-300">
+                      {brand.note}
+                    </span>
+                  </a>
+                ) : (
+                  <div class="flex items-baseline justify-between gap-4 py-4 text-neutral-400">
+                    <span class="text-lg font-medium">{brand.name}</span>
+                    <span class="hidden flex-1 border-b border-dashed border-neutral-800 sm:block" />
+                    <span class="text-sm text-neutral-500">{brand.note}</span>
+                  </div>
+                )}
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+
+      <footer class="text-sm leading-relaxed text-neutral-500">
+        <p class="text-neutral-400">SMARTINO INTERNATIONAL SRL — CUI RO37843488</p>
+        <p class="mt-1">
+          Snagov Plaza, Șoseaua București–Ploiești DN-1, 075100 Tâncăbești, jud. Ilfov
+        </p>
+        <p class="mt-1">
+          <a class="hover:text-neutral-300" href="tel:+40755210121">+40 755 210 121</a>
+          <span aria-hidden="true"> · </span>
+          <a class="hover:text-neutral-300" href="mailto:contact@smartinohome.ro">
+            contact@smartinohome.ro
+          </a>
+        </p>
+        <p class="mt-6 text-xs text-neutral-700">Build: {buildStamp}</p>
+      </footer>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,11 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens are intentionally empty for now.
+ * They get filled in after the Faza 1 brand audit extracts the real Smartino
+ * palette from smartinoshop.ro / smartinohome.ro / smartino.md.
+ * TODO(faza-1): define --color-* and --font-* tokens here.
+ */
+@theme {
+  --font-placeholder: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
