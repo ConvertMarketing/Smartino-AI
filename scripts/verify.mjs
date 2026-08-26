@@ -40,6 +40,10 @@ function findChromium() {
     for (const dir of fs.readdirSync(root)) {
       if (!/^chromium/.test(dir)) continue;
       for (const rel of [
+        // Chrome-for-Testing layout (playwright >= 1.6x downloads)
+        'chrome-linux64/chrome',
+        'chrome-headless-shell-linux64/chrome-headless-shell',
+        // older playwright build layout (the /opt/pw-browsers preinstall)
         'chrome-linux/chrome',
         'chrome-linux/headless_shell',
         'chrome-mac/Chromium.app/Contents/MacOS/Chromium',
