@@ -33,7 +33,7 @@
 
   /* ---- Ground --------------------------------------------------------- */
   --white: #ffffff;
-  --paper: #f4f6f7;    /* light section alternate */
+  --paper: #f6f3ed;    /* warm editorial paper; ink 17.4:1, t-deep 4.64:1 */
   --ink: #0b0f10;      /* near-black: the dark ground */
   --ink-2: #14191b;    /* dark section alternate */
 
@@ -227,103 +227,6 @@ body {
   }
 }
 
-
-/* ---------------------------------------------------------------------------
- * The entrance curtain
- *
- * Timeline, all CSS: the wordmark rises and spaces out, then the two halves
- * pull apart along the band's axis and the page is simply there. site.ts drops
- * [data-intro] at the end; the pre-paint script never arms it for repeat
- * visits or reduced motion.
- * ------------------------------------------------------------------------ */
-.intro {
-  display: none;
-}
-
-html[data-intro] {
-  overflow: hidden;
-}
-
-html[data-intro] .intro {
-  display: grid;
-  place-content: center;
-  position: fixed;
-  inset: 0;
-  z-index: 60;
-  text-align: center;
-}
-
-.intro__half {
-  position: absolute;
-  inset-block: 0;
-  width: 50.2%;
-  background-color: var(--ink);
-  background-image: radial-gradient(120% 100% at 50% 0%, rgba(19, 180, 198, 0.16), transparent 60%);
-  animation: intro-split 620ms var(--ease-in-out) 1150ms forwards;
-}
-
-.intro__half--l {
-  left: 0;
-  transform-origin: left center;
-}
-
-.intro__half--r {
-  right: 0;
-  transform-origin: right center;
-}
-
-@keyframes intro-split {
-  to {
-    transform: scaleX(0);
-  }
-}
-
-.intro__mark {
-  position: relative;
-  font-family: var(--font-display);
-  font-size: clamp(2.2rem, 7vw, 5.5rem);
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  color: var(--fg-inv);
-  opacity: 0;
-  animation:
-    intro-mark 900ms var(--ease-out) 120ms forwards,
-    intro-out 300ms var(--ease-out) 1100ms forwards;
-}
-
-.intro__sub {
-  position: relative;
-  margin-top: 0.4rem;
-  font-family: var(--font-display);
-  font-size: clamp(0.7rem, 1.6vw, 1rem);
-  font-weight: 600;
-  letter-spacing: 0.55em;
-  text-indent: 0.55em;
-  color: var(--t-glow);
-  opacity: 0;
-  animation:
-    intro-mark 900ms var(--ease-out) 320ms forwards,
-    intro-out 300ms var(--ease-out) 1100ms forwards;
-}
-
-@keyframes intro-mark {
-  from {
-    opacity: 0;
-    transform: translateY(26px);
-    letter-spacing: 0.02em;
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-@keyframes intro-out {
-  to {
-    opacity: 0;
-    transform: translateY(-18px);
-  }
-}
 
 /* ---------------------------------------------------------------------------
  * Word-mask reveals for headings ([data-animate="words"])

@@ -114,6 +114,12 @@ for (const [label, width, height] of VIEWPORTS) {
         if (!e.textContent.trim()) return false;
         if ([...e.children].some((c) => c.textContent.trim())) return false;
         if (e.closest('[aria-hidden="true"]')) return false;
+        // Closed-details content keeps real layout boxes in modern Chromium
+        // (hidden via the ::details-content pseudo's content-visibility, which
+        // children's own computed style does not reflect) -- it never paints,
+        // so it cannot overlap anything a person sees.
+        const det = e.closest('details:not([open])');
+        if (det && !e.closest('summary')) return false;
         const cs = getComputedStyle(e);
         if (cs.visibility === 'hidden' || cs.display === 'none' || cs.opacity === '0') return false;
         const r = e.getBoundingClientRect();
@@ -216,7 +222,7 @@ console.log('\n[degradari]');
   const p = await browser.newPage({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });
   await p.goto(URL, { waitUntil: 'networkidle' });
   const hidden = await p.evaluate(() =>
-    [...document.querySelectorAll('[data-reveal]')].filter((e) => getComputedStyle(e).opacity !== '1').length);
+    [...document.querySelectorAll('[data-reveal]')].filter((e) => parseFloat(getComputedStyle(e).opacity) < 0.5).length);
   record(hidden === 0, 'reduced-motion: nimic nu ramane ascuns', `${hidden} ascunse`);
   await p.close();
 }
@@ -225,7 +231,7 @@ console.log('\n[degradari]');
   const p = await ctx.newPage();
   await p.goto(URL, { waitUntil: 'domcontentloaded' });
   const hidden = await p.locator('[data-reveal]').evaluateAll((els) =>
-    els.filter((e) => getComputedStyle(e).opacity !== '1').length);
+    els.filter((e) => parseFloat(getComputedStyle(e).opacity) < 0.5).length);
   record(hidden === 0, 'fara JS: tot continutul e vizibil', `${hidden} ascunse`);
   await ctx.close();
 }

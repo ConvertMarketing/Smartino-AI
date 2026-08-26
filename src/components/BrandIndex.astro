@@ -1,0 +1,339 @@
+---
+import { Image } from 'astro:assets';
+import terasa from '../assets/photos/gradina-terasa.jpg';
+import familie from '../assets/photos/familie-lounge.jpg';
+import salvie from '../assets/textures/salvie.jpg';
+import textil from '../assets/textures/textil.jpg';
+import { UNITS, SUPERMARKET_HOURS, MOLDOVA_OPERATOR } from '../lib/data';
+
+/**
+ * The four directions as a giant editorial index. Each row is a native
+ * <details>: the huge name is the summary, and opening it reveals what the
+ * unit sells, its exit, and (for the one store without a site) its hours.
+ * A floating image chip follows the pointer along the list -- pointer-only,
+ * decorative, and absent for touch and reduced motion.
+ */
+const CHIP: Record<string, ImageMetadata> = {
+  u1: textil,
+  u2: familie,
+  u3: salvie,
+  u4: terasa,
+};
+---
+
+<section class="bx" aria-labelledby="bx-title" data-chips>
+  <div class="bx__inner">
+    <h2 class="bx__kicker" id="bx-title" data-reveal>Direcțiile</h2>
+
+    {
+      UNITS.map((unit, i) => (
+        <details class="bx__row" data-reveal style={`--i: ${i + 1}`}>
+          <summary class="bx__summary">
+            <span class="bx__n tnum">{unit.index}</span>
+            <span class="bx__name">{unit.name.replace('Smartino ', '')}</span>
+            <span class="bx__meta">{unit.presence}</span>
+            <span class="bx__plus" aria-hidden="true"></span>
+            <span class="bx__chip" aria-hidden="true">
+              <Image src={CHIP[unit.token]} alt="" widths={[420]} sizes="220px" loading="lazy" />
+            </span>
+          </summary>
+
+          <div class="bx__body">
+            <div class="bx__col">
+              {unit.slogan && <p class="bx__slogan">{unit.slogan}</p>}
+              <p class="bx__summaryText">{unit.summary}</p>
+              {unit.token === 'u4' && <p class="bx__legal">{MOLDOVA_OPERATOR}</p>}
+            </div>
+
+            <ul class="bx__cats">
+              {unit.categories.slice(0, 4).map((c) => (
+                <li>{c}</li>
+              ))}
+            </ul>
+
+            <div class="bx__exit">
+              {unit.token === 'u1' && (
+                <table class="bx__hours tnum">
+                  <tbody>
+                    {SUPERMARKET_HOURS.map((h) => (
+                      <tr>
+                        <th scope="row">{h.days}</th>
+                        <td>{h.open}–{h.close}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+              {unit.href ? (
+                <a class:list={['bx__cta', { 'bx__cta--outlined': unit.token === 'u4' }]} href={unit.href} rel="noopener" data-magnet>
+                  {unit.domain} <span aria-hidden="true">{'↗︎'}</span>
+                </a>
+              ) : (
+                <a class="bx__cta bx__cta--ghost" href="#snagov-plaza" data-magnet>
+                  Vezi adresa <span aria-hidden="true">{'↓︎'}</span>
+                </a>
+              )}
+            </div>
+          </div>
+        </details>
+      ))
+    }
+  </div>
+</section>
+
+<style>
+  .bx {
+    background-color: var(--paper);
+    color: var(--fg);
+    padding-block: 1rem clamp(5rem, 11vh, 8rem);
+  }
+
+  .bx__inner {
+    max-width: var(--content);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  .bx__kicker {
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--t-deep);
+    margin-bottom: 1.25rem;
+  }
+
+  .bx__row {
+    border-top: 1px solid rgba(11, 15, 16, 0.16);
+  }
+
+  .bx__row:last-of-type {
+    border-bottom: 1px solid rgba(11, 15, 16, 0.16);
+  }
+
+  .bx__summary {
+    position: relative;
+    display: grid;
+    grid-template-columns: 3.5rem 1fr auto 2.5rem;
+    align-items: baseline;
+    gap: 1rem;
+    padding-block: clamp(1.25rem, 3.4vh, 2.25rem);
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .bx__summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .bx__n {
+    font-family: var(--font-display);
+    font-size: 0.8125rem;
+    font-weight: 800;
+    letter-spacing: 0.2em;
+    color: var(--t-deep);
+  }
+
+  /* The name is the typography of the section: enormous, tight, alive. */
+  .bx__name {
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 1.2rem + 6.2vw, 6rem);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -0.035em;
+    transition:
+      transform var(--d-micro) var(--ease-out),
+      color var(--d-micro) var(--ease-out);
+  }
+
+  .bx__summary:hover .bx__name {
+    transform: translateX(0.75rem);
+    color: var(--t-deep);
+  }
+
+  .bx__meta {
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--fg-2);
+  }
+
+  /* plus -> minus, drawn */
+  .bx__plus {
+    position: relative;
+    justify-self: end;
+    align-self: center;
+    width: 1.375rem;
+    height: 1.375rem;
+  }
+
+  .bx__plus::before,
+  .bx__plus::after {
+    content: '';
+    position: absolute;
+    inset: 50% auto auto 50%;
+    background-color: var(--fg);
+    transition: transform var(--d-micro) var(--ease-out);
+  }
+
+  .bx__plus::before {
+    width: 100%;
+    height: 2px;
+    transform: translate(-50%, -50%);
+  }
+
+  .bx__plus::after {
+    width: 2px;
+    height: 100%;
+    transform: translate(-50%, -50%);
+  }
+
+  .bx__row[open] .bx__plus::after {
+    transform: translate(-50%, -50%) rotate(90deg) scaleY(0);
+  }
+
+  /* The floating chip follows --cx/--cy set on the section by site.ts. */
+  .bx__chip {
+    position: fixed;
+    left: var(--cx, -300px);
+    top: var(--cy, -300px);
+    width: 220px;
+    aspect-ratio: 4 / 3;
+    border-radius: 14px;
+    overflow: hidden;
+    transform: translate(1.5rem, -50%) rotate(3deg) scale(0);
+    transition: transform 300ms var(--ease-out);
+    pointer-events: none;
+    z-index: 20;
+    box-shadow: var(--lift-2);
+  }
+
+  .bx__chip img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .bx__summary:hover .bx__chip {
+      transform: translate(1.5rem, -50%) rotate(3deg) scale(1);
+    }
+  }
+
+  .bx__body {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) auto;
+    gap: 2.5rem;
+    padding-bottom: clamp(1.75rem, 4vh, 2.75rem);
+  }
+
+  .bx__slogan {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--t-deep);
+  }
+
+  .bx__summaryText {
+    margin-top: 0.625rem;
+    max-width: 30rem;
+    line-height: 1.65;
+    color: var(--fg-2);
+  }
+
+  .bx__legal {
+    margin-top: 0.75rem;
+    font-size: 0.8125rem;
+    color: var(--fg-2);
+  }
+
+  .bx__cats {
+    list-style: none;
+    align-self: start;
+    display: grid;
+    gap: 0.375rem;
+  }
+
+  .bx__cats li {
+    padding-block: 0.45rem;
+    border-bottom: 1px solid rgba(11, 15, 16, 0.1);
+    font-size: 0.9375rem;
+  }
+
+  .bx__exit {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 1rem;
+  }
+
+  .bx__hours {
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+
+  .bx__hours th,
+  .bx__hours td {
+    text-align: left;
+    font-weight: 400;
+    padding: 0.25rem 0;
+  }
+
+  .bx__hours th {
+    padding-right: 1.25rem;
+    color: var(--fg-2);
+  }
+
+  .bx__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.8125rem 1.375rem;
+    border-radius: 999px;
+    background-color: var(--ink);
+    color: var(--t-glow);
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 0.9375rem;
+    text-decoration: none;
+    box-shadow: var(--lift-1);
+  }
+
+  .bx__cta--outlined {
+    background-color: transparent;
+    color: var(--t-deep);
+    border: 2px solid var(--t-deep);
+    box-shadow: none;
+  }
+
+  .bx__cta--ghost {
+    background-color: transparent;
+    color: var(--fg);
+    border: 1px solid rgba(11, 15, 16, 0.35);
+    box-shadow: none;
+  }
+
+  @media (max-width: 899px) {
+    .bx__summary {
+      grid-template-columns: 2.25rem 1fr 2rem;
+    }
+
+    .bx__meta {
+      display: none;
+    }
+
+    .bx__chip {
+      display: none;
+    }
+
+    .bx__body {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    .bx__exit {
+      align-items: flex-start;
+    }
+  }
+</style>

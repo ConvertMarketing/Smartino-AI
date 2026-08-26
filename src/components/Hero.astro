@@ -1,185 +1,265 @@
 ---
-import Fascia from './Fascia.astro';
-import { UNITS, SUPERMARKET_HOURS } from '../lib/data';
+import { Image } from 'astro:assets';
+import terasa from '../assets/photos/gradina-terasa.jpg';
+import { COMPANY, SUPERMARKET_HOURS } from '../lib/data';
 
 /**
- * The hero as a poster, not a dashboard.
+ * The hero IS the concept, in one gesture: two worlds facing each other across
+ * a seam you can drag. Left, the daily-needs world of the first store, drawn
+ * in flat brand turquoise with its aisle lines; right, the home world of the
+ * second, in real photography from the group's own campaign. The wordmark
+ * sits astride the seam, belonging to both.
  *
- * One enormous statement over the 3D scene, everything else reduced to a thin
- * brand index along the bottom. The cards' information is not lost -- every
- * unit has its full section below; up here the four directions are exactly
- * four lines. The response interaction survives on the index: hovering 01
- * makes 02 answer (and the 3D building flare with it), because those two are
- * the only pair that actually faces across anything.
+ * The seam is a real <input type="range">, full-bleed and invisible, so
+ * dragging, touch and arrow keys all come free from the platform. Without JS
+ * the split simply rests at half.
  */
-const [supermarket, home, shop, moldova] = UNITS;
 const hoursShort = SUPERMARKET_HOURS.map((h) => `${h.open}–${h.close}`).join(' · ');
-
-const index = [
-  { unit: supermarket, dataUnit: '01', href: '#snagov-plaza', meta: 'schedule', arrow: '\u2193\uFE0E' },
-  { unit: home, dataUnit: '02', href: home.href!, meta: home.domain!, arrow: '\u2197\uFE0E' },
-  { unit: shop, dataUnit: null, href: shop.href!, meta: shop.domain!, arrow: '\u2197\uFE0E' },
-  { unit: moldova, dataUnit: null, href: moldova.href!, meta: moldova.domain!, arrow: '\u2197\uFE0E' },
-];
 ---
 
-<div class="top">
-  {/* The motion behind everything: two large turquoise fields drifting on
-      70s/55s loops. Transform-only, aria-hidden, killed under reduced motion. */}
-  <div class="top__glow top__glow--a" aria-hidden="true"></div>
-  <div class="top__glow top__glow--b" aria-hidden="true"></div>
+<header class="fascia">
+  <span class="fascia__mark">SMARTINO</span>
+  <span class="fascia__where">{COMPANY.address.oneLine}</span>
+</header>
 
-  {/* The Three.js VIZAVI scene mounts here, lazily, behind everything.
-      Without JS or under reduced motion the glows above are the whole floor. */}
-  <div class="top__scene" data-scene aria-hidden="true"></div>
+<section class="split" id="continut" data-split>
+  {/* Right world: home. Sits underneath, full-bleed. */}
+  <div class="split__world split__world--home" aria-hidden="true">
+    <Image
+      class="split__photo"
+      src={terasa}
+      alt=""
+      widths={[768, 1280, 1920]}
+      sizes="100vw"
+      loading="eager"
+      fetchpriority="high"
+    />
+    <span class="split__scrim"></span>
+    <p class="split__tag split__tag--right tnum">2026 · Smartino Home · 1.200 m²</p>
+  </div>
 
-  <Fascia />
+  {/* Left world: daily needs. Clipped by the seam. */}
+  <div class="split__world split__world--daily" aria-hidden="true">
+    <span class="split__aisle"></span>
+    <p class="split__tag split__tag--left tnum">2025 · Smartino Supermarket · {hoursShort}</p>
+  </div>
 
-  <section class="hero" id="continut">
-    <div class="hero__inner">
-      <div class="hero__statement">
-        <p class="hero__over" data-reveal>Smartino International · Snagov Plaza</p>
+  {/* The seam itself. */}
+  <span class="seam" aria-hidden="true">
+    <span class="seam__grip">
+      <span class="seam__chev">‹</span><span class="seam__chev">›</span>
+    </span>
+  </span>
 
-        <h1 class="hero__title" data-animate="lines">
-          <span class="line"><span class="line__in">Un grup crescut</span></span>
-          <span class="line"><span class="line__in line__in--grad">dintr-un singur magazin.</span></span>
-        </h1>
+  <input
+    class="seam__input"
+    type="range"
+    min="16"
+    max="84"
+    value="50"
+    step="1"
+    aria-label="Trage cusătura dintre cele două magazine"
+  />
 
-        <p class="hero__deck" data-reveal style="--i: 2">
-          Două magazine față în față pe DN-1, două cataloage online, două țări.
-        </p>
-      </div>
+  {/* The statement, astride the seam. */}
+  <div class="split__statement">
+    <h1 class="split__title" data-animate="lines">
+      <span class="line"><span class="line__in">SMARTINO</span></span>
+    </h1>
+    <p class="split__sub" data-reveal>INTERNATIONAL</p>
+    <p class="split__line" data-reveal style="--i: 1">
+      Două magazine față în față. Un singur grup.
+    </p>
+  </div>
 
-      {/* The brand index: four directions, four lines. */}
-      <nav class="hx" aria-label="Direcțiile grupului" data-rows data-reveal style="--i: 3">
-        {
-          index.map((row, i) => (
-            <a
-              class="hx__item"
-              href={row.href}
-              data-unit={row.dataUnit}
-              style={`--hxi: ${i}`}
-              {...row.href.startsWith('http') ? { rel: 'noopener' } : {}}
-              aria-label={
-                row.href.startsWith('http')
-                  ? `${row.unit.name} — deschide ${row.meta}`
-                  : `${row.unit.name} — vezi adresa și programul`
-              }
-            >
-              <span class="hx__n tnum">{row.unit.index}</span>
-              <span class="hx__name">{row.unit.name.replace('Smartino ', '')}</span>
-              <span class="hx__meta tnum" {...row.meta === 'schedule' ? { 'data-schedule': '' } : {}}>
-                {row.meta === 'schedule' ? hoursShort : row.meta}
-              </span>
-              <span class="hx__arrow" aria-hidden="true">{row.arrow}</span>
-            </a>
-          ))
-        }
-      </nav>
-    </div>
-
-    {/* The scroll cue sits on the band's axis. */}
-    <a class="hero__cue" href="#povestea" aria-label="Derulează la poveste">
-      <span class="hero__cueLine" aria-hidden="true"></span>
-      <span class="hero__cueText">povestea</span>
-    </a>
-  </section>
-</div>
+  <a class="split__cue" href="#povestea" aria-label="Derulează la poveste">
+    <span class="split__cueLine" aria-hidden="true"></span>
+    <span class="split__cueText">povestea</span>
+  </a>
+</section>
 
 <style>
-  .top {
-    position: relative;
-    background-color: var(--ink);
-    background-image:
-      radial-gradient(120% 85% at 18% 0%, rgba(19, 180, 198, 0.34) 0%, transparent 62%),
-      radial-gradient(90% 70% at 92% 26%, rgba(75, 216, 232, 0.18) 0%, transparent 58%),
-      linear-gradient(180deg, transparent 55%, rgba(10, 91, 101, 0.5) 100%);
-    color: var(--fg-inv);
-    overflow: hidden;
-  }
-
-  .top__glow {
+  .fascia {
     position: absolute;
-    border-radius: 999px;
-    pointer-events: none;
+    inset-inline: 0;
+    top: 0;
+    z-index: 5;
+    /* its own scrim: the bar must stay legible over any photo underneath,
+     * not borrow legibility from whatever happens to be there */
+    background-image: linear-gradient(180deg, rgba(11, 15, 16, 0.55), transparent);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 64px;
+    padding-inline: var(--gutter);
+    color: var(--fg-inv);
   }
 
-  .top__glow--a {
-    top: -18%;
-    left: -12%;
-    width: 68vw;
-    height: 68vw;
-    background-image: radial-gradient(closest-side, rgba(19, 180, 198, 0.42), transparent 70%);
-    animation: drift-a 70s ease-in-out infinite alternate;
+  .fascia__mark {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1rem;
+    letter-spacing: 0.16em;
   }
 
-  .top__glow--b {
-    top: 18%;
-    right: -16%;
-    width: 55vw;
-    height: 55vw;
-    background-image: radial-gradient(closest-side, rgba(75, 216, 232, 0.26), transparent 72%);
-    animation: drift-b 55s ease-in-out infinite alternate;
+  .fascia__where {
+    font-size: 0.6875rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-align: right;
+    opacity: 0.85;
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .top__glow {
-      animation: none;
-    }
+  .split {
+    position: relative;
+    height: 100dvh;
+    min-height: 560px;
+    overflow: hidden;
+    background-color: var(--ink);
+    --split: 50%;
   }
 
-  .top__scene {
+  .split__world {
     position: absolute;
     inset: 0;
-    pointer-events: none;
-    mask-image: linear-gradient(180deg, black 68%, transparent 98%);
   }
 
-  .hero {
-    position: relative;
-    min-height: calc(100dvh - 72px);
-    display: flex;
-    flex-direction: column;
-  }
-
-  .hero__inner {
-    position: relative;
-    z-index: 1;
-    flex: 1;
+  .split__photo {
     width: 100%;
-    max-width: var(--content);
-    margin-inline: auto;
-    padding-inline: var(--gutter);
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding-block: clamp(2rem, 6vh, 4.5rem) clamp(4rem, 9vh, 6.5rem);
+    height: 100%;
+    object-fit: cover;
   }
 
-  .hero__over {
+  .split__scrim {
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(180deg, rgba(11, 15, 16, 0.42), rgba(11, 15, 16, 0.12) 45%, rgba(11, 15, 16, 0.5));
+  }
+
+  /* The daily world: flat brand turquoise, aisle lines running to the seam. */
+  .split__world--daily {
+    background-color: var(--t);
+    background-image:
+      repeating-linear-gradient(100deg, rgba(11, 15, 16, 0.16) 0 2px, transparent 2px 64px),
+      repeating-linear-gradient(80deg, rgba(255, 255, 255, 0.14) 0 1px, transparent 1px 44px),
+      linear-gradient(115deg, var(--t-glow), var(--t) 55%, var(--t-floor));
+    clip-path: inset(0 calc(100% - var(--split)) 0 0);
+    will-change: clip-path;
+  }
+
+  .split__tag {
+    position: absolute;
+    bottom: 5.5rem;
     font-family: var(--font-display);
     font-size: 0.75rem;
     font-weight: 700;
-    letter-spacing: 0.32em;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: var(--t);
   }
 
-  /* The poster. Big enough to be the hero on its own. */
-  .hero__title {
-    margin-top: 1.25rem;
+  .split__tag--left {
+    left: var(--gutter);
+    color: var(--ink);
+  }
+
+  .split__tag--right {
+    right: var(--gutter);
+    color: var(--fg-inv);
+    text-shadow: 0 1px 8px rgba(11, 15, 16, 0.7);
+  }
+
+  /* ---- the seam --------------------------------------------------------- */
+  .seam {
+    position: absolute;
+    inset-block: 0;
+    left: var(--split);
+    width: 2px;
+    margin-left: -1px;
+    background-color: var(--paper);
+    box-shadow: 0 0 24px rgba(75, 216, 232, 0.6);
+    pointer-events: none;
+    z-index: 3;
+  }
+
+  .seam__grip {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 999px;
+    background-color: var(--paper);
+    color: var(--ink);
     font-family: var(--font-display);
-    font-size: clamp(2.75rem, 1rem + 7.2vw, 7.25rem);
     font-weight: 800;
-    line-height: 0.99;
-    letter-spacing: -0.04em;
+    box-shadow: var(--lift-2);
+  }
+
+  .split:hover .seam__grip {
+    animation: grip-nudge 1.6s var(--ease-in-out) infinite;
+  }
+
+  @keyframes grip-nudge {
+    0%, 100% { transform: translate(-50%, -50%); }
+    50% { transform: translate(calc(-50% + 5px), -50%); }
+  }
+
+  .seam__input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: ew-resize;
+    z-index: 4;
+    margin: 0;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  .seam__input::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 96px;
+    height: 100%;
+  }
+
+  .seam__input:focus-visible ~ .split__statement .split__title,
+  .seam__input:focus-visible + .split__statement .split__title {
+    outline: 3px solid var(--paper);
+    outline-offset: 8px;
+  }
+
+  /* ---- the statement ---------------------------------------------------- */
+  .split__statement {
+    position: absolute;
+    inset-inline: 0;
+    top: 50%;
+    transform: translateY(-58%);
+    text-align: center;
+    pointer-events: none;
+    z-index: 3;
+    padding-inline: var(--gutter);
+  }
+
+  .split__title {
+    font-family: var(--font-display);
+    font-size: clamp(3.25rem, 1rem + 12.5vw, 12.5rem);
+    font-weight: 800;
+    line-height: 0.92;
+    letter-spacing: 0.01em;
+    color: var(--paper);
+    text-shadow: 0 2px 40px rgba(11, 15, 16, 0.35);
   }
 
   .line {
     display: block;
     overflow: hidden;
-    padding-bottom: 0.09em;
-    margin-bottom: -0.06em;
+    padding-bottom: 0.08em;
+    margin-bottom: -0.05em;
   }
 
   .line__in {
@@ -187,23 +267,12 @@ const index = [
   }
 
   :global([data-js]) .line__in {
-    transform: translate3d(0, 118%, 0);
-    transition: transform 900ms var(--ease-out);
-  }
-
-  :global([data-js]) .line:nth-child(2) .line__in {
-    transition-delay: 150ms;
+    transform: translate3d(0, 112%, 0);
+    transition: transform 950ms var(--ease-out) 100ms;
   }
 
   :global([data-js]) [data-animate='lines'][data-in] .line__in {
     transform: none;
-  }
-
-  .line__in--grad {
-    background-image: linear-gradient(92deg, var(--t-glow), var(--t) 72%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -211,130 +280,53 @@ const index = [
       transform: none;
       transition: none;
     }
+    .split:hover .seam__grip {
+      animation: none;
+    }
   }
 
-  .hero__deck {
-    margin-top: 1.5rem;
-    max-width: 34rem;
-    font-size: clamp(0.9375rem, 0.9rem + 0.25vw, 1.0625rem);
-    line-height: 1.6;
-    color: var(--fg-inv-2);
-  }
-
-  /* ---- The brand index -------------------------------------------------- */
-  .hx {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    border-top: 1px solid rgba(255, 255, 255, 0.14);
-  }
-
-  .hx__item {
-    position: relative;
-    display: grid;
-    grid-template-columns: auto 1fr;
-    grid-template-areas:
-      'n arrow'
-      'name arrow'
-      'meta arrow';
-    align-content: start;
-    row-gap: 0.375rem;
-    padding: 1.375rem 1.25rem 1.25rem 0;
-    margin-right: 1.25rem;
-    border-top: 2px solid transparent;
-    margin-top: -1px;
-    text-decoration: none;
-    color: var(--fg-inv);
-    transition:
-      border-color var(--d-micro) var(--ease-out),
-      background-color var(--d-micro) var(--ease-out);
-  }
-
-  .hx__item + .hx__item {
-    border-left: 1px solid rgba(255, 255, 255, 0.09);
-    padding-left: 1.25rem;
-  }
-
-  .hx__item:hover {
-    border-top-color: var(--t);
-  }
-
-  .hx__n {
-    grid-area: n;
+  .split__sub {
+    margin-top: 0.75rem;
     font-family: var(--font-display);
-    font-size: 0.6875rem;
-    font-weight: 800;
-    letter-spacing: 0.22em;
-    color: var(--t);
-  }
-
-  .hx__name {
-    grid-area: name;
-    font-family: var(--font-display);
-    font-size: clamp(1.125rem, 1rem + 0.5vw, 1.5rem);
+    font-size: clamp(0.6875rem, 0.5rem + 1vw, 1rem);
     font-weight: 700;
-    letter-spacing: -0.01em;
+    letter-spacing: 0.58em;
+    text-indent: 0.58em;
+    color: var(--paper);
+    opacity: 0.92;
   }
 
-  .hx__meta {
-    grid-area: meta;
-    font-size: 0.75rem;
-    color: var(--fg-inv-2);
+  .split__line {
+    margin-top: 1.25rem;
+    font-size: clamp(0.875rem, 0.8rem + 0.4vw, 1.0625rem);
+    color: var(--paper);
+    opacity: 0.85;
+    text-shadow: 0 1px 10px rgba(11, 15, 16, 0.5);
   }
 
-  .hx__arrow {
-    font-family: var(--font-display);
-    grid-area: arrow;
-    justify-self: end;
-    align-self: start;
-    font-size: 1rem;
-    color: var(--t);
-    transition: transform var(--d-micro) var(--ease-out);
-  }
-
-  .hx__item:hover .hx__arrow {
-    transform: translate(3px, -3px);
-  }
-
-  .hx__item[href^='#']:hover .hx__arrow {
-    transform: translateY(3px);
-  }
-
-  /* The response, on the index: activating one physical unit lights the
-   * other's number and top rule. The 3D buildings flare with it. */
-  :global([data-active='01']) .hx__item[data-unit='02'],
-  :global([data-active='02']) .hx__item[data-unit='01'] {
-    border-top-color: var(--t-glow);
-    background-color: rgba(19, 180, 198, 0.07);
-  }
-
-  :global([data-active='01']) .hx__item[data-unit='02'] .hx__n,
-  :global([data-active='02']) .hx__item[data-unit='01'] .hx__n {
-    color: var(--t-glow);
-    text-shadow: 0 0 14px rgba(75, 216, 232, 0.8);
-  }
-
-  /* ---- The scroll cue --------------------------------------------------- */
-  .hero__cue {
-    position: relative;
-    z-index: 1;
-    align-self: center;
+  /* ---- cue -------------------------------------------------------------- */
+  .split__cue {
+    position: absolute;
+    left: 50%;
+    bottom: 1rem;
+    transform: translateX(-50%);
+    z-index: 3;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
-    padding-bottom: 1.25rem;
+    gap: 0.4rem;
     text-decoration: none;
   }
 
-  .hero__cueLine {
+  .split__cueLine {
     width: 1px;
-    height: 44px;
-    background-image: linear-gradient(180deg, transparent, var(--t) 30%, var(--t));
-    overflow: hidden;
+    height: 40px;
+    background-image: linear-gradient(180deg, transparent, var(--paper));
     position: relative;
+    overflow: hidden;
   }
 
-  .hero__cueLine::after {
+  .split__cueLine::after {
     content: '';
     position: absolute;
     inset-inline: 0;
@@ -345,58 +337,44 @@ const index = [
   }
 
   @keyframes cue-drop {
-    to {
-      transform: translateY(350%);
-    }
+    to { transform: translateY(350%); }
   }
 
-  .hero__cueText {
+  @media (prefers-reduced-motion: reduce) {
+    .split__cueLine::after { animation: none; }
+  }
+
+  .split__cueText {
     font-family: var(--font-display);
     font-size: 0.625rem;
     font-weight: 700;
     letter-spacing: 0.3em;
     text-transform: uppercase;
-    color: var(--fg-inv-2);
+    color: var(--paper);
+    opacity: 0.85;
   }
 
-  .hero__cue:hover .hero__cueText {
-    color: var(--t-glow);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .hero__cueLine::after {
-      animation: none;
-    }
-  }
-
-  /* ---- Small screens ---------------------------------------------------- */
-  @media (max-width: 899px) {
-    .hero {
-      min-height: calc(100dvh - 56px);
+  /* ---- small screens: same vertical seam, same gesture ------------------ */
+  @media (max-width: 767px) {
+    .split__tag {
+      font-size: 0.5625rem;
+      letter-spacing: 0.08em;
+      max-width: 38vw;
+      line-height: 1.5;
     }
 
-    .hx {
-      grid-template-columns: 1fr;
-      border-top: none;
+    .split__tag--left {
+      bottom: 7.5rem;
     }
 
-    .hx__item {
-      grid-template-areas: 'n name arrow' 'n meta arrow';
-      grid-template-columns: 2.25rem 1fr auto;
-      row-gap: 0.125rem;
-      column-gap: 0.25rem;
-      padding: 0.875rem 0;
-      margin-right: 0;
-      border-top: 1px solid rgba(255, 255, 255, 0.12);
+    .split__tag--right {
+      bottom: 5rem;
+      text-align: right;
     }
 
-    .hx__item + .hx__item {
-      border-left: none;
-      padding-left: 0;
-    }
-
-    .hx__name {
-      font-size: 1.0625rem;
+    .fascia__where {
+      max-width: 11rem;
+      font-size: 0.5625rem;
     }
   }
 </style>

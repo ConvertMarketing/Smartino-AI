@@ -277,24 +277,6 @@ function scrollFx(): void {
 }
 
 /* ---------------------------------------------------------------------------
- * The entrance curtain: armed pre-paint by the head script, released here.
- * ------------------------------------------------------------------------ */
-function intro(): void {
-  const root = document.documentElement;
-  if (!root.hasAttribute('data-intro')) return;
-  const done = (): void => {
-    root.removeAttribute('data-intro');
-    try {
-      sessionStorage.setItem('smartino-intro', '1');
-    } catch {
-      /* private mode: the curtain simply plays again next time */
-    }
-  };
-  // the split animation ends ~1.77s in; the hard timeout is the safety net
-  window.setTimeout(done, 1850);
-}
-
-/* ---------------------------------------------------------------------------
  * Magnetic CTAs: within reach, the button leans toward the pointer.
  * ------------------------------------------------------------------------ */
 function magnetics(): void {
@@ -311,22 +293,6 @@ function magnetics(): void {
       el.style.transform = '';
     });
   }
-}
-
-/* ---------------------------------------------------------------------------
- * The 3D scene loads after everything above is interactive, and never under
- * reduced motion. Its absence is invisible: the CSS glows remain.
- * ------------------------------------------------------------------------ */
-function scene(): void {
-  if (reduced || !document.querySelector('[data-scene]')) return;
-  const load = (): void => {
-    import('./scene3d').catch(() => {
-      /* offline chunk or no WebGL: the gradient floor stays */
-    });
-  };
-  const w = window as Window & { requestIdleCallback?: (cb: () => void) => void };
-  if (w.requestIdleCallback) w.requestIdleCallback(load);
-  else window.setTimeout(load, 350);
 }
 
 /* ---------------------------------------------------------------------------
@@ -348,14 +314,48 @@ function story(): void {
   section.querySelectorAll<HTMLElement>('.story__step').forEach((el) => io.observe(el));
 }
 
+/* ---------------------------------------------------------------------------
+ * The seam: a real range input drives the split between the two worlds, so
+ * dragging, touch and arrow keys all come free from the platform.
+ * ------------------------------------------------------------------------ */
+function seam(): void {
+  const hero = document.querySelector<HTMLElement>('[data-split]');
+  const range = hero?.querySelector<HTMLInputElement>('.seam__input');
+  if (!hero || !range) return;
+  const apply = (): void => {
+    hero.style.setProperty('--split', `${range.value}%`);
+  };
+  range.addEventListener('input', apply);
+  apply();
+}
+
+/* ---------------------------------------------------------------------------
+ * The index chips: a floating image follows the pointer along the giant list.
+ * Pointer-only -- touch and reduced motion never see it.
+ * ------------------------------------------------------------------------ */
+function chips(): void {
+  if (reduced || !matchMedia('(hover: hover)').matches) return;
+  const list = document.querySelector<HTMLElement>('[data-chips]');
+  if (!list) return;
+  let raf = 0;
+  list.addEventListener('pointermove', (e) => {
+    if (raf) return;
+    raf = requestAnimationFrame(() => {
+      raf = 0;
+      list.style.setProperty('--cx', `${e.clientX}px`);
+      list.style.setProperty('--cy', `${e.clientY}px`);
+    });
+  });
+}
+
 document.documentElement.setAttribute('data-ready', '');
 story();
-intro();
+seam();
+chips();
 reveals();
 countUps();
 scrollFx();
 magnetics();
-scene();
 response();
 leaving();
 schedule();

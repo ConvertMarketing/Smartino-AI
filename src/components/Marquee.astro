@@ -8,7 +8,7 @@ const LINE = 'SUPERMARKET · HOME · SHOP · MOLDOVA · ';
 ---
 
 <div class="marquee" aria-hidden="true">
-  <div class="marquee__track" data-shear>
+  <div class="marquee__track">
     <span class="marquee__text">{LINE}</span>
     <span class="marquee__text">{LINE}</span>
   </div>
@@ -18,8 +18,8 @@ const LINE = 'SUPERMARKET · HOME · SHOP · MOLDOVA · ';
   .marquee {
     overflow: hidden;
     padding-block: 1.25rem;
-    border-block: 1px solid var(--line);
-    background-color: var(--white);
+    background-color: var(--paper);
+    border-top: 1px solid rgba(11, 15, 16, 0.16);
   }
 
   .marquee__track {
@@ -36,7 +36,7 @@ const LINE = 'SUPERMARKET · HOME · SHOP · MOLDOVA · ';
     line-height: 1.1;
     white-space: nowrap;
     color: transparent;
-    -webkit-text-stroke: 1.5px rgba(12, 121, 133, 0.4);
+    -webkit-text-stroke: 1.5px rgba(11, 15, 16, 0.3);
   }
 
   @keyframes marquee-drift {
