@@ -1,7 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import Hero from '../components/Hero.astro';
-import Timeline from '../components/Timeline.astro';
+import Story from '../components/Story.astro';
 import Marquee from '../components/Marquee.astro';
 import UnitSection from '../components/UnitSection.astro';
 import SnagovPlaza from '../components/SnagovPlaza.astro';
@@ -17,7 +17,7 @@ const description =
 <Base title={title} description={description}>
   <main>
     <Hero />
-    <Timeline />
+    <Story />
     <Marquee />
     {UNITS.map((unit, i) => <UnitSection unit={unit} alt={i % 2 === 1} />)}
     <SnagovPlaza />

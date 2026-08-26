@@ -329,7 +329,27 @@ function scene(): void {
   else window.setTimeout(load, 350);
 }
 
+/* ---------------------------------------------------------------------------
+ * The story stepper: each chapter, as it crosses mid-viewport, tells the
+ * pinned visual which plate answers it.
+ * ------------------------------------------------------------------------ */
+function story(): void {
+  const section = document.querySelector<HTMLElement>('[data-story]');
+  if (!section || !('IntersectionObserver' in window)) return;
+  const io = new IntersectionObserver(
+    (entries) => {
+      for (const e of entries) {
+        if (!e.isIntersecting) continue;
+        section.dataset.step = (e.target as HTMLElement).dataset.step;
+      }
+    },
+    { rootMargin: '-45% 0px -45% 0px' }
+  );
+  section.querySelectorAll<HTMLElement>('.story__step').forEach((el) => io.observe(el));
+}
+
 document.documentElement.setAttribute('data-ready', '');
+story();
 intro();
 reveals();
 countUps();

@@ -1,7 +1,24 @@
 ---
 import Band from './Band.astro';
+import { Image } from 'astro:assets';
+import salvie from '../assets/textures/salvie.jpg';
+import textil from '../assets/textures/textil.jpg';
 import type { Unit } from '../lib/data';
 import { SUPERMARKET_HOURS } from '../lib/data';
+
+/**
+ * Panel art per unit. Home carries a real material from its own catalogue
+ * (sage stone); Shop a soft textile field; the two without usable photography
+ * get drawn textures in the system — never stock, never supplier banners.
+ * TODO(client): swap in real store photography from Google My Business when
+ * supplied; the panel slots are ready.
+ */
+const PANEL_ART: Record<string, ImageMetadata | null> = {
+  u1: null,
+  u2: salvie,
+  u3: textil,
+  u4: null,
+};
 
 interface Props {
   unit: Unit;
@@ -104,7 +121,25 @@ const words = unit.name.split(' ');
     {/* The far side of the gap. The group owns no photography, so the "large
         visual" the brief asks for here is a turquoise field carrying the unit's
         number. Decorative: the real index and slogan are in the column above. */}
-    <div class="unit__panel" aria-hidden="true" data-animate="tilt" data-shear>
+    <div
+      class:list={['unit__panel', `unit__panel--${unit.token}`]}
+      aria-hidden="true"
+      data-animate="tilt"
+      data-shear
+    >
+      {
+        PANEL_ART[unit.token] && (
+          <Image
+            class="unit__panelImg"
+            src={PANEL_ART[unit.token]!}
+            alt=""
+            widths={[640, 960, 1280]}
+            sizes="(max-width: 899px) 100vw, 40vw"
+            loading="lazy"
+          />
+        )
+      }
+      <span class="unit__panelScrim"></span>
       <span class="unit__panelIndex tnum" data-depth="-52">{unit.index}</span>
       {unit.slogan && <span class="unit__panelSlogan" data-depth="-18">{unit.slogan}</span>}
     </div>
@@ -150,7 +185,7 @@ const words = unit.name.split(' ');
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    min-height: 22rem;
+    min-height: 24rem;
     padding: 1.75rem;
     border-radius: 24px;
     background-image: linear-gradient(155deg, var(--t-glow), var(--t) 52%, var(--t-floor));
@@ -158,17 +193,63 @@ const words = unit.name.split(' ');
     overflow: hidden;
   }
 
+  .unit__panelImg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* The scrim keeps every panel in the brand's ink-and-turquoise register,
+   * whatever sits underneath, and guarantees the number stays legible. */
+  .unit__panelScrim {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(165deg, rgba(19, 180, 198, 0.5), rgba(11, 15, 16, 0.28) 60%),
+      linear-gradient(0deg, rgba(11, 15, 16, 0.45), transparent 55%);
+  }
+
+  /* 01 — the aisle: shelf lines receding, drawn, since no photo of it exists. */
+  .unit__panel--u1 {
+    background-image:
+      repeating-linear-gradient(100deg, rgba(11, 15, 16, 0.22) 0 2px, transparent 2px 56px),
+      repeating-linear-gradient(80deg, rgba(255, 255, 255, 0.1) 0 1px, transparent 1px 42px),
+      linear-gradient(155deg, var(--t-glow), var(--t) 52%, var(--t-floor));
+  }
+
+  /* 04 — the route: the dashed crossing, as texture. */
+  .unit__panel--u4 {
+    background-image:
+      repeating-linear-gradient(115deg, rgba(255, 255, 255, 0.16) 0 14px, transparent 14px 34px),
+      linear-gradient(155deg, var(--t) 30%, var(--t-floor));
+  }
+
+  .unit__panel--u1 .unit__panelScrim,
+  .unit__panel--u4 .unit__panelScrim {
+    background-image: linear-gradient(0deg, rgba(11, 15, 16, 0.3), transparent 55%);
+  }
+
+  .unit__panelIndex,
+  .unit__panelSlogan {
+    position: relative;
+  }
+
   .unit__panelIndex {
+    color: var(--fg-inv);
+    text-shadow: 0 2px 18px rgba(11, 15, 16, 0.45);
     font-family: var(--font-display);
     font-size: clamp(4.5rem, 3rem + 6vw, 8.5rem);
     font-weight: 800;
     line-height: 0.8;
     letter-spacing: -0.05em;
-    color: var(--fg);
-    opacity: 0.9;
+    opacity: 0.96;
   }
 
   .unit__panelSlogan {
+    color: var(--fg-inv) !important;
+    text-shadow: 0 1px 10px rgba(11, 15, 16, 0.6);
     font-family: var(--font-display);
     font-size: clamp(1.125rem, 0.9rem + 0.7vw, 1.625rem);
     font-weight: 600;

@@ -1,0 +1,381 @@
+---
+import { Image } from 'astro:assets';
+import travertin from '../assets/textures/travertin.jpg';
+import { TIMELINE, FACTS, MOLDOVA_OPERATOR } from '../lib/data';
+
+/**
+ * The story, told properly: four chapters scrolling past a pinned visual that
+ * answers each one. Every fact in the copy is real — dates, days, square
+ * metres, counts — and the one legal caveat stays inside the chapter that
+ * earns it, not in a footnote.
+ *
+ * The pinned plates are decorative (aria-hidden): the words carry the story,
+ * the visual carries the feeling. Without JS the first plate simply stays.
+ */
+const chapters = [
+  {
+    n: 'Capitolul unu',
+    title: 'Un magazin',
+    body: [
+      `11 iulie 2025. La intersecția Snagov, pe DN-1, se aprind luminile în primul magazin Smartino: un supermarket cu lucrurile de care o familie are nevoie în fiecare zi — igienă, îngrijire, curățenie.`,
+      `Fără artificii. Un program lung, rafturi pline și un drum mai scurt pentru oamenii din jur.`,
+    ],
+  },
+  {
+    n: 'Capitolul doi',
+    title: 'Măsura',
+    body: [
+      `Între prima și a doua deschidere stau exact 379 de zile: un an întreg, apoi încă paisprezece.`,
+      `Pe rigla acestui site, fiecare zi e un pixel. Se vede cu ochiul liber: al doilea magazin a venit imediat după prima aniversare.`,
+    ],
+  },
+  {
+    n: 'Capitolul trei',
+    title: 'Vizavi',
+    body: [
+      `25 iulie 2026. Peste drum de primul magazin se deschide al doilea: Smartino Home — peste 1.200 m² de mobilier, grădină, textile și decor.`,
+      `Aceeași promisiune, extinsă de la nevoile zilei către casă. Iar cele două clădiri au rămas așa cum s-au născut: față în față.`,
+    ],
+  },
+  {
+    n: 'Capitolul patru',
+    title: 'Astăzi',
+    body: [
+      `Două magazine care se privesc peste gol, două cataloage online, două țări. Un grup crescut dintr-un singur magazin — și numărat mai jos, fără nicio cifră umflată.`,
+    ],
+    facts: true,
+  },
+];
+---
+
+<section class="story" id="povestea" aria-labelledby="story-title" data-story>
+  <h2 class="sr-only" id="story-title">Povestea grupului</h2>
+
+  <div class="story__frame">
+    <div class="story__visual" aria-hidden="true">
+      {/* Plate 1 — the aisle: shelf lines running to a lit vanishing point. */}
+      <div class="story__plate" data-plate="1">
+        <svg viewBox="0 0 800 500" preserveAspectRatio="xMidYMid slice">
+          <rect width="800" height="500" fill="var(--ink)"></rect>
+          <g stroke="var(--t)" stroke-width="1.4">
+            <line x1="0" y1="60"  x2="400" y2="250" opacity="0.16"></line>
+            <line x1="0" y1="140" x2="400" y2="250" opacity="0.28"></line>
+            <line x1="0" y1="230" x2="400" y2="250" opacity="0.42"></line>
+            <line x1="0" y1="330" x2="400" y2="250" opacity="0.32"></line>
+            <line x1="0" y1="440" x2="400" y2="250" opacity="0.2"></line>
+            <line x1="800" y1="60"  x2="400" y2="250" opacity="0.16"></line>
+            <line x1="800" y1="140" x2="400" y2="250" opacity="0.28"></line>
+            <line x1="800" y1="230" x2="400" y2="250" opacity="0.42"></line>
+            <line x1="800" y1="330" x2="400" y2="250" opacity="0.32"></line>
+            <line x1="800" y1="440" x2="400" y2="250" opacity="0.2"></line>
+          </g>
+          <circle cx="400" cy="250" r="130" fill="url(#story-glow)"></circle>
+          <defs>
+            <radialGradient id="story-glow">
+              <stop offset="0%" stop-color="rgba(75,216,232,0.65)"></stop>
+              <stop offset="100%" stop-color="rgba(75,216,232,0)"></stop>
+            </radialGradient>
+          </defs>
+        </svg>
+        <p class="story__plateLabel tnum">{TIMELINE.first.label}</p>
+      </div>
+
+      {/* Plate 2 — the measure itself. */}
+      <div class="story__plate" data-plate="2">
+        <p class="story__giant tnum">379</p>
+        <p class="story__plateLabel">un an <span class="story__plus">+ 14 zile</span></p>
+        <span class="story__ticks"></span>
+      </div>
+
+      {/* Plate 3 — the material: real travertine from the Home catalogue. */}
+      <div class="story__plate" data-plate="3">
+        <Image
+          class="story__photo"
+          src={travertin}
+          alt=""
+          widths={[640, 960, 1440]}
+          sizes="(max-width: 899px) 100vw, 46vw"
+          loading="lazy"
+        />
+        <span class="story__scrim"></span>
+        <p class="story__plateLabel tnum">{TIMELINE.second.label} · 1.200 m²</p>
+      </div>
+
+      {/* Plate 4 — the pair, facing. */}
+      <div class="story__plate" data-plate="4">
+        <svg viewBox="0 0 800 500" preserveAspectRatio="xMidYMid meet">
+          <rect x="120" y="150" width="220" height="200" rx="18" fill="var(--t)" opacity="0.92"></rect>
+          <rect x="460" y="120" width="220" height="230" rx="18" fill="var(--t-glow)" opacity="0.92"></rect>
+          <line x1="400" y1="120" x2="400" y2="360" stroke="var(--fg-inv-2)" stroke-dasharray="4 9" opacity="0.7"></line>
+        </svg>
+        <p class="story__plateLabel">față în față, din 2026</p>
+      </div>
+    </div>
+
+    <div class="story__steps">
+      {
+        chapters.map((c, i) => (
+          <article class="story__step" data-step={i + 1}>
+            <p class="story__kicker">{c.n}</p>
+            <h3 class="story__title" data-animate="words" aria-label={c.title}>
+              <span aria-hidden="true">
+                {c.title.split(' ').map((w, wi) => (
+                  <span class="w"><span class="w__in" style={`--wi: ${wi}`}>{w}</span></span>
+                ))}
+              </span>
+            </h3>
+            {c.body.map((p) => (
+              <p class="story__copy" data-reveal>{p}</p>
+            ))}
+            {c.facts && (
+              <>
+                <dl class="story__facts" data-reveal>
+                  {FACTS.map((f) => (
+                    <div class="story__fact">
+                      <dt class="story__factValue tnum" data-count={f.n} data-suffix={f.suffix}>{f.value}</dt>
+                      <dd class="story__factLabel">{f.label}</dd>
+                    </div>
+                  ))}
+                </dl>
+                <p class="story__legal" data-reveal>{MOLDOVA_OPERATOR}</p>
+              </>
+            )}
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .story {
+    position: relative;
+    background-color: var(--ink);
+    color: var(--fg-inv);
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  .story__frame {
+    max-width: var(--content);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(2rem, 5vw, 5rem);
+  }
+
+  .story__visual {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    height: 100dvh;
+    display: grid;
+    align-items: center;
+  }
+
+  .story__plate {
+    grid-area: 1 / 1;
+    position: relative;
+    height: min(62vh, 560px);
+    border-radius: 24px;
+    overflow: hidden;
+    background-color: var(--ink-2);
+    box-shadow: var(--lift-2);
+    opacity: 0;
+    transform: scale(0.96);
+    transition:
+      opacity 600ms var(--ease-out),
+      transform 600ms var(--ease-out);
+    display: grid;
+    place-items: center;
+  }
+
+  /* Plate 1 shows by default, so the column is never empty without JS. */
+  .story__plate[data-plate='1'],
+  [data-step='1'] .story__plate[data-plate='1'] {
+    opacity: 1;
+    transform: none;
+  }
+
+  [data-step] .story__plate[data-plate='1'] {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+
+  [data-step='1'] .story__plate[data-plate='1'],
+  [data-step='2'] .story__plate[data-plate='2'],
+  [data-step='3'] .story__plate[data-plate='3'],
+  [data-step='4'] .story__plate[data-plate='4'] {
+    opacity: 1;
+    transform: none;
+  }
+
+  .story__plate svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .story__photo {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .story__scrim {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(180deg, rgba(11, 15, 16, 0.15), rgba(11, 15, 16, 0.72) 85%),
+      linear-gradient(120deg, rgba(19, 180, 198, 0.28), transparent 55%);
+    mix-blend-mode: multiply;
+  }
+
+  .story__plateLabel {
+    position: absolute;
+    left: 1.5rem;
+    bottom: 1.25rem;
+    font-family: var(--font-display);
+    font-size: 0.9375rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--t-glow);
+    text-shadow: 0 1px 8px rgba(11, 15, 16, 0.8);
+  }
+
+  .story__giant {
+    font-family: var(--font-display);
+    font-size: clamp(6rem, 14vw, 13rem);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    background-image: linear-gradient(120deg, var(--t-glow), var(--t));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .story__plus {
+    color: var(--fg-inv-2);
+    font-weight: 500;
+  }
+
+  .story__ticks {
+    position: absolute;
+    inset-block: 12%;
+    right: 12%;
+    width: 22px;
+    background-image: repeating-linear-gradient(
+      to bottom,
+      rgba(19, 180, 198, 0.6) 0 1px,
+      transparent 1px 14px
+    );
+  }
+
+  .story__steps {
+    padding-block: 14vh 18vh;
+    display: grid;
+    gap: 26vh;
+  }
+
+  .story__step {
+    max-width: 30rem;
+  }
+
+  .story__kicker {
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--t);
+  }
+
+  .story__title {
+    margin-top: 0.75rem;
+    font-family: var(--font-display);
+    font-size: clamp(2.25rem, 1.6rem + 2.6vw, 4rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.02;
+  }
+
+  .story__copy {
+    margin-top: 1.25rem;
+    font-size: 1.0625rem;
+    line-height: 1.7;
+    color: var(--fg-inv-2);
+  }
+
+  .story__copy:first-of-type {
+    color: var(--fg-inv);
+  }
+
+  .story__facts {
+    margin-top: 2.25rem;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    border-top: 1px solid var(--line-dark);
+    padding-top: 1.5rem;
+  }
+
+  .story__factValue {
+    font-family: var(--font-display);
+    font-size: clamp(1.75rem, 1.4rem + 1.4vw, 2.5rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  .story__factLabel {
+    margin-top: 0.125rem;
+    font-size: 0.875rem;
+    color: var(--fg-inv-2);
+  }
+
+  .story__legal {
+    margin-top: 1.25rem;
+    font-size: 0.8125rem;
+    color: var(--fg-inv-2);
+  }
+
+  @media (max-width: 899px) {
+    .story__frame {
+      grid-template-columns: 1fr;
+    }
+
+    /* On phones the visual becomes a banner pinned above each step. */
+    .story__visual {
+      position: sticky;
+      top: 0;
+      height: 42vh;
+      z-index: 1;
+      align-items: stretch;
+      padding-top: 0.75rem;
+    }
+
+    .story__plate {
+      height: calc(42vh - 1.5rem);
+    }
+
+    .story__steps {
+      padding-block: 6vh 12vh;
+      gap: 14vh;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .story__plate {
+      transition: none;
+    }
+  }
+</style>

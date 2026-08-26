@@ -59,7 +59,6 @@ jobs:
       # install reported success while the resolver found nothing under the
       # default cache, so the location is no longer left to convention.
       - name: Install Chromium for verification
-        continue-on-error: true
         env:
           PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/.pw-browsers
         run: |
@@ -69,11 +68,9 @@ jobs:
           ls -1 "$PLAYWRIGHT_BROWSERS_PATH" || echo "(gol sau inexistent)"
           find "$PLAYWRIGHT_BROWSERS_PATH" -maxdepth 3 -name chrome -o -maxdepth 3 -name headless_shell || true
 
-      # TODO: continue-on-error se scoate imediat ce acest pas trece verde de
-      # doua ori la rand. Un gate care blocheaza publicarea unei reparatii
-      # corecte e mai daunator decat lipsa lui -- s-a intamplat deja de doua ori.
+      # Blocking again: runs 17 and 18 both passed for real on the runner
+      # (15-16s of actual suite time in the logs, not a swallowed crash).
       - name: Verify rendered page
-        continue-on-error: true
         env:
           PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/.pw-browsers
         run: |
