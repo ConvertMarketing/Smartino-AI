@@ -10,7 +10,7 @@ const reduced = prefersReducedMotion();
  * of motion that reads as a tic.
  * ------------------------------------------------------------------------ */
 function reveals(): void {
-  const targets = document.querySelectorAll<HTMLElement>('[data-reveal]');
+  const targets = document.querySelectorAll<HTMLElement>('[data-reveal], [data-animate]');
   if (reduced || !('IntersectionObserver' in window)) {
     targets.forEach((el) => el.setAttribute('data-in', ''));
     return;
@@ -180,8 +180,94 @@ function schedule(): void {
 
 // data-js is already set by the inline head script; this marks the module as
 // actually having run, which cancels that script's safety timeout.
+/* ---------------------------------------------------------------------------
+ * Count-ups
+ *
+ * The HTML always ships the FINAL value, so no-JS and reduced-motion simply
+ * read it. With motion allowed, the number counts up once, on first sight.
+ * ------------------------------------------------------------------------ */
+function countUps(): void {
+  const els = document.querySelectorAll<HTMLElement>('[data-count]');
+  if (!els.length || reduced || !('IntersectionObserver' in window)) return;
+
+  const run = (el: HTMLElement): void => {
+    const target = parseInt(el.dataset.count!, 10);
+    const suffix = el.dataset.suffix ?? '';
+    const t0 = performance.now();
+    const dur = 1200;
+    const tick = (t: number): void => {
+      const k = Math.min(1, (t - t0) / dur);
+      const eased = 1 - Math.pow(1 - k, 3);
+      el.textContent = Math.round(target * eased).toLocaleString('ro-RO') + suffix;
+      if (k < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  };
+
+  const io = new IntersectionObserver(
+    (entries) => {
+      for (const e of entries) {
+        if (!e.isIntersecting) continue;
+        io.unobserve(e.target);
+        run(e.target as HTMLElement);
+      }
+    },
+    { threshold: 0.6 }
+  );
+  els.forEach((el) => io.observe(el));
+}
+
+/* ---------------------------------------------------------------------------
+ * Scroll-linked motion: one shared rAF loop.
+ *
+ * - every band gets --p (0..1): where the viewport centre sits inside its
+ *   section, driving the glowing position marker down the spine
+ * - every [data-depth] gets --py: differential parallax, so the big panel
+ *   numbers drift at a different rate than the page
+ * ------------------------------------------------------------------------ */
+function scrollFx(): void {
+  if (reduced) return;
+  const bands = [...document.querySelectorAll<HTMLElement>('.band')].map((el) => ({
+    el,
+    host: el.parentElement as HTMLElement,
+  }));
+  const deep = [...document.querySelectorAll<HTMLElement>('[data-depth]')].map((el) => ({
+    el,
+    host: (el.closest('section') ?? el.parentElement) as HTMLElement,
+    d: parseFloat(el.dataset.depth ?? '0'),
+  }));
+  if (!bands.length && !deep.length) return;
+
+  let ticking = false;
+  const update = (): void => {
+    ticking = false;
+    const centre = window.scrollY + window.innerHeight / 2;
+    for (const b of bands) {
+      const r = b.host.getBoundingClientRect();
+      const top = r.top + window.scrollY;
+      const p = Math.min(1, Math.max(0, (centre - top) / r.height));
+      b.el.style.setProperty('--p', p.toFixed(4));
+    }
+    for (const x of deep) {
+      const r = x.host.getBoundingClientRect();
+      const p = (r.top + r.height / 2 - window.innerHeight / 2) / window.innerHeight;
+      x.el.style.setProperty('--py', (p * x.d).toFixed(1));
+    }
+  };
+  const onScroll = (): void => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(update);
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', update);
+  update();
+}
+
 document.documentElement.setAttribute('data-ready', '');
 reveals();
+countUps();
+scrollFx();
 response();
 leaving();
 schedule();

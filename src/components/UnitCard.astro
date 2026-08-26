@@ -78,6 +78,21 @@ const label = external
     padding: 1.75rem;
     border-radius: 20px;
     text-decoration: none;
+    transition:
+      transform 280ms var(--ease-out),
+      box-shadow 280ms var(--ease-out);
+  }
+
+  .card:hover {
+    transform: translateY(-6px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card,
+    .card:hover {
+      transform: none;
+      transition: none;
+    }
   }
 
   .card[data-align='end'] {
@@ -105,6 +120,39 @@ const label = external
     background-image: linear-gradient(145deg, var(--t-glow), var(--t));
     color: var(--fg);
     box-shadow: var(--lift-t);
+    overflow: hidden;
+  }
+
+  .card--filled:hover {
+    box-shadow:
+      0 4px 10px rgba(10, 91, 101, 0.32),
+      0 34px 80px rgba(10, 91, 101, 0.45);
+  }
+
+  /* A light sweep across the filled panel on hover. */
+  .card--filled::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(
+      105deg,
+      transparent 42%,
+      rgba(255, 255, 255, 0.42) 50%,
+      transparent 58%
+    );
+    transform: translateX(-160%);
+    pointer-events: none;
+  }
+
+  .card--filled:hover::after {
+    transform: translateX(160%);
+    transition: transform 700ms var(--ease-out);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card--filled::after {
+      display: none;
+    }
   }
 
   /* The drawn card. Outline on the dark ground, turquoise text at 7.68:1. */

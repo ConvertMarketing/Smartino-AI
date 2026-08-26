@@ -16,15 +16,23 @@ const hoursLine = SUPERMARKET_HOURS.map((h) => `${h.days} ${h.open}–${h.close}
 ---
 
 <div class="top">
+  {/* The motion behind everything: two large turquoise fields drifting on
+      70s/55s loops. Transform-only, aria-hidden, killed under reduced motion. */}
+  <div class="top__glow top__glow--a" aria-hidden="true"></div>
+  <div class="top__glow top__glow--b" aria-hidden="true"></div>
+
   <Fascia />
 
   <section class="hero" id="continut">
     <div class="hero__inner">
-      <h1 class="hero__title" data-reveal>Un grup crescut<br />dintr-un singur magazin.</h1>
+      <h1 class="hero__title" data-animate="lines">
+        <span class="line"><span class="line__in">Un grup crescut</span></span>
+        <span class="line"><span class="line__in line__in--grad">dintr-un singur magazin.</span></span>
+      </h1>
 
       <p class="hero__deck" data-reveal style="--i: 1">
         Primul magazin s-a deschis pe {TIMELINE.first.label}, în Snagov Plaza.<br />
-        Al doilea, <span class="tnum">{TIMELINE.days}</span> de zile mai târziu, vizavi.
+        Al doilea, <span class="tnum" data-count={TIMELINE.days}>{TIMELINE.days}</span> de zile mai târziu, vizavi.
       </p>
 
       <p class="hero__pill tnum" data-reveal data-schedule style="--i: 2">{hoursLine}</p>
@@ -88,13 +96,82 @@ const hoursLine = SUPERMARKET_HOURS.map((h) => `${h.days} ${h.open}–${h.close}
     padding-inline: var(--gutter);
   }
 
+  .top__glow {
+    position: absolute;
+    border-radius: 999px;
+    pointer-events: none;
+  }
+
+  .top__glow--a {
+    top: -18%;
+    left: -12%;
+    width: 68vw;
+    height: 68vw;
+    background-image: radial-gradient(closest-side, rgba(19, 180, 198, 0.42), transparent 70%);
+    animation: drift-a 70s ease-in-out infinite alternate;
+  }
+
+  .top__glow--b {
+    top: 18%;
+    right: -16%;
+    width: 55vw;
+    height: 55vw;
+    background-image: radial-gradient(closest-side, rgba(75, 216, 232, 0.26), transparent 72%);
+    animation: drift-b 55s ease-in-out infinite alternate;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .top__glow {
+      animation: none;
+    }
+  }
+
   .hero__title {
     font-family: var(--font-display);
     font-size: clamp(2.5rem, 1.4rem + 4.4vw, 5rem);
     font-weight: 800;
-    line-height: 1.02;
+    line-height: 1.04;
     letter-spacing: -0.035em;
-    text-wrap: balance;
+  }
+
+  /* Line-mask entrance: each line rises out of its own clip, staggered.
+   * Only under [data-js]; without it the title is simply there. */
+  .line {
+    display: block;
+    overflow: hidden;
+    padding-bottom: 0.08em; /* keep descenders inside the clip */
+    margin-bottom: -0.08em;
+  }
+
+  .line__in {
+    display: block;
+  }
+
+  :global([data-js]) .line__in {
+    transform: translate3d(0, 118%, 0);
+    transition: transform 850ms var(--ease-out);
+  }
+
+  :global([data-js]) .line:nth-child(2) .line__in {
+    transition-delay: 140ms;
+  }
+
+  :global([data-js]) [data-animate='lines'][data-in] .line__in {
+    transform: none;
+  }
+
+  .line__in--grad {
+    background-image: linear-gradient(92deg, var(--t-glow), var(--t) 70%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global([data-js]) .line__in {
+      transform: none;
+      transition: none;
+    }
   }
 
   .hero__deck {

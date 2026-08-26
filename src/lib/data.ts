@@ -156,8 +156,8 @@ export const CONSUMER_LINKS = [
 ];
 
 export const FACTS = [
-  { value: '2', label: 'magazine fizice' },
-  { value: '1.200 m²', label: 'Smartino Home' },
-  { value: '4', label: 'branduri' },
-  { value: '2', label: 'țări' },
+  { value: '2', n: 2, suffix: '', label: 'magazine fizice' },
+  { value: '1.200 m²', n: 1200, suffix: ' m²', label: 'Smartino Home' },
+  { value: '4', n: 4, suffix: '', label: 'branduri' },
+  { value: '2', n: 2, suffix: '', label: 'țări' },
 ];

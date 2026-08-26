@@ -15,7 +15,34 @@ import { COMPANY } from '../lib/data';
   .fascia {
     position: relative;
     z-index: 2;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+  }
+
+  /* A live brand line instead of a dead border: the gradient pans slowly,
+   * so the very first pixel row of the site is already in motion. */
+  .fascia::after {
+    content: '';
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    height: 2px;
+    background-image: linear-gradient(
+      90deg,
+      transparent,
+      var(--t) 30%,
+      var(--t-glow) 50%,
+      var(--t) 70%,
+      transparent
+    );
+    background-size: 200% 100%;
+    animation: fascia-pan 7s linear infinite;
+    opacity: 0.85;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fascia::after {
+      animation: none;
+      background-position: 50% 0;
+    }
   }
 
   .fascia__inner {

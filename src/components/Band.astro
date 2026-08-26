@@ -54,6 +54,40 @@ const { marks = true, tone = 'light', class: className } = Astro.props;
     --mark: var(--t);
   }
 
+  /* The position marker: a glowing dot with a comet tail, driven down the
+   * spine by --p from the shared scroll loop. This is the band's second job
+   * from the plan -- POSITION -- finally implemented. */
+  .band::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: calc(var(--p, 0) * 100%);
+    width: 10px;
+    height: 10px;
+    margin: -5px 0 0 -5px;
+    border-radius: 999px;
+    background-color: var(--mark-dot);
+    box-shadow:
+      0 0 12px 2px var(--mark-glow),
+      0 -26px 22px -6px var(--mark-glow);
+  }
+
+  .band[data-tone='light'] {
+    --mark-dot: var(--t-deep);
+    --mark-glow: rgba(19, 180, 198, 0.45);
+  }
+
+  .band[data-tone='dark'] {
+    --mark-dot: var(--t-glow);
+    --mark-glow: rgba(75, 216, 232, 0.55);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .band::after {
+      display: none;
+    }
+  }
+
   @media (max-width: 899px) {
     .band {
       display: none;

@@ -92,8 +92,8 @@ const isSupermarket = !unit.href;
         visual" the brief asks for here is a turquoise field carrying the unit's
         number. Decorative: the real index and slogan are in the column above. */}
     <div class="unit__panel" aria-hidden="true" data-reveal style="--i: 1">
-      <span class="unit__panelIndex tnum">{unit.index}</span>
-      {unit.slogan && <span class="unit__panelSlogan">{unit.slogan}</span>}
+      <span class="unit__panelIndex tnum" data-depth="-52">{unit.index}</span>
+      {unit.slogan && <span class="unit__panelSlogan" data-depth="-18">{unit.slogan}</span>}
     </div>
   </div>
 </section>
@@ -103,10 +103,12 @@ const isSupermarket = !unit.href;
     position: relative;
     padding-block: 6rem;
     background-color: var(--white);
+    background-image: radial-gradient(50% 45% at 0% 100%, rgba(19, 180, 198, 0.06), transparent 65%);
   }
 
   .unit--alt {
     background-color: var(--paper);
+    background-image: radial-gradient(55% 50% at 100% 0%, rgba(19, 180, 198, 0.09), transparent 65%);
   }
 
   .unit__inner {
@@ -266,6 +268,31 @@ const isSupermarket = !unit.href;
     font-size: 0.9375rem;
     text-decoration: none;
     box-shadow: var(--lift-1);
+    transition:
+      transform 240ms var(--ease-out),
+      box-shadow 240ms var(--ease-out);
+  }
+
+  .unit__cta:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--lift-2);
+  }
+
+  .unit__cta span[aria-hidden] {
+    transition: transform 240ms var(--ease-out);
+  }
+
+  .unit__cta:hover span[aria-hidden] {
+    transform: translate(3px, -3px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .unit__cta,
+    .unit__cta:hover,
+    .unit__cta span[aria-hidden] {
+      transform: none;
+      transition: none;
+    }
   }
 
   /* The only outlined CTA on the page. A visual register that matches the

@@ -48,14 +48,14 @@ const monthPx = TIMELINE.days / 12.45; // ~30.4px, one month
     </div>
 
     <p class="zone2__caption tnum">
-      <span class="zone2__days">{TIMELINE.days}</span> de zile între cele două deschideri
+      <span class="zone2__days" data-count={TIMELINE.days}>{TIMELINE.days}</span> de zile între cele două deschideri
     </p>
 
     <dl class="zone2__facts" data-reveal style={`--i: 2`}>
       {
         FACTS.map((f) => (
           <div class="zone2__fact">
-            <dt class="zone2__factValue tnum">{f.value}</dt>
+            <dt class="zone2__factValue tnum" data-count={f.n} data-suffix={f.suffix}>{f.value}</dt>
             <dd class="zone2__factLabel">{f.label}</dd>
           </div>
         ))
@@ -133,6 +133,38 @@ const monthPx = TIMELINE.days / 12.45; // ~30.4px, one month
   .zone2__note {
     font-size: 0.875rem;
     color: var(--fg-2);
+  }
+
+  /* The rule draws itself top-to-bottom when the section arrives: the measure
+   * is travelled, not just shown. clip-path, so the tick spacing stays true. */
+  :global([data-js]) .zone2__rule {
+    clip-path: inset(0 0 100% 0);
+    transition: clip-path 1400ms var(--ease-out) 150ms;
+  }
+
+  :global([data-js]) [data-in] .zone2__rule {
+    clip-path: inset(0 0 0 0);
+  }
+
+  :global([data-js]) .zone2__year,
+  :global([data-js]) .zone2__event--second {
+    opacity: 0;
+    transition: opacity 500ms var(--ease-out) 1250ms;
+  }
+
+  :global([data-js]) [data-in] .zone2__year,
+  :global([data-js]) [data-in] .zone2__event--second {
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global([data-js]) .zone2__rule,
+    :global([data-js]) .zone2__year,
+    :global([data-js]) .zone2__event--second {
+      clip-path: none;
+      opacity: 1;
+      transition: none;
+    }
   }
 
   /* 1px = 1 day. A real, checkable mapping, not a decorative rhythm. */
