@@ -71,9 +71,23 @@ const organizationLd = {
         dropped and everything becomes visible rather than staying hidden. */}
     <script is:inline>
       document.documentElement.setAttribute('data-js', '');
+      // The intro curtain shows only when this pre-paint script arms it, so
+      // no-JS visitors and reduced-motion users never even know it exists.
+      // One play per tab: the flag lives in sessionStorage.
+      try {
+        if (
+          !sessionStorage.getItem('smartino-intro') &&
+          !matchMedia('(prefers-reduced-motion: reduce)').matches
+        ) {
+          document.documentElement.setAttribute('data-intro', '');
+        }
+      } catch (e) {}
       setTimeout(function () {
         var r = document.documentElement;
-        if (!r.hasAttribute('data-ready')) r.removeAttribute('data-js');
+        if (!r.hasAttribute('data-ready')) {
+          r.removeAttribute('data-js');
+          r.removeAttribute('data-intro');
+        }
       }, 2500);
     </script>
 
@@ -82,6 +96,17 @@ const organizationLd = {
 
   <body>
     <a href="#continut" class="skip">Sari la conținut</a>
+
+    {/* The entrance: a curtain of two dark panels that splits open along the
+        band's axis -- the gap between the two stores is the first thing the
+        visitor sees move. Armed pre-paint, played once per tab. */}
+    <div class="intro" aria-hidden="true">
+      <div class="intro__half intro__half--l"></div>
+      <div class="intro__half intro__half--r"></div>
+      <p class="intro__mark">SMARTINO</p>
+      <p class="intro__sub">INTERNATIONAL</p>
+    </div>
+
     <slot />
     <div class="exit-tint" aria-hidden="true"></div>
     <script>

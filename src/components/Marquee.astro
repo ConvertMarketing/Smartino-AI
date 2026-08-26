@@ -1,0 +1,53 @@
+---
+/**
+ * A giant outlined strip of the four names, drifting continuously between the
+ * group's story and its units. Decorative: aria-hidden, duplicated once so the
+ * loop is seamless, dead under reduced motion.
+ */
+const LINE = 'SUPERMARKET · HOME · SHOP · MOLDOVA · ';
+---
+
+<div class="marquee" aria-hidden="true">
+  <div class="marquee__track" data-shear>
+    <span class="marquee__text">{LINE}</span>
+    <span class="marquee__text">{LINE}</span>
+  </div>
+</div>
+
+<style>
+  .marquee {
+    overflow: hidden;
+    padding-block: 1.25rem;
+    border-block: 1px solid var(--line);
+    background-color: var(--white);
+  }
+
+  .marquee__track {
+    display: flex;
+    width: max-content;
+    animation: marquee-drift 30s linear infinite;
+  }
+
+  .marquee__text {
+    font-family: var(--font-display);
+    font-size: clamp(3rem, 8vw, 7rem);
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    line-height: 1.1;
+    white-space: nowrap;
+    color: transparent;
+    -webkit-text-stroke: 1.5px rgba(12, 121, 133, 0.4);
+  }
+
+  @keyframes marquee-drift {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marquee__track {
+      animation: none;
+    }
+  }
+</style>

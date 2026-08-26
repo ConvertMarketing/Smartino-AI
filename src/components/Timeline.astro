@@ -17,7 +17,13 @@ const monthPx = TIMELINE.days / 12.45; // ~30.4px, one month
 
 <section class="zone2" aria-labelledby="z2-title">
   <div class="zone2__inner">
-    <h2 class="zone2__title" id="z2-title" data-reveal>Doi ani, două magazine.</h2>
+    <h2 class="zone2__title" id="z2-title" data-animate="words" aria-label="Doi ani, două magazine.">
+      <span aria-hidden="true">
+        {'Doi ani, două magazine.'.split(' ').map((w, i) => (
+          <span class="w"><span class="w__in" style={`--wi: ${i}`}>{w}</span></span>
+        ))}
+      </span>
+    </h2>
 
     {/* The measured segment sits ON the band; the labels sit either side of it.
         Nothing crosses the gap -- that is the one rule the whole page rests on. */}

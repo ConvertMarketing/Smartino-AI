@@ -146,18 +146,39 @@ body {
  * comes back through bfcache, which would otherwise strand them on a coloured
  * screen.
  * ------------------------------------------------------------------------ */
+/* Leaving: the curtain closes back over the band's axis -- two turquoise
+ * panels meeting in the middle, the inverse of the entrance. Still painted in
+ * parallel with a navigation that has already started. */
 .exit-tint {
   position: fixed;
   inset: 0;
   z-index: 40;
-  background-image: linear-gradient(160deg, var(--t-glow), var(--t) 45%, var(--t-dark));
-  transform: scaleX(0);
-  transform-origin: left center;
   pointer-events: none;
-  transition: transform 240ms var(--ease-out);
 }
 
-[data-exiting] .exit-tint {
+.exit-tint::before,
+.exit-tint::after {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  width: 50.5%;
+  background-image: linear-gradient(160deg, var(--t-glow), var(--t) 55%, var(--t-dark));
+  transform: scaleX(0);
+  transition: transform 260ms var(--ease-out);
+}
+
+.exit-tint::before {
+  left: 0;
+  transform-origin: left center;
+}
+
+.exit-tint::after {
+  right: 0;
+  transform-origin: right center;
+}
+
+[data-exiting] .exit-tint::before,
+[data-exiting] .exit-tint::after {
   transform: scaleX(1);
 }
 
@@ -203,5 +224,159 @@ body {
 @media (prefers-reduced-motion: reduce) {
   [data-depth] {
     transform: none;
+  }
+}
+
+
+/* ---------------------------------------------------------------------------
+ * The entrance curtain
+ *
+ * Timeline, all CSS: the wordmark rises and spaces out, then the two halves
+ * pull apart along the band's axis and the page is simply there. site.ts drops
+ * [data-intro] at the end; the pre-paint script never arms it for repeat
+ * visits or reduced motion.
+ * ------------------------------------------------------------------------ */
+.intro {
+  display: none;
+}
+
+html[data-intro] {
+  overflow: hidden;
+}
+
+html[data-intro] .intro {
+  display: grid;
+  place-content: center;
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  text-align: center;
+}
+
+.intro__half {
+  position: absolute;
+  inset-block: 0;
+  width: 50.2%;
+  background-color: var(--ink);
+  background-image: radial-gradient(120% 100% at 50% 0%, rgba(19, 180, 198, 0.16), transparent 60%);
+  animation: intro-split 620ms var(--ease-in-out) 1150ms forwards;
+}
+
+.intro__half--l {
+  left: 0;
+  transform-origin: left center;
+}
+
+.intro__half--r {
+  right: 0;
+  transform-origin: right center;
+}
+
+@keyframes intro-split {
+  to {
+    transform: scaleX(0);
+  }
+}
+
+.intro__mark {
+  position: relative;
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 7vw, 5.5rem);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--fg-inv);
+  opacity: 0;
+  animation:
+    intro-mark 900ms var(--ease-out) 120ms forwards,
+    intro-out 300ms var(--ease-out) 1100ms forwards;
+}
+
+.intro__sub {
+  position: relative;
+  margin-top: 0.4rem;
+  font-family: var(--font-display);
+  font-size: clamp(0.7rem, 1.6vw, 1rem);
+  font-weight: 600;
+  letter-spacing: 0.55em;
+  text-indent: 0.55em;
+  color: var(--t-glow);
+  opacity: 0;
+  animation:
+    intro-mark 900ms var(--ease-out) 320ms forwards,
+    intro-out 300ms var(--ease-out) 1100ms forwards;
+}
+
+@keyframes intro-mark {
+  from {
+    opacity: 0;
+    transform: translateY(26px);
+    letter-spacing: 0.02em;
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes intro-out {
+  to {
+    opacity: 0;
+    transform: translateY(-18px);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Word-mask reveals for headings ([data-animate="words"])
+ * ------------------------------------------------------------------------ */
+.w {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  padding-bottom: 0.09em;
+  margin-bottom: -0.09em;
+  margin-right: 0.26em;
+}
+
+.w__in {
+  display: inline-block;
+}
+
+[data-js] [data-animate='words'] .w__in {
+  transform: translate3d(0, 118%, 0);
+  transition: transform 700ms var(--ease-out) calc(var(--wi, 0) * 70ms);
+}
+
+[data-js] [data-animate='words'][data-in] .w__in {
+  transform: none;
+}
+
+/* ---------------------------------------------------------------------------
+ * Tilt-in for the turquoise panels ([data-animate="tilt"])
+ * ------------------------------------------------------------------------ */
+[data-js] [data-animate='tilt'] {
+  opacity: 0;
+  transform: perspective(900px) rotateX(14deg) translateY(46px) scale(0.96);
+  transition:
+    transform 950ms var(--ease-out),
+    opacity 600ms var(--ease-out);
+}
+
+[data-js] [data-animate='tilt'][data-in] {
+  opacity: 1;
+  transform: perspective(900px) rotateX(0deg) translateY(0) scale(1);
+}
+
+/* Scroll-velocity shear: --vel is set by the shared loop and decays there. */
+[data-shear] {
+  transform: skewY(calc(var(--vel, 0) * 0.14deg));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-js] [data-animate='words'] .w__in,
+  [data-js] [data-animate='tilt'],
+  [data-shear] {
+    opacity: 1;
+    transform: none;
+    transition: none;
   }
 }

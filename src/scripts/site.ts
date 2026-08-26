@@ -239,8 +239,20 @@ function scrollFx(): void {
   if (!bands.length && !deep.length) return;
 
   let ticking = false;
+  let lastY = window.scrollY;
+  let vel = 0;
+  const root = document.documentElement;
   const update = (): void => {
     ticking = false;
+    // shear from scroll velocity, decaying back to rest between events
+    const y = window.scrollY;
+    vel = Math.max(-8, Math.min(8, vel * 0.82 + (y - lastY) * 0.05));
+    lastY = y;
+    root.style.setProperty('--vel', vel.toFixed(2));
+    if (Math.abs(vel) > 0.08 && !ticking) {
+      ticking = true;
+      requestAnimationFrame(update);
+    }
     const centre = window.scrollY + window.innerHeight / 2;
     for (const b of bands) {
       const r = b.host.getBoundingClientRect();
@@ -264,10 +276,66 @@ function scrollFx(): void {
   update();
 }
 
+/* ---------------------------------------------------------------------------
+ * The entrance curtain: armed pre-paint by the head script, released here.
+ * ------------------------------------------------------------------------ */
+function intro(): void {
+  const root = document.documentElement;
+  if (!root.hasAttribute('data-intro')) return;
+  const done = (): void => {
+    root.removeAttribute('data-intro');
+    try {
+      sessionStorage.setItem('smartino-intro', '1');
+    } catch {
+      /* private mode: the curtain simply plays again next time */
+    }
+  };
+  // the split animation ends ~1.77s in; the hard timeout is the safety net
+  window.setTimeout(done, 1850);
+}
+
+/* ---------------------------------------------------------------------------
+ * Magnetic CTAs: within reach, the button leans toward the pointer.
+ * ------------------------------------------------------------------------ */
+function magnetics(): void {
+  if (reduced || !matchMedia('(hover: hover)').matches) return;
+  for (const el of document.querySelectorAll<HTMLElement>('[data-magnet]')) {
+    el.style.transition = 'transform 200ms cubic-bezier(0.165, 0.84, 0.44, 1)';
+    el.addEventListener('pointermove', (e) => {
+      const r = el.getBoundingClientRect();
+      const dx = e.clientX - (r.left + r.width / 2);
+      const dy = e.clientY - (r.top + r.height / 2);
+      el.style.transform = `translate(${dx * 0.22}px, ${dy * 0.3}px)`;
+    });
+    el.addEventListener('pointerleave', () => {
+      el.style.transform = '';
+    });
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * The 3D scene loads after everything above is interactive, and never under
+ * reduced motion. Its absence is invisible: the CSS glows remain.
+ * ------------------------------------------------------------------------ */
+function scene(): void {
+  if (reduced || !document.querySelector('[data-scene]')) return;
+  const load = (): void => {
+    import('./scene3d').catch(() => {
+      /* offline chunk or no WebGL: the gradient floor stays */
+    });
+  };
+  'requestIdleCallback' in window
+    ? (window as Window & { requestIdleCallback: (cb: () => void) => void }).requestIdleCallback(load)
+    : window.setTimeout(load, 350);
+}
+
 document.documentElement.setAttribute('data-ready', '');
+intro();
 reveals();
 countUps();
 scrollFx();
+magnetics();
+scene();
 response();
 leaving();
 schedule();

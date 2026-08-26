@@ -13,6 +13,7 @@ const { unit, alt = false } = Astro.props;
 
 const isMoldova = unit.token === 'u4';
 const isSupermarket = !unit.href;
+const words = unit.name.split(' ');
 ---
 
 <section
@@ -27,7 +28,18 @@ const isSupermarket = !unit.href;
   <div class="unit__inner">
     <div class="unit__col" data-reveal>
       <p class="unit__index tnum">{unit.index}</p>
-      <h2 class="unit__name" id={`unit-${unit.index}-title`}>{unit.name}</h2>
+      <h2
+        class="unit__name"
+        id={`unit-${unit.index}-title`}
+        data-animate="words"
+        aria-label={unit.name}
+      >
+        <span aria-hidden="true">
+          {words.map((w, i) => (
+            <span class="w"><span class="w__in" style={`--wi: ${i}`}>{w}</span></span>
+          ))}
+        </span>
+      </h2>
       <p class="unit__presence">{unit.presence}</p>
 
       {unit.slogan && <p class="unit__slogan">{unit.slogan}</p>}
@@ -73,12 +85,13 @@ const isSupermarket = !unit.href;
             href={unit.href}
             rel="noopener"
             aria-label={`Deschide ${unit.domain}`}
+            data-magnet
           >
             {unit.domain}
             <span aria-hidden="true">↗</span>
           </a>
         ) : (
-          <a class="unit__cta unit__cta--internal" href="#snagov-plaza">
+          <a class="unit__cta unit__cta--internal" href="#snagov-plaza" data-magnet>
             Vezi adresa și programul
             <span aria-hidden="true">↓</span>
           </a>
@@ -91,7 +104,7 @@ const isSupermarket = !unit.href;
     {/* The far side of the gap. The group owns no photography, so the "large
         visual" the brief asks for here is a turquoise field carrying the unit's
         number. Decorative: the real index and slogan are in the column above. */}
-    <div class="unit__panel" aria-hidden="true" data-reveal style="--i: 1">
+    <div class="unit__panel" aria-hidden="true" data-animate="tilt" data-shear>
       <span class="unit__panelIndex tnum" data-depth="-52">{unit.index}</span>
       {unit.slogan && <span class="unit__panelSlogan" data-depth="-18">{unit.slogan}</span>}
     </div>

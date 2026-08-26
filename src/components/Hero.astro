@@ -21,6 +21,10 @@ const hoursLine = SUPERMARKET_HOURS.map((h) => `${h.days} ${h.open}–${h.close}
   <div class="top__glow top__glow--a" aria-hidden="true"></div>
   <div class="top__glow top__glow--b" aria-hidden="true"></div>
 
+  {/* The Three.js VIZAVI scene mounts here, lazily, behind everything.
+      Without JS or under reduced motion the glows above are the whole floor. */}
+  <div class="top__scene" data-scene aria-hidden="true"></div>
+
   <Fascia />
 
   <section class="hero" id="continut">
@@ -100,6 +104,14 @@ const hoursLine = SUPERMARKET_HOURS.map((h) => `${h.days} ${h.open}–${h.close}
     position: absolute;
     border-radius: 999px;
     pointer-events: none;
+  }
+
+  .top__scene {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    /* the DOM keeps the last word over the render */
+    mask-image: linear-gradient(180deg, black 62%, transparent 96%);
   }
 
   .top__glow--a {

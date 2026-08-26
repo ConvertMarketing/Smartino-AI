@@ -86,6 +86,9 @@ const browser = await chromium.launch({ executablePath: EXE, args: ['--no-sandbo
 for (const [label, width, height] of VIEWPORTS) {
   console.log(`\n[${label}px]`);
   const page = await browser.newPage({ viewport: { width, height } });
+  // The entrance curtain plays once per tab and locks scroll while it runs;
+  // geometry checks skip it (it has its own dedicated behaviour test).
+  await page.addInitScript(() => sessionStorage.setItem('smartino-intro', '1'));
   const consoleErrors = [];
   page.on('console', (m) => m.type() === 'error' && consoleErrors.push(m.text()));
   page.on('pageerror', (e) => consoleErrors.push(String(e)));
