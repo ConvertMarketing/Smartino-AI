@@ -324,9 +324,9 @@ function scene(): void {
       /* offline chunk or no WebGL: the gradient floor stays */
     });
   };
-  'requestIdleCallback' in window
-    ? (window as Window & { requestIdleCallback: (cb: () => void) => void }).requestIdleCallback(load)
-    : window.setTimeout(load, 350);
+  const w = window as Window & { requestIdleCallback?: (cb: () => void) => void };
+  if (w.requestIdleCallback) w.requestIdleCallback(load);
+  else window.setTimeout(load, 350);
 }
 
 document.documentElement.setAttribute('data-ready', '');
