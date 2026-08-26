@@ -55,23 +55,27 @@ jobs:
       # were both clean, so this gate asserts that nothing overlaps, no
       # container collapses under absolutely-positioned children, and the page
       # still works with reduced motion and with JavaScript off.
-      # Pinned to the playwright-core version in package.json: a mismatched
-      # browser revision is not guaranteed to be drivable by it.
+      # The browser root is pinned explicitly. Two runs failed because the
+      # install reported success while the resolver found nothing under the
+      # default cache, so the location is no longer left to convention.
       - name: Install Chromium for verification
-        id: chromium
         continue-on-error: true
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/.pw-browsers
         run: |
-          npx --yes playwright@1.62.1 install --with-deps chromium
-          echo "--- unde a aterizat ---"
-          ls -1 "$HOME/.cache/ms-playwright" 2>/dev/null || echo "(cache inexistent)"
-          echo "PLAYWRIGHT_BROWSERS_PATH=${PLAYWRIGHT_BROWSERS_PATH:-<nesetat>}"
+          set -x
+          npx --yes playwright@1.62.1 install chromium
+          echo "--- continutul rootului fixat ---"
+          ls -1 "$PLAYWRIGHT_BROWSERS_PATH" || echo "(gol sau inexistent)"
+          find "$PLAYWRIGHT_BROWSERS_PATH" -maxdepth 3 -name chrome -o -maxdepth 3 -name headless_shell || true
 
-      # TODO: devine blocant (continue-on-error scos) imediat ce trece verde de
-      # doua ori la rand pe runner. Pana atunci raporteaza, dar nu blocheaza
-      # publicarea: gate-ul a picat de doua ori din cauza mediului, nu a paginii,
-      # si a tinut pe loc o reparatie deja validata local.
+      # TODO: continue-on-error se scoate imediat ce acest pas trece verde de
+      # doua ori la rand. Un gate care blocheaza publicarea unei reparatii
+      # corecte e mai daunator decat lipsa lui -- s-a intamplat deja de doua ori.
       - name: Verify rendered page
         continue-on-error: true
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/.pw-browsers
         run: |
           npm run preview -- --port 4321 &
           npx wait-on -t 60000 http://localhost:4321/Smartino-AI/
