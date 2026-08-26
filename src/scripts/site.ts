@@ -1,4 +1,4 @@
-import { MOTION, prefersReducedMotion } from '../lib/motion';
+import { prefersReducedMotion } from '../lib/motion';
 
 const reduced = prefersReducedMotion();
 
@@ -267,129 +267,31 @@ function story(): void {
 }
 
 /* ---------------------------------------------------------------------------
- * The carousel: four store cards on a real CSS 3D ring.
- *
- * The ring itself is pure CSS (rotateY · translateZ); this drives exactly one
- * number, --rot, and one attribute, data-active. It turns by itself every few
- * seconds, yields to any human signal -- hover, focus inside, a drag -- and
- * snaps to the nearest quarter when the hand lets go. Keyboard focus brings
- * the focused card to the front by the short way round, so tabbing through
- * the four links is itself a tour of the group.
- *
- * The entry spin owns the stage's transition first; stepping (data-live) and
- * dragging (data-drag) only take over once it has landed or been cancelled.
- * Under reduced motion the ring never moves on its own and every jump is
- * instant, but the buttons, the drag and the focus behaviour all still work.
+ * The tilt: each hero card leans toward the pointer while the hand is on it.
+ * Two custom properties, read by the card's own transform. Pointer-only --
+ * touch and reduced motion never see it, and without it the card is simply a
+ * card.
  * ------------------------------------------------------------------------ */
-function carousel(): void {
-  const car = document.querySelector<HTMLElement>('[data-carousel]');
-  const stage = car?.querySelector<HTMLElement>('.car__stage');
-  const persp = car?.querySelector<HTMLElement>('.car__persp');
-  if (!car || !stage || !persp) return;
-
-  const cards = car.querySelectorAll<HTMLAnchorElement>('.car__card');
-  const step = 360 / cards.length;
-  let rot = 0;
-  let live = reduced;
-  let auto: number | undefined;
-  let dragged = false;
-
-  const apply = (): void => {
-    stage.style.setProperty('--rot', `${rot}deg`);
-    car.dataset.active = String(((Math.round(-rot / step) % cards.length) + cards.length) % cards.length);
-  };
-
-  const go = (dir: number): void => {
-    rot -= dir * step;
-    apply();
-  };
-
-  const halt = (): void => window.clearInterval(auto);
-  const rest = (): void => {
-    halt();
-    if (reduced || !live || car.hasAttribute('data-drag')) return;
-    auto = window.setInterval(() => go(1), MOTION.carousel);
-  };
-
-  const armed = (): void => {
-    if (live) return;
-    live = true;
-    car.setAttribute('data-live', '');
-    rest();
-  };
-  if (!reduced) {
-    const done = (e: TransitionEvent): void => {
-      if (e.target === stage && e.propertyName === 'transform') armed();
-    };
-    stage.addEventListener('transitionend', done);
-    stage.addEventListener('transitioncancel', done);
-    // If the entry never fires (stage off-screen, tab in background), the
-    // ring still has to come alive eventually.
-    window.setTimeout(armed, 2400);
-  }
-
-  // Any human presence silences the self-turning; it resumes on leave.
-  car.addEventListener('pointerenter', halt);
-  car.addEventListener('pointerleave', rest);
-  car.addEventListener('focusin', halt);
-  car.addEventListener('focusout', (e) => {
-    if (!car.contains(e.relatedTarget as Node)) rest();
-  });
-  document.addEventListener('visibilitychange', () => (document.hidden ? halt() : rest()));
-
-  car.querySelector('.car__prev')?.addEventListener('click', () => go(-1));
-  car.querySelector('.car__next')?.addEventListener('click', () => go(1));
-
-  cards.forEach((card, i) => {
-    card.addEventListener('focusin', () => {
-      const front = -i * step;
-      rot = front + Math.round((rot - front) / 360) * 360;
-      apply();
+function tilt(): void {
+  if (reduced || !matchMedia('(hover: hover)').matches) return;
+  for (const card of document.querySelectorAll<HTMLElement>('[data-tilt]')) {
+    let raf = 0;
+    card.addEventListener('pointermove', (e) => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        const r = card.getBoundingClientRect();
+        const px = (e.clientX - r.left) / r.width - 0.5;
+        const py = (e.clientY - r.top) / r.height - 0.5;
+        card.style.setProperty('--ry', `${(px * 9).toFixed(2)}deg`);
+        card.style.setProperty('--rx', `${(-py * 7).toFixed(2)}deg`);
+      });
     });
-  });
-
-  // The drag: pointer capture on the perspective box, degrees per pixel.
-  let x0 = 0;
-  let r0 = 0;
-  persp.addEventListener('pointerdown', (e) => {
-    if (e.button !== 0) return;
-    halt();
-    x0 = e.clientX;
-    r0 = rot;
-    dragged = false;
-    persp.setPointerCapture(e.pointerId);
-    car.setAttribute('data-drag', '');
-  });
-  persp.addEventListener('pointermove', (e) => {
-    if (!persp.hasPointerCapture(e.pointerId)) return;
-    const dx = e.clientX - x0;
-    if (Math.abs(dx) > 6) dragged = true;
-    rot = r0 + dx * 0.35;
-    apply();
-  });
-  const drop = (e: PointerEvent): void => {
-    if (!persp.hasPointerCapture(e.pointerId)) return;
-    persp.releasePointerCapture(e.pointerId);
-    car.removeAttribute('data-drag');
-    rot = Math.round(rot / step) * step;
-    apply();
-    rest();
-  };
-  persp.addEventListener('pointerup', drop);
-  persp.addEventListener('pointercancel', drop);
-
-  // A drag that ends on a card must not follow the link under it, and the
-  // native image drag would steal the pointer mid-gesture.
-  persp.addEventListener(
-    'click',
-    (e) => {
-      if (!dragged) return;
-      e.preventDefault();
-      e.stopPropagation();
-    },
-    true
-  );
-  persp.addEventListener('dragstart', (e) => e.preventDefault());
+    card.addEventListener('pointerleave', () => {
+      card.style.removeProperty('--rx');
+      card.style.removeProperty('--ry');
+    });
+  }
 }
 
 /* ---------------------------------------------------------------------------
@@ -413,7 +315,7 @@ function chips(): void {
 
 document.documentElement.setAttribute('data-ready', '');
 story();
-carousel();
+tilt();
 chips();
 reveals();
 countUps();

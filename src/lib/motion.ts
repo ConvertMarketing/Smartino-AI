@@ -32,8 +32,6 @@ export const MOTION = {
   exit: 160,
   /** Between staggered siblings. */
   stagger: 70,
-  /** The hero ring's own tempo between self-advances. */
-  carousel: 4500,
 } as const;
 
 /** Honoured everywhere. Not a nice-to-have. */
