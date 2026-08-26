@@ -1,6 +1,6 @@
 ---
 import { Image } from 'astro:assets';
-import travertin from '../assets/textures/travertin.jpg';
+import terasa from '../assets/photos/gradina-terasa.jpg';
 import { TIMELINE, FACTS, MOLDOVA_OPERATOR } from '../lib/data';
 
 /**
@@ -87,11 +87,12 @@ const chapters = [
         <span class="story__ticks"></span>
       </div>
 
-      {/* Plate 3 — the material: real travertine from the Home catalogue. */}
+      {/* Plate 3 — real photography from the group's own Home campaign:
+          the garden the store furnishes. */}
       <div class="story__plate" data-plate="3">
         <Image
           class="story__photo"
-          src={travertin}
+          src={terasa}
           alt=""
           widths={[640, 960, 1440]}
           sizes="(max-width: 899px) 100vw, 46vw"
