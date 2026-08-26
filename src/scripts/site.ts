@@ -29,54 +29,6 @@ function reveals(): void {
 }
 
 /* ---------------------------------------------------------------------------
- * The response
- *
- * Activating one of the two physical units makes the other answer across the
- * gap. This is the signature, and it is the only place on the page where one
- * element's state changes another's.
- *
- * Pointer, keyboard and touch all drive the same state. On touch there is no
- * hover, so the first tap activates and the link still fires -- the response is
- * a side effect of navigating, never a gate in front of it.
- * ------------------------------------------------------------------------ */
-function response(): void {
-  const rows = document.querySelector<HTMLElement>('[data-rows]');
-  if (!rows) return;
-
-  const cards = rows.querySelectorAll<HTMLElement>('[data-unit]');
-  let timer: number | undefined;
-
-  const activate = (unit: string): void => {
-    if (rows.dataset.active === unit) return;
-    window.clearTimeout(timer);
-    rows.dataset.active = unit;
-    // The rule crosses, then the responding edge lands. Under reduced motion
-    // both are instant and this timeout is simply zero.
-    timer = window.setTimeout(
-      () => rows.setAttribute('data-landed', ''),
-      reduced ? 0 : MOTION.micro
-    );
-  };
-
-  const clear = (): void => {
-    window.clearTimeout(timer);
-    delete rows.dataset.active;
-    rows.removeAttribute('data-landed');
-  };
-
-  for (const card of cards) {
-    const unit = card.dataset.unit!;
-    card.addEventListener('pointerenter', () => activate(unit));
-    card.addEventListener('focusin', () => activate(unit));
-    card.addEventListener('touchstart', () => activate(unit), { passive: true });
-  }
-  rows.addEventListener('pointerleave', clear);
-  rows.addEventListener('focusout', (e) => {
-    if (!rows.contains(e.relatedTarget as Node)) clear();
-  });
-}
-
-/* ---------------------------------------------------------------------------
  * Leaving
  *
  * The tint is painted alongside a navigation that has already been allowed to
@@ -315,18 +267,129 @@ function story(): void {
 }
 
 /* ---------------------------------------------------------------------------
- * The seam: a real range input drives the split between the two worlds, so
- * dragging, touch and arrow keys all come free from the platform.
+ * The carousel: four store cards on a real CSS 3D ring.
+ *
+ * The ring itself is pure CSS (rotateY · translateZ); this drives exactly one
+ * number, --rot, and one attribute, data-active. It turns by itself every few
+ * seconds, yields to any human signal -- hover, focus inside, a drag -- and
+ * snaps to the nearest quarter when the hand lets go. Keyboard focus brings
+ * the focused card to the front by the short way round, so tabbing through
+ * the four links is itself a tour of the group.
+ *
+ * The entry spin owns the stage's transition first; stepping (data-live) and
+ * dragging (data-drag) only take over once it has landed or been cancelled.
+ * Under reduced motion the ring never moves on its own and every jump is
+ * instant, but the buttons, the drag and the focus behaviour all still work.
  * ------------------------------------------------------------------------ */
-function seam(): void {
-  const hero = document.querySelector<HTMLElement>('[data-split]');
-  const range = hero?.querySelector<HTMLInputElement>('.seam__input');
-  if (!hero || !range) return;
+function carousel(): void {
+  const car = document.querySelector<HTMLElement>('[data-carousel]');
+  const stage = car?.querySelector<HTMLElement>('.car__stage');
+  const persp = car?.querySelector<HTMLElement>('.car__persp');
+  if (!car || !stage || !persp) return;
+
+  const cards = car.querySelectorAll<HTMLAnchorElement>('.car__card');
+  const step = 360 / cards.length;
+  let rot = 0;
+  let live = reduced;
+  let auto: number | undefined;
+  let dragged = false;
+
   const apply = (): void => {
-    hero.style.setProperty('--split', `${range.value}%`);
+    stage.style.setProperty('--rot', `${rot}deg`);
+    car.dataset.active = String(((Math.round(-rot / step) % cards.length) + cards.length) % cards.length);
   };
-  range.addEventListener('input', apply);
-  apply();
+
+  const go = (dir: number): void => {
+    rot -= dir * step;
+    apply();
+  };
+
+  const halt = (): void => window.clearInterval(auto);
+  const rest = (): void => {
+    halt();
+    if (reduced || !live || car.hasAttribute('data-drag')) return;
+    auto = window.setInterval(() => go(1), MOTION.carousel);
+  };
+
+  const armed = (): void => {
+    if (live) return;
+    live = true;
+    car.setAttribute('data-live', '');
+    rest();
+  };
+  if (!reduced) {
+    const done = (e: TransitionEvent): void => {
+      if (e.target === stage && e.propertyName === 'transform') armed();
+    };
+    stage.addEventListener('transitionend', done);
+    stage.addEventListener('transitioncancel', done);
+    // If the entry never fires (stage off-screen, tab in background), the
+    // ring still has to come alive eventually.
+    window.setTimeout(armed, 2400);
+  }
+
+  // Any human presence silences the self-turning; it resumes on leave.
+  car.addEventListener('pointerenter', halt);
+  car.addEventListener('pointerleave', rest);
+  car.addEventListener('focusin', halt);
+  car.addEventListener('focusout', (e) => {
+    if (!car.contains(e.relatedTarget as Node)) rest();
+  });
+  document.addEventListener('visibilitychange', () => (document.hidden ? halt() : rest()));
+
+  car.querySelector('.car__prev')?.addEventListener('click', () => go(-1));
+  car.querySelector('.car__next')?.addEventListener('click', () => go(1));
+
+  cards.forEach((card, i) => {
+    card.addEventListener('focusin', () => {
+      const front = -i * step;
+      rot = front + Math.round((rot - front) / 360) * 360;
+      apply();
+    });
+  });
+
+  // The drag: pointer capture on the perspective box, degrees per pixel.
+  let x0 = 0;
+  let r0 = 0;
+  persp.addEventListener('pointerdown', (e) => {
+    if (e.button !== 0) return;
+    halt();
+    x0 = e.clientX;
+    r0 = rot;
+    dragged = false;
+    persp.setPointerCapture(e.pointerId);
+    car.setAttribute('data-drag', '');
+  });
+  persp.addEventListener('pointermove', (e) => {
+    if (!persp.hasPointerCapture(e.pointerId)) return;
+    const dx = e.clientX - x0;
+    if (Math.abs(dx) > 6) dragged = true;
+    rot = r0 + dx * 0.35;
+    apply();
+  });
+  const drop = (e: PointerEvent): void => {
+    if (!persp.hasPointerCapture(e.pointerId)) return;
+    persp.releasePointerCapture(e.pointerId);
+    car.removeAttribute('data-drag');
+    rot = Math.round(rot / step) * step;
+    apply();
+    rest();
+  };
+  persp.addEventListener('pointerup', drop);
+  persp.addEventListener('pointercancel', drop);
+
+  // A drag that ends on a card must not follow the link under it, and the
+  // native image drag would steal the pointer mid-gesture.
+  persp.addEventListener(
+    'click',
+    (e) => {
+      if (!dragged) return;
+      e.preventDefault();
+      e.stopPropagation();
+    },
+    true
+  );
+  persp.addEventListener('dragstart', (e) => e.preventDefault());
 }
 
 /* ---------------------------------------------------------------------------
@@ -350,12 +413,11 @@ function chips(): void {
 
 document.documentElement.setAttribute('data-ready', '');
 story();
-seam();
+carousel();
 chips();
 reveals();
 countUps();
 scrollFx();
 magnetics();
-response();
 leaving();
 schedule();

@@ -1,20 +1,33 @@
 ---
 import { Image } from 'astro:assets';
-import terasa from '../assets/photos/gradina-terasa.jpg';
-import { COMPANY, SUPERMARKET_HOURS } from '../lib/data';
+import familie from '../assets/photos/familie-lounge.jpg';
+import { COMPANY, UNITS, SUPERMARKET_HOURS } from '../lib/data';
 
 /**
- * The hero IS the concept, in one gesture: two worlds facing each other across
- * a seam you can drag. Left, the daily-needs world of the first store, drawn
- * in flat brand turquoise with its aisle lines; right, the home world of the
- * second, in real photography from the group's own campaign. The wordmark
- * sits astride the seam, belonging to both.
+ * The hero: the group as a 3D carousel of store cards.
  *
- * The seam is a real <input type="range">, full-bleed and invisible, so
- * dragging, touch and arrow keys all come free from the platform. Without JS
- * the split simply rests at half.
+ * Four cards stand on a real CSS 3D ring (rotateY · translateZ, no library).
+ * Each card is image-on-top, caption underneath: name, one line, the exit.
+ * The ring turns by itself, follows a drag, answers the arrow buttons, and
+ * snaps whichever card receives keyboard focus to the front.
+ *
+ * On entry the ring spins up from a wound position while the title rises out
+ * of its mask. Under reduced motion nothing turns on its own and the entry is
+ * simply the page being there; without JavaScript the ring stands still with
+ * card 01 facing forward, every link still a link.
+ *
+ * The units without any real photography (01, 03, 04) carry their drawn
+ * fields -- the aisle, the bubbles, the route -- rather than a fake photo.
  */
 const hoursShort = SUPERMARKET_HOURS.map((h) => `${h.open}–${h.close}`).join(' · ');
+const [u1, u2, u3, u4] = UNITS;
+
+const cards = [
+  { unit: u1, art: null, pattern: 'aisle', href: '#snagov-plaza', exit: hoursShort, line: 'Nevoile zilnice ale familiei, din 2025.' },
+  { unit: u2, art: familie, pattern: null, href: u2.href!, exit: u2.domain!, line: 'Peste 1.200 m² de acasă, vizavi.' },
+  { unit: u3, art: null, pattern: 'bloom', href: u3.href!, exit: u3.domain!, line: 'Îngrijire și curățenie, livrate în toată țara.' },
+  { unit: u4, art: null, pattern: 'route', href: u4.href!, exit: u4.domain!, line: 'Partenerul din Republica Moldova.' },
+];
 ---
 
 <header class="fascia">
@@ -22,78 +35,72 @@ const hoursShort = SUPERMARKET_HOURS.map((h) => `${h.open}–${h.close}`).join('
   <span class="fascia__where">{COMPANY.address.oneLine}</span>
 </header>
 
-<section class="split" id="continut" data-split>
-  {/* Right world: home. Sits underneath, full-bleed. */}
-  <div class="split__world split__world--home" aria-hidden="true">
-    <Image
-      class="split__photo"
-      src={terasa}
-      alt=""
-      widths={[768, 1280, 1920]}
-      sizes="100vw"
-      loading="eager"
-      fetchpriority="high"
-    />
-    <span class="split__scrim"></span>
-    <p class="split__tag split__tag--right tnum">2026 · Smartino Home · 1.200 m²</p>
-  </div>
-
-  {/* Left world: daily needs. Clipped by the seam. */}
-  <div class="split__world split__world--daily" aria-hidden="true">
-    <span class="split__aisle"></span>
-    <p class="split__tag split__tag--left tnum">2025 · Smartino Supermarket · {hoursShort}</p>
-  </div>
-
-  {/* The seam itself. */}
-  <span class="seam" aria-hidden="true">
-    <span class="seam__grip">
-      <span class="seam__chev">‹</span><span class="seam__chev">›</span>
-    </span>
-  </span>
-
-  <input
-    class="seam__input"
-    type="range"
-    min="16"
-    max="84"
-    value="50"
-    step="1"
-    aria-label="Trage cusătura dintre cele două magazine"
-  />
-
-  {/* The statement, astride the seam. */}
-  <div class="split__statement">
-    <h1 class="split__title" data-animate="lines">
-      <span class="line"><span class="line__in">SMARTINO</span></span>
+<section class="hero" id="continut">
+  <div class="hero__head">
+    <p class="hero__over" data-reveal>Smartino International</p>
+    <h1 class="hero__title" data-animate="lines">
+      <span class="line"><span class="line__in">Un grup crescut</span></span>
+      <span class="line"><span class="line__in line__in--t">dintr-un singur magazin.</span></span>
     </h1>
-    <p class="split__sub" data-reveal>INTERNATIONAL</p>
-    <p class="split__line" data-reveal style="--i: 1">
-      Două magazine față în față. Un singur grup.
-    </p>
   </div>
 
-  <a class="split__cue" href="#povestea" aria-label="Derulează la poveste">
-    <span class="split__cueLine" aria-hidden="true"></span>
-    <span class="split__cueText">povestea</span>
+  <div class="car" data-carousel data-3d data-animate="ring" aria-label="Magazinele grupului">
+    <div class="car__persp">
+      <div class="car__stage">
+        {
+          cards.map((c, i) => (
+            <a
+              class="car__card"
+              data-i={i}
+              style={`--i: ${i}`}
+              href={c.href}
+              {...c.href.startsWith('http') ? { rel: 'noopener' } : {}}
+              aria-label={
+                c.href.startsWith('http')
+                  ? `${c.unit.name} — deschide ${c.exit}`
+                  : `${c.unit.name} — vezi adresa și programul`
+              }
+            >
+              <span class="car__media" data-pattern={c.pattern}>
+                {c.art && (
+                  <Image src={c.art} alt="" widths={[480, 720]} sizes="330px" loading="eager" />
+                )}
+                <span class="car__n tnum">{c.unit.index}</span>
+              </span>
+              <span class="car__caption">
+                <span class="car__name">{c.unit.name.replace('Smartino ', '')}</span>
+                <span class="car__line">{c.line}</span>
+                <span class="car__exit tnum">{c.exit}</span>
+              </span>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+
+    <div class="car__nav">
+      <button class="car__btn car__prev" type="button" aria-label="Cardul anterior">‹</button>
+      <button class="car__btn car__next" type="button" aria-label="Cardul următor">›</button>
+    </div>
+  </div>
+
+  <a class="hero__cue" href="#povestea" aria-label="Derulează la poveste">
+    <span class="hero__cueLine" aria-hidden="true"></span>
+    <span class="hero__cueText">povestea</span>
   </a>
 </section>
 
 <style>
   .fascia {
-    position: absolute;
-    inset-inline: 0;
-    top: 0;
-    z-index: 5;
-    /* its own scrim: the bar must stay legible over any photo underneath,
-     * not borrow legibility from whatever happens to be there */
-    background-image: linear-gradient(180deg, rgba(11, 15, 16, 0.55), transparent);
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
     min-height: 64px;
     padding-inline: var(--gutter);
-    color: var(--fg-inv);
+    background-color: var(--paper);
+    color: var(--fg);
+    border-bottom: 1px solid rgba(11, 15, 16, 0.12);
   }
 
   .fascia__mark {
@@ -108,151 +115,41 @@ const hoursShort = SUPERMARKET_HOURS.map((h) => `${h.open}–${h.close}`).join('
     letter-spacing: 0.1em;
     text-transform: uppercase;
     text-align: right;
-    opacity: 0.85;
+    color: var(--fg-2);
   }
 
-  .split {
+  .hero {
     position: relative;
-    height: 100dvh;
-    min-height: 560px;
-    overflow: hidden;
-    background-color: var(--ink);
-    --split: 50%;
-  }
-
-  .split__world {
-    position: absolute;
-    inset: 0;
-  }
-
-  .split__photo {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .split__scrim {
-    position: absolute;
-    inset: 0;
-    background-image: linear-gradient(180deg, rgba(11, 15, 16, 0.42), rgba(11, 15, 16, 0.12) 45%, rgba(11, 15, 16, 0.5));
-  }
-
-  /* The daily world: flat brand turquoise, aisle lines running to the seam. */
-  .split__world--daily {
-    background-color: var(--t);
-    background-image:
-      repeating-linear-gradient(100deg, rgba(11, 15, 16, 0.16) 0 2px, transparent 2px 64px),
-      repeating-linear-gradient(80deg, rgba(255, 255, 255, 0.14) 0 1px, transparent 1px 44px),
-      linear-gradient(115deg, var(--t-glow), var(--t) 55%, var(--t-floor));
-    clip-path: inset(0 calc(100% - var(--split)) 0 0);
-    will-change: clip-path;
-  }
-
-  .split__tag {
-    position: absolute;
-    bottom: 5.5rem;
-    font-family: var(--font-display);
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-  }
-
-  .split__tag--left {
-    left: var(--gutter);
-    color: var(--ink);
-  }
-
-  .split__tag--right {
-    right: var(--gutter);
-    color: var(--fg-inv);
-    text-shadow: 0 1px 8px rgba(11, 15, 16, 0.7);
-  }
-
-  /* ---- the seam --------------------------------------------------------- */
-  .seam {
-    position: absolute;
-    inset-block: 0;
-    left: var(--split);
-    width: 2px;
-    margin-left: -1px;
-    background-color: var(--paper);
-    box-shadow: 0 0 24px rgba(75, 216, 232, 0.6);
-    pointer-events: none;
-    z-index: 3;
-  }
-
-  .seam__grip {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    min-height: calc(100dvh - 64px);
     display: flex;
-    align-items: center;
-    gap: 0.375rem;
-    padding: 0.5rem 0.75rem;
-    border-radius: 999px;
+    flex-direction: column;
     background-color: var(--paper);
-    color: var(--ink);
-    font-family: var(--font-display);
-    font-weight: 800;
-    box-shadow: var(--lift-2);
+    background-image: radial-gradient(90% 55% at 50% 118%, rgba(19, 180, 198, 0.16), transparent 62%);
+    overflow: hidden;
   }
 
-  .split:hover .seam__grip {
-    animation: grip-nudge 1.6s var(--ease-in-out) infinite;
-  }
-
-  @keyframes grip-nudge {
-    0%, 100% { transform: translate(-50%, -50%); }
-    50% { transform: translate(calc(-50% + 5px), -50%); }
-  }
-
-  .seam__input {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    cursor: ew-resize;
-    z-index: 4;
-    margin: 0;
-    -webkit-appearance: none;
-    appearance: none;
-  }
-
-  .seam__input::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 96px;
-    height: 100%;
-  }
-
-  .seam__input:focus-visible ~ .split__statement .split__title,
-  .seam__input:focus-visible + .split__statement .split__title {
-    outline: 3px solid var(--paper);
-    outline-offset: 8px;
-  }
-
-  /* ---- the statement ---------------------------------------------------- */
-  .split__statement {
-    position: absolute;
-    inset-inline: 0;
-    top: 50%;
-    transform: translateY(-58%);
+  .hero__head {
     text-align: center;
-    pointer-events: none;
-    z-index: 3;
-    padding-inline: var(--gutter);
+    padding: clamp(1.5rem, 4.5vh, 3.25rem) var(--gutter) 0;
   }
 
-  .split__title {
+  .hero__over {
     font-family: var(--font-display);
-    font-size: clamp(3.25rem, 1rem + 12.5vw, 12.5rem);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.34em;
+    text-transform: uppercase;
+    color: var(--t-deep);
+  }
+
+  .hero__title {
+    margin-top: 0.75rem;
+    font-family: var(--font-display);
+    font-size: clamp(1.875rem, 1.1rem + 3.4vw, 3.75rem);
     font-weight: 800;
-    line-height: 0.92;
-    letter-spacing: 0.01em;
-    color: var(--paper);
-    text-shadow: 0 2px 40px rgba(11, 15, 16, 0.35);
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+    color: var(--fg);
   }
 
   .line {
@@ -267,72 +164,292 @@ const hoursShort = SUPERMARKET_HOURS.map((h) => `${h.open}–${h.close}`).join('
   }
 
   :global([data-js]) .line__in {
-    transform: translate3d(0, 112%, 0);
-    transition: transform 950ms var(--ease-out) 100ms;
+    transform: translate3d(0, 115%, 0);
+    transition: transform 850ms var(--ease-out);
+  }
+
+  :global([data-js]) .line:nth-child(2) .line__in {
+    transition-delay: 130ms;
   }
 
   :global([data-js]) [data-animate='lines'][data-in] .line__in {
     transform: none;
   }
 
+  .line__in--t {
+    color: var(--t-deep);
+  }
+
+  /* ---- the ring --------------------------------------------------------- */
+  .car {
+    position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 0;
+    --cardw: clamp(230px, 24vw, 320px);
+    --cardh: calc(var(--cardw) * 1.38);
+    --radius: calc(var(--cardw) * 1.18);
+  }
+
+  /* The front card projects larger than the stage box (it stands closer than
+     the perspective plane), so the ring gets headroom above and the nav gets
+     clearance below -- both sized from the card, not guessed. */
+  .car__persp {
+    perspective: 2200px;
+    display: grid;
+    place-items: center;
+    padding-block: calc(var(--cardh) * 0.11) 0;
+  }
+
+  /* The drag surface. Horizontal gestures turn the ring, vertical ones stay
+     with the page; without JS there is no drag, so no grab affordance. */
+  :global([data-js]) .car__persp {
+    cursor: grab;
+    touch-action: pan-y;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .car[data-drag] .car__persp {
+    cursor: grabbing;
+  }
+
+  .car__stage {
+    position: relative;
+    width: var(--cardw);
+    height: var(--cardh);
+    transform-style: preserve-3d;
+  }
+
+  /* Entry: the whole orbit spins up from a wound position as the page
+     arrives. The driver's rotation lives on the cards (--rot, inherited from
+     the stage), so the entry owns the stage transform alone. */
+  :global([data-js]) [data-animate='ring'] .car__stage {
+    transform: rotateY(-200deg) scale(0.82);
+    opacity: 0;
+    transition:
+      transform 1300ms var(--ease-out) 250ms,
+      opacity 700ms var(--ease-out) 250ms;
+  }
+
+  :global([data-js]) [data-animate='ring'][data-in] .car__stage {
+    transform: none;
+    opacity: 1;
+  }
+
+  /* Once the entry lands the orbit answers steps in its own tempo... */
+  :global([data-js]) [data-animate='ring'][data-in][data-live] .car__card {
+    transition: transform 700ms var(--ease-out);
+  }
+
+  /* ...and follows a drag with no tempo at all. */
+  :global([data-js]) [data-animate='ring'][data-in][data-drag] .car__card {
+    transition: none;
+  }
+
   @media (prefers-reduced-motion: reduce) {
+    :global([data-js]) [data-animate='ring'] .car__stage {
+      transform: none;
+      opacity: 1;
+      transition: none;
+    }
+    :global([data-js]) [data-animate='ring'][data-in][data-live] .car__card {
+      transition: none;
+    }
     :global([data-js]) .line__in {
       transform: none;
       transition: none;
     }
-    .split:hover .seam__grip {
-      animation: none;
-    }
   }
 
-  .split__sub {
-    margin-top: 0.75rem;
+  /* Each card rides the orbit but keeps facing the viewer: the first rotation
+     places it on the ring, the second cancels the yaw at its own centre. Both
+     terms share one angle, so a transition sweeps an exact orbital arc. */
+  .car__card {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    border-radius: 18px;
+    overflow: hidden;
+    background-color: #fffdf9;
+    box-shadow: var(--lift-2);
+    text-decoration: none;
+    --a: calc(var(--i) * 90deg + var(--rot, 0deg));
+    transform: rotateY(var(--a)) translateZ(var(--radius)) rotateY(calc(var(--a) * -1));
+    backface-visibility: hidden;
+  }
+
+  /* Depth of field, drawn: everyone but the front card sits under a veil. */
+  .car__card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-color: var(--paper);
+    opacity: 0.42;
+    transition: opacity 500ms var(--ease-out);
+    pointer-events: none;
+  }
+
+  .car[data-active='0'] .car__card[data-i='0']::after,
+  .car[data-active='1'] .car__card[data-i='1']::after,
+  .car[data-active='2'] .car__card[data-i='2']::after,
+  .car[data-active='3'] .car__card[data-i='3']::after,
+  .car:not([data-active]) .car__card[data-i='0']::after {
+    opacity: 0;
+  }
+
+  .car__media {
+    position: relative;
+    flex: 1 1 62%;
+    min-height: 0;
+  }
+
+  .car__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .car__media[data-pattern='aisle'] {
+    background-color: var(--t);
+    background-image:
+      repeating-linear-gradient(100deg, rgba(11, 15, 16, 0.16) 0 2px, transparent 2px 46px),
+      repeating-linear-gradient(80deg, rgba(255, 255, 255, 0.14) 0 1px, transparent 1px 32px),
+      linear-gradient(115deg, var(--t-glow), var(--t) 55%, var(--t-floor));
+  }
+
+  .car__media[data-pattern='route'] {
+    background-color: var(--t);
+    background-image:
+      repeating-linear-gradient(115deg, rgba(255, 255, 255, 0.2) 0 12px, transparent 12px 30px),
+      linear-gradient(155deg, var(--t) 30%, var(--t-floor));
+  }
+
+  .car__media[data-pattern='bloom'] {
+    background-color: var(--t);
+    background-image:
+      radial-gradient(circle, rgba(255, 255, 255, 0.24) 0 26%, transparent 27%),
+      radial-gradient(circle, rgba(11, 15, 16, 0.07) 0 18%, transparent 19%),
+      linear-gradient(140deg, var(--t-glow), var(--t) 52%, var(--t-floor));
+    background-size: 64px 64px, 38px 38px, 100% 100%;
+    background-position: 0 0, 19px 27px, 0 0;
+  }
+
+  /* The index rides on its own scrim: photographs cannot promise contrast. */
+  .car__n {
+    position: absolute;
+    left: 0.75rem;
+    top: 0.75rem;
+    padding: 0.3rem 0.3rem 0.3rem 0.55rem;
+    border-radius: 999px;
     font-family: var(--font-display);
-    font-size: clamp(0.6875rem, 0.5rem + 1vw, 1rem);
-    font-weight: 700;
-    letter-spacing: 0.58em;
-    text-indent: 0.58em;
-    color: var(--paper);
-    opacity: 0.92;
+    font-size: 0.6875rem;
+    font-weight: 800;
+    letter-spacing: 0.2em;
+    color: #fffdf9;
+    background-color: rgba(11, 15, 16, 0.72);
   }
 
-  .split__line {
-    margin-top: 1.25rem;
-    font-size: clamp(0.875rem, 0.8rem + 0.4vw, 1.0625rem);
-    color: var(--paper);
-    opacity: 0.85;
-    text-shadow: 0 1px 10px rgba(11, 15, 16, 0.5);
+  /* text under the card's image, as asked: name, one line, the exit */
+  .car__caption {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.875rem 1rem 1rem;
+    border-top: 1px solid rgba(11, 15, 16, 0.08);
+  }
+
+  .car__name {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    color: var(--fg);
+  }
+
+  .car__line {
+    font-size: 0.8125rem;
+    line-height: 1.45;
+    color: var(--fg-2);
+  }
+
+  .car__exit {
+    margin-top: 0.25rem;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--t-deep);
+  }
+
+  /* ---- controls ---------------------------------------------------------
+     The perspective box is a stacking context that paints above plain flow
+     content, so the nav needs its own layer above it or the projected front
+     card would swallow the clicks. */
+  .car__nav {
+    display: none;
+    justify-content: center;
+    gap: 0.875rem;
+    margin-top: calc(var(--cardh) * 0.13);
+    position: relative;
+    z-index: 1;
+  }
+
+  :global([data-js]) .car__nav {
+    display: flex;
+  }
+
+  .car__btn {
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 999px;
+    border: 1px solid rgba(11, 15, 16, 0.3);
+    background-color: transparent;
+    color: var(--fg);
+    font-size: 1.375rem;
+    line-height: 1;
+    cursor: pointer;
+    transition:
+      background-color var(--d-micro) var(--ease-out),
+      color var(--d-micro) var(--ease-out),
+      transform var(--d-micro) var(--ease-out);
+  }
+
+  .car__btn:hover {
+    background-color: var(--ink);
+    color: var(--t-glow);
+    transform: translateY(-2px);
   }
 
   /* ---- cue -------------------------------------------------------------- */
-  .split__cue {
-    position: absolute;
-    left: 50%;
-    bottom: 1rem;
-    transform: translateX(-50%);
-    z-index: 3;
+  .hero__cue {
+    align-self: center;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 0.4rem;
+    padding-bottom: 0.875rem;
     text-decoration: none;
   }
 
-  .split__cueLine {
+  .hero__cueLine {
     width: 1px;
-    height: 40px;
-    background-image: linear-gradient(180deg, transparent, var(--paper));
+    height: 34px;
+    background-image: linear-gradient(180deg, transparent, var(--t-deep));
     position: relative;
     overflow: hidden;
   }
 
-  .split__cueLine::after {
+  .hero__cueLine::after {
     content: '';
     position: absolute;
     inset-inline: 0;
     top: -40%;
     height: 40%;
-    background-color: var(--t-glow);
+    background-color: var(--t);
     animation: cue-drop 1.8s var(--ease-in-out) infinite;
   }
 
@@ -341,40 +458,34 @@ const hoursShort = SUPERMARKET_HOURS.map((h) => `${h.open}–${h.close}`).join('
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .split__cueLine::after { animation: none; }
+    .hero__cueLine::after { animation: none; }
   }
 
-  .split__cueText {
+  .hero__cueText {
     font-family: var(--font-display);
     font-size: 0.625rem;
     font-weight: 700;
     letter-spacing: 0.3em;
     text-transform: uppercase;
-    color: var(--paper);
-    opacity: 0.85;
+    color: var(--fg-2);
   }
 
-  /* ---- small screens: same vertical seam, same gesture ------------------ */
-  @media (max-width: 767px) {
-    .split__tag {
-      font-size: 0.5625rem;
-      letter-spacing: 0.08em;
-      max-width: 38vw;
-      line-height: 1.5;
+  /* A tighter orbit as the screen narrows, so the neighbouring cards keep
+     peeking in from the edges instead of living entirely off-canvas. */
+  @media (max-width: 899px) {
+    .car {
+      --radius: calc(var(--cardw) * 1.05);
     }
+  }
 
-    .split__tag--left {
-      bottom: 7.5rem;
-    }
-
-    .split__tag--right {
-      bottom: 5rem;
-      text-align: right;
-    }
-
+  @media (max-width: 599px) {
     .fascia__where {
       max-width: 11rem;
       font-size: 0.5625rem;
+    }
+
+    .car {
+      --radius: calc(var(--cardw) * 0.92);
     }
   }
 </style>

@@ -99,9 +99,12 @@ for (const [label, width, height] of VIEWPORTS) {
   page.on('requestfailed', (r) => consoleErrors.push(`request: ${r.url()}`));
   await page.goto(URL, { waitUntil: 'networkidle' });
   // Reveal everything: a check that only sees what happens to be on screen is
-  // not a check.
-  await page.evaluate(() => document.querySelectorAll('[data-reveal]').forEach((e) => e.setAttribute('data-in', '')));
-  await page.waitForTimeout(250);
+  // not a check. Then wait for the longest entry transition (staggered word
+  // masks, the hero ring's spin-up) to land, so geometry is measured at rest
+  // rather than mid-flight.
+  await page.evaluate(() =>
+    document.querySelectorAll('[data-reveal], [data-animate]').forEach((e) => e.setAttribute('data-in', '')));
+  await page.waitForTimeout(2600);
 
   const m = await page.evaluate(() => {
     const overflow = document.documentElement.scrollWidth - document.documentElement.clientWidth;
@@ -127,13 +130,16 @@ for (const [label, width, height] of VIEWPORTS) {
       });
     const boxes = leaves.map((e) => {
       const r = e.getBoundingClientRect();
-      return { l: r.left, t: r.top + scrollY, r: r.right, b: r.bottom + scrollY, e };
+      return { l: r.left, t: r.top + scrollY, r: r.right, b: r.bottom + scrollY, e, ring: e.closest('[data-3d]') };
     });
     const overlaps = [];
     for (let i = 0; i < boxes.length; i++) {
       for (let j = i + 1; j < boxes.length; j++) {
         const A = boxes[i], B = boxes[j];
         if (A.e.contains(B.e) || B.e.contains(A.e)) continue;
+        // Cards on the same 3D ring project onto overlapping 2D rects by
+        // design; depth separates them, which flat geometry cannot see.
+        if (A.ring && A.ring === B.ring) continue;
         const ox = Math.min(A.r, B.r) - Math.max(A.l, B.l);
         const oy = Math.min(A.b, B.b) - Math.max(A.t, B.t);
         if (ox <= 2 || oy <= 2) continue;
