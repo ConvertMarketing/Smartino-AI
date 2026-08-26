@@ -209,6 +209,22 @@ const label = external
     opacity: 0.75;
   }
 
+  @media (max-width: 899px) {
+    /* Cards hug their content below 900. The 300px floor exists to hold the two
+     * physical units level across the gap, and there is no gap to hold once
+     * they stack. */
+    .card--large {
+      min-height: 0;
+    }
+    .card--large .card__body {
+      flex: 0 1 auto;
+    }
+    .card--large .card__hours,
+    .card--large .card__door {
+      margin-top: 0.5rem;
+    }
+  }
+
   @media (max-width: 599px) {
     .card--compact {
       flex-direction: column;

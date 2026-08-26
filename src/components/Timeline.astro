@@ -21,7 +21,11 @@ const monthPx = TIMELINE.days / 12.45; // ~30.4px, one month
 
     {/* The measured segment sits ON the band; the labels sit either side of it.
         Nothing crosses the gap -- that is the one rule the whole page rests on. */}
-    <div class="zone2__axis" data-reveal style={`--i: 1`} style={`--days: ${TIMELINE.days}px; --month: ${monthPx}px; --year: ${TIMELINE.yearMark}px;`}>
+    <div
+      class="zone2__axis"
+      data-reveal
+      style={`--i: 1; --days: ${TIMELINE.days}px; --month: ${monthPx}px; --year: ${TIMELINE.yearMark}px;`}
+    >
       <ol class="zone2__events">
         <li class="zone2__event zone2__event--first">
           <span class="zone2__date tnum">{TIMELINE.first.label}</span>
@@ -42,6 +46,10 @@ const monthPx = TIMELINE.days / 12.45; // ~30.4px, one month
         <span class="zone2__year tnum">un an</span>
       </div>
     </div>
+
+    <p class="zone2__caption tnum">
+      <span class="zone2__days">{TIMELINE.days}</span> de zile între cele două deschideri
+    </p>
 
     <dl class="zone2__facts" data-reveal style={`--i: 2`}>
       {
@@ -156,6 +164,19 @@ const monthPx = TIMELINE.days / 12.45; // ~30.4px, one month
     position: relative;
   }
 
+  /* Shown only below 900, where the side columns are too narrow for labels. */
+  .zone2__caption {
+    display: none;
+    margin-top: 1.25rem;
+    font-size: 0.8125rem;
+    color: var(--fg-2);
+  }
+
+  .zone2__days {
+    font-weight: 700;
+    color: var(--fg);
+  }
+
   .zone2__span {
     position: absolute;
     top: 0;
@@ -201,29 +222,29 @@ const monthPx = TIMELINE.days / 12.45; // ~30.4px, one month
   }
 
   @media (max-width: 899px) {
-    /* Half scale, and the scale label says so rather than silently lying
-     * about 1px = 1 day. */
+    /* Full scale is kept: 1px = 1 day stays true, and at half scale the two
+     * event blocks were taller than the segment that had to contain them. */
     .zone2__axis {
-      height: calc(var(--days) / 2);
       grid-template-columns: 1fr 44px;
+      row-gap: 0;
     }
-    .zone2__rule {
-      background-image: repeating-linear-gradient(
-        to bottom,
-        var(--line-strong) 0 1px,
-        transparent 1px calc(var(--month) / 2)
-      );
-    }
-    .zone2__rule::after {
-      top: calc(var(--year) / 2);
-    }
-    .zone2__marks {
-      display: none;
-    }
+
     .zone2__event {
+      right: auto;
+      left: 0;
+      text-align: left;
       max-width: none;
       padding-right: 1rem;
     }
+
+    .zone2__marks {
+      display: none;
+    }
+
+    .zone2__caption {
+      display: block;
+    }
+
     .zone2__facts {
       grid-template-columns: repeat(2, 1fr);
     }

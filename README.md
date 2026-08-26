@@ -20,6 +20,7 @@ npm run dev       # server local, http://localhost:4321/Smartino-AI/
 npm run check     # type check (rulează și în CI)
 npm run build     # build static în ./dist
 npm run preview   # servește ./dist local
+npm run verify    # verifică pagina randată (rulează și în CI)
 ```
 
 > Notă: în dev, site-ul e la `/Smartino-AI/`, nu la `/`. Este intenționat —
@@ -67,6 +68,24 @@ src/
 docs/         audit de brand, asset-uri lipsă, plan de design
 public/       fișiere servite ca atare
 ```
+
+## Verificare
+
+`npm run verify` deschide pagina randată la 390 / 768 / 1024 / 1440 și verifică
+**geometria**, nu doar culoarea și lățimea:
+
+- niciun element cu atribut `style` duplicat
+- zero overflow orizontal
+- niciun text suprapus peste alt text
+- niciun container colapsat care are copii poziționați absolut
+- contrast AA pe fundal solid, cu transparențele compuse peste părintele real
+- diacritice cu virgulă dedesubt, zero sedile
+- zero erori de consolă
+- sub `prefers-reduced-motion` și cu JavaScript dezactivat, tot conținutul rămâne vizibil
+
+Rulează ca gate în CI înainte de deploy. Există pentru că o versiune a ajuns live cu
+zona 2 prăbușită pe toate breakpoint-urile, în timp ce verificările de atunci — contrast
+și overflow — erau ambele verzi.
 
 ## Stare
 

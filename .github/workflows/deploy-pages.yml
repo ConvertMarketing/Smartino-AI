@@ -50,6 +50,20 @@ jobs:
       - name: Build
         run: npm run build
 
+      # Geometry, not just colour and width. A release once shipped a layout
+      # that collapsed on every breakpoint while contrast and overflow checks
+      # were both clean, so this gate asserts that nothing overlaps, no
+      # container collapses under absolutely-positioned children, and the page
+      # still works with reduced motion and with JavaScript off.
+      - name: Install Chromium for verification
+        run: npx playwright install --with-deps chromium
+
+      - name: Verify rendered page
+        run: |
+          npm run preview -- --port 4321 &
+          npx wait-on -t 60000 http://localhost:4321/Smartino-AI/
+          npm run verify
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
