@@ -1,18 +1,26 @@
 ---
 import Fascia from './Fascia.astro';
-import Band from './Band.astro';
-import UnitCard from './UnitCard.astro';
-import { UNITS, TIMELINE, SUPERMARKET_HOURS } from '../lib/data';
-
-const [supermarket, home, shop, moldova] = UNITS;
+import { UNITS, SUPERMARKET_HOURS } from '../lib/data';
 
 /**
- * The pill renders the NEUTRAL hours string, never a computed "open now".
- * The deploy workflow has no schedule trigger, so state baked at build time
- * would freeze at the last deploy and be indexed that way. Live state is Faza 3,
- * after hydration, with public holidays handled.
+ * The hero as a poster, not a dashboard.
+ *
+ * One enormous statement over the 3D scene, everything else reduced to a thin
+ * brand index along the bottom. The cards' information is not lost -- every
+ * unit has its full section below; up here the four directions are exactly
+ * four lines. The response interaction survives on the index: hovering 01
+ * makes 02 answer (and the 3D building flare with it), because those two are
+ * the only pair that actually faces across anything.
  */
-const hoursLine = SUPERMARKET_HOURS.map((h) => `${h.days} ${h.open}–${h.close}`).join(' · ');
+const [supermarket, home, shop, moldova] = UNITS;
+const hoursShort = SUPERMARKET_HOURS.map((h) => `${h.open}–${h.close}`).join(' · ');
+
+const index = [
+  { unit: supermarket, dataUnit: '01', href: '#snagov-plaza', meta: 'schedule', arrow: '\u2193\uFE0E' },
+  { unit: home, dataUnit: '02', href: home.href!, meta: home.domain!, arrow: '\u2197\uFE0E' },
+  { unit: shop, dataUnit: null, href: shop.href!, meta: shop.domain!, arrow: '\u2197\uFE0E' },
+  { unit: moldova, dataUnit: null, href: moldova.href!, meta: moldova.domain!, arrow: '\u2197\uFE0E' },
+];
 ---
 
 <div class="top">
@@ -29,89 +37,71 @@ const hoursLine = SUPERMARKET_HOURS.map((h) => `${h.days} ${h.open}–${h.close}
 
   <section class="hero" id="continut">
     <div class="hero__inner">
-      <h1 class="hero__title" data-animate="lines">
-        <span class="line"><span class="line__in">Un grup crescut</span></span>
-        <span class="line"><span class="line__in line__in--grad">dintr-un singur magazin.</span></span>
-      </h1>
+      <div class="hero__statement">
+        <p class="hero__over" data-reveal>Smartino International · Snagov Plaza</p>
 
-      <p class="hero__deck" data-reveal style="--i: 1">
-        Primul magazin s-a deschis pe {TIMELINE.first.label}, în Snagov Plaza.<br />
-        Al doilea, <span class="tnum" data-count={TIMELINE.days}>{TIMELINE.days}</span> de zile mai târziu, vizavi.
-      </p>
+        <h1 class="hero__title" data-animate="lines">
+          <span class="line"><span class="line__in">Un grup crescut</span></span>
+          <span class="line"><span class="line__in line__in--grad">dintr-un singur magazin.</span></span>
+        </h1>
 
-      <p class="hero__pill tnum" data-reveal data-schedule style="--i: 2">{hoursLine}</p>
-
-      {/* The band starts here, not at the top of the section. The H1 still
-          crosses the axis, but marks running through the letterforms read as a
-          rendering glitch rather than as a measure. */}
-      <div class="hero__rows" data-rows>
-        <Band tone="dark" />
-
-      {/* Row A -- the physical pair. The only one allowed to sit either side of
-          the gap, because it is the only one that actually stands that way. */}
-      <div class="hero__rowA" data-reveal style="--i: 3">
-        <UnitCard unit={supermarket} size="large" align="end" dataUnit="01" />
-        <div class="hero__gap" aria-hidden="true">
-          <span class="hero__rule"></span>
-          <span class="hero__tag" data-for="01">01 →</span>
-          <span class="hero__tag" data-for="02">← 02</span>
-        </div>
-        <UnitCard unit={home} size="large" align="start" dataUnit="02" />
+        <p class="hero__deck" data-reveal style="--i: 2">
+          Două magazine față în față pe DN-1, două cataloage online, două țări.
+        </p>
       </div>
 
-      {/* Row B -- the online pair. It does NOT straddle the gap, it crosses it:
-          these two do not face each other anywhere, so they do not pretend to.
-          The 96px rupture falls before 04. */}
-      <div class="hero__rowB" data-reveal style="--i: 4">
-        <UnitCard unit={shop} size="compact" />
-        <div class="hero__rupture" aria-hidden="true"></div>
-        <UnitCard unit={moldova} size="compact" />
-      </div>
-      </div>
+      {/* The brand index: four directions, four lines. */}
+      <nav class="hx" aria-label="Direcțiile grupului" data-rows data-reveal style="--i: 3">
+        {
+          index.map((row, i) => (
+            <a
+              class="hx__item"
+              href={row.href}
+              data-unit={row.dataUnit}
+              style={`--hxi: ${i}`}
+              {...row.href.startsWith('http') ? { rel: 'noopener' } : {}}
+              aria-label={
+                row.href.startsWith('http')
+                  ? `${row.unit.name} — deschide ${row.meta}`
+                  : `${row.unit.name} — vezi adresa și programul`
+              }
+            >
+              <span class="hx__n tnum">{row.unit.index}</span>
+              <span class="hx__name">{row.unit.name.replace('Smartino ', '')}</span>
+              <span class="hx__meta tnum" {...row.meta === 'schedule' ? { 'data-schedule': '' } : {}}>
+                {row.meta === 'schedule' ? hoursShort : row.meta}
+              </span>
+              <span class="hx__arrow" aria-hidden="true">{row.arrow}</span>
+            </a>
+          ))
+        }
+      </nav>
     </div>
+
+    {/* The scroll cue sits on the band's axis. */}
+    <a class="hero__cue" href="#povestea" aria-label="Derulează la poveste">
+      <span class="hero__cueLine" aria-hidden="true"></span>
+      <span class="hero__cueText">povestea</span>
+    </a>
   </section>
 </div>
 
 <style>
-  /* One continuous dark surface from the first pixel to the end of the hero.
-   * The turquoise is a large field here, not a thin accent -- a wide glow
-   * behind the cards plus a deep stop at the foot. */
   .top {
     position: relative;
     background-color: var(--ink);
     background-image:
-      radial-gradient(120% 85% at 18% 0%, rgba(19, 180, 198, 0.38) 0%, transparent 62%),
-      radial-gradient(90% 70% at 92% 26%, rgba(75, 216, 232, 0.2) 0%, transparent 58%),
-      linear-gradient(180deg, transparent 55%, rgba(10, 91, 101, 0.55) 100%);
+      radial-gradient(120% 85% at 18% 0%, rgba(19, 180, 198, 0.34) 0%, transparent 62%),
+      radial-gradient(90% 70% at 92% 26%, rgba(75, 216, 232, 0.18) 0%, transparent 58%),
+      linear-gradient(180deg, transparent 55%, rgba(10, 91, 101, 0.5) 100%);
     color: var(--fg-inv);
     overflow: hidden;
-  }
-
-  .hero {
-    position: relative;
-    padding-block: 5rem 5.5rem;
-  }
-
-  .hero__inner {
-    position: relative;
-    z-index: 1;
-    max-width: var(--content);
-    margin-inline: auto;
-    padding-inline: var(--gutter);
   }
 
   .top__glow {
     position: absolute;
     border-radius: 999px;
     pointer-events: none;
-  }
-
-  .top__scene {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    /* the DOM keeps the last word over the render */
-    mask-image: linear-gradient(180deg, black 62%, transparent 96%);
   }
 
   .top__glow--a {
@@ -138,21 +128,58 @@ const hoursLine = SUPERMARKET_HOURS.map((h) => `${h.days} ${h.open}–${h.close}
     }
   }
 
-  .hero__title {
-    font-family: var(--font-display);
-    font-size: clamp(2.5rem, 1.4rem + 4.4vw, 5rem);
-    font-weight: 800;
-    line-height: 1.04;
-    letter-spacing: -0.035em;
+  .top__scene {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    mask-image: linear-gradient(180deg, black 68%, transparent 98%);
   }
 
-  /* Line-mask entrance: each line rises out of its own clip, staggered.
-   * Only under [data-js]; without it the title is simply there. */
+  .hero {
+    position: relative;
+    min-height: calc(100dvh - 72px);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .hero__inner {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    width: 100%;
+    max-width: var(--content);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding-block: clamp(2rem, 6vh, 4.5rem) clamp(4rem, 9vh, 6.5rem);
+  }
+
+  .hero__over {
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--t);
+  }
+
+  /* The poster. Big enough to be the hero on its own. */
+  .hero__title {
+    margin-top: 1.25rem;
+    font-family: var(--font-display);
+    font-size: clamp(2.75rem, 1rem + 7.2vw, 7.25rem);
+    font-weight: 800;
+    line-height: 0.99;
+    letter-spacing: -0.04em;
+  }
+
   .line {
     display: block;
     overflow: hidden;
-    padding-bottom: 0.08em; /* keep descenders inside the clip */
-    margin-bottom: -0.08em;
+    padding-bottom: 0.09em;
+    margin-bottom: -0.06em;
   }
 
   .line__in {
@@ -161,11 +188,11 @@ const hoursLine = SUPERMARKET_HOURS.map((h) => `${h.days} ${h.open}–${h.close}
 
   :global([data-js]) .line__in {
     transform: translate3d(0, 118%, 0);
-    transition: transform 850ms var(--ease-out);
+    transition: transform 900ms var(--ease-out);
   }
 
   :global([data-js]) .line:nth-child(2) .line__in {
-    transition-delay: 140ms;
+    transition-delay: 150ms;
   }
 
   :global([data-js]) [data-animate='lines'][data-in] .line__in {
@@ -173,7 +200,7 @@ const hoursLine = SUPERMARKET_HOURS.map((h) => `${h.days} ${h.open}–${h.close}
   }
 
   .line__in--grad {
-    background-image: linear-gradient(92deg, var(--t-glow), var(--t) 70%);
+    background-image: linear-gradient(92deg, var(--t-glow), var(--t) 72%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -187,131 +214,189 @@ const hoursLine = SUPERMARKET_HOURS.map((h) => `${h.days} ${h.open}–${h.close}
   }
 
   .hero__deck {
-    margin-top: 1.75rem;
-    max-width: 36rem;
-    font-size: clamp(1rem, 0.95rem + 0.3vw, 1.1875rem);
-    line-height: 1.55;
+    margin-top: 1.5rem;
+    max-width: 34rem;
+    font-size: clamp(0.9375rem, 0.9rem + 0.25vw, 1.0625rem);
+    line-height: 1.6;
     color: var(--fg-inv-2);
   }
 
-  .hero__pill {
-    display: inline-block;
-    margin-top: 1.5rem;
-    padding: 0.5rem 1.125rem;
-    border-radius: 999px;
-    border: 1px solid rgba(19, 180, 198, 0.5);
-    background-color: rgba(19, 180, 198, 0.08);
-    font-size: 0.8125rem;
+  /* ---- The brand index -------------------------------------------------- */
+  .hx {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+  }
+
+  .hx__item {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+      'n arrow'
+      'name arrow'
+      'meta arrow';
+    align-content: start;
+    row-gap: 0.375rem;
+    padding: 1.375rem 1.25rem 1.25rem 0;
+    margin-right: 1.25rem;
+    border-top: 2px solid transparent;
+    margin-top: -1px;
+    text-decoration: none;
+    color: var(--fg-inv);
+    transition:
+      border-color var(--d-micro) var(--ease-out),
+      background-color var(--d-micro) var(--ease-out);
+  }
+
+  .hx__item + .hx__item {
+    border-left: 1px solid rgba(255, 255, 255, 0.09);
+    padding-left: 1.25rem;
+  }
+
+  .hx__item:hover {
+    border-top-color: var(--t);
+  }
+
+  .hx__n {
+    grid-area: n;
+    font-family: var(--font-display);
+    font-size: 0.6875rem;
+    font-weight: 800;
+    letter-spacing: 0.22em;
     color: var(--t);
   }
 
-  .hero__rows {
-    position: relative;
+  .hx__name {
+    grid-area: name;
+    font-family: var(--font-display);
+    font-size: clamp(1.125rem, 1rem + 0.5vw, 1.5rem);
+    font-weight: 700;
+    letter-spacing: -0.01em;
   }
 
-  .hero__rowA {
-    margin-top: 3rem;
-    display: grid;
-    grid-template-columns: 1fr var(--band) 1fr;
+  .hx__meta {
+    grid-area: meta;
+    font-size: 0.75rem;
+    color: var(--fg-inv-2);
   }
 
-  .hero__rowB {
-    margin-top: 1.25rem;
-    display: grid;
-    grid-template-columns: 1fr 96px 1fr;
-  }
-
-  /* The gap stays empty of CONTENT. What crosses it is the response itself:
-   * a rule and a direction label, both decorative and aria-hidden. */
-  .hero__gap {
-    position: relative;
-    display: grid;
-    place-items: center;
-  }
-
-  .hero__rupture {
-    /* Deliberately empty. */
-  }
-
-  .hero__rule {
-    position: absolute;
-    top: 50%;
-    left: 8%;
-    width: 84%;
-    height: 2px;
-    background-color: var(--t);
-    transform: scaleX(0);
+  .hx__arrow {
+    font-family: var(--font-display);
+    grid-area: arrow;
+    justify-self: end;
+    align-self: start;
+    font-size: 1rem;
+    color: var(--t);
     transition: transform var(--d-micro) var(--ease-out);
   }
 
-  [data-active='01'] .hero__rule {
-    transform-origin: left center;
-    transform: scaleX(1);
+  .hx__item:hover .hx__arrow {
+    transform: translate(3px, -3px);
   }
 
-  [data-active='02'] .hero__rule {
-    transform-origin: right center;
-    transform: scaleX(1);
+  .hx__item[href^='#']:hover .hx__arrow {
+    transform: translateY(3px);
   }
 
-  .hero__tag {
+  /* The response, on the index: activating one physical unit lights the
+   * other's number and top rule. The 3D buildings flare with it. */
+  :global([data-active='01']) .hx__item[data-unit='02'],
+  :global([data-active='02']) .hx__item[data-unit='01'] {
+    border-top-color: var(--t-glow);
+    background-color: rgba(19, 180, 198, 0.07);
+  }
+
+  :global([data-active='01']) .hx__item[data-unit='02'] .hx__n,
+  :global([data-active='02']) .hx__item[data-unit='01'] .hx__n {
+    color: var(--t-glow);
+    text-shadow: 0 0 14px rgba(75, 216, 232, 0.8);
+  }
+
+  /* ---- The scroll cue --------------------------------------------------- */
+  .hero__cue {
+    position: relative;
+    z-index: 1;
+    align-self: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding-bottom: 1.25rem;
+    text-decoration: none;
+  }
+
+  .hero__cueLine {
+    width: 1px;
+    height: 44px;
+    background-image: linear-gradient(180deg, transparent, var(--t) 30%, var(--t));
+    overflow: hidden;
+    position: relative;
+  }
+
+  .hero__cueLine::after {
+    content: '';
     position: absolute;
-    top: calc(50% + 0.875rem);
+    inset-inline: 0;
+    top: -40%;
+    height: 40%;
+    background-color: var(--t-glow);
+    animation: cue-drop 1.8s var(--ease-in-out) infinite;
+  }
+
+  @keyframes cue-drop {
+    to {
+      transform: translateY(350%);
+    }
+  }
+
+  .hero__cueText {
     font-family: var(--font-display);
-    font-size: 0.6875rem;
+    font-size: 0.625rem;
     font-weight: 700;
-    letter-spacing: 0.14em;
-    color: var(--t);
-    opacity: 0;
-    transition: opacity var(--d-micro) var(--ease-out);
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--fg-inv-2);
   }
 
-  [data-landed][data-active='01'] .hero__tag[data-for='01'],
-  [data-landed][data-active='02'] .hero__tag[data-for='02'] {
-    opacity: 1;
-  }
-
-  /* The answer: the card OPPOSITE the active one takes the edge. Hovering 01
-   * lights 02; hovering 02 sends it back. */
-  /* :global because the cards are rendered by UnitCard.astro, so Astro's
-   * per-component style scoping would otherwise never match them from here. */
-  [data-active='01'] :global([data-unit='02']),
-  [data-active='02'] :global([data-unit='01']) {
-    box-shadow:
-      0 0 0 3px var(--t),
-      var(--lift-t);
-  }
-
-  :global([data-unit]) {
-    transition: box-shadow var(--d-micro) var(--ease-out);
+  .hero__cue:hover .hero__cueText {
+    color: var(--t-glow);
   }
 
   @media (prefers-reduced-motion: reduce) {
-    /* The rule does not travel and the label does not fade. The meaning still
-     * arrives in full: which unit answers is carried by the edge and the label,
-     * not by the movement. */
-    .hero__rule,
-    .hero__tag,
-    :global([data-unit]) {
-      transition-duration: 0ms;
+    .hero__cueLine::after {
+      animation: none;
     }
   }
 
+  /* ---- Small screens ---------------------------------------------------- */
   @media (max-width: 899px) {
     .hero {
-      padding-block: 3rem 3.5rem;
+      min-height: calc(100dvh - 56px);
     }
-    .hero__rowA {
+
+    .hx {
       grid-template-columns: 1fr;
-      gap: var(--band);
+      border-top: none;
     }
-    .hero__rowB {
-      grid-template-columns: 1fr;
-      gap: 1rem;
+
+    .hx__item {
+      grid-template-areas: 'n name arrow' 'n meta arrow';
+      grid-template-columns: 2.25rem 1fr auto;
+      row-gap: 0.125rem;
+      column-gap: 0.25rem;
+      padding: 0.875rem 0;
+      margin-right: 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
     }
-    .hero__gap,
-    .hero__rupture {
-      display: none;
+
+    .hx__item + .hx__item {
+      border-left: none;
+      padding-left: 0;
+    }
+
+    .hx__name {
+      font-size: 1.0625rem;
     }
   }
 </style>

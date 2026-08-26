@@ -31,10 +31,13 @@ function init(mount: HTMLElement): void {
   mount.appendChild(renderer.domElement);
 
   const scene = new THREE.Scene();
-  scene.fog = new THREE.Fog(0x0b0f10, 8, 22);
+  scene.fog = new THREE.Fog(0x0b0f10, 9, 24);
+  // The composition is a poster: the headline owns the left, the stage sits
+  // right of centre and slightly deeper.
+  scene.position.set(1.9, 0, -0.6);
 
   const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 60);
-  camera.position.set(0, 2.1, 8.4);
+  camera.position.set(0, 2.0, 7.6);
 
   // -- floor: a dark plane plus a fading measurement grid --------------------
   const floor = new THREE.Mesh(
@@ -46,7 +49,7 @@ function init(mount: HTMLElement): void {
 
   const grid = new THREE.GridHelper(40, 56, 0x1a3d43, 0x142b30);
   (grid.material as THREE.Material).transparent = true;
-  (grid.material as THREE.Material).opacity = 0.5;
+  (grid.material as THREE.Material).opacity = 0.32;
   grid.position.y = 0.001;
   scene.add(grid);
 
@@ -103,7 +106,7 @@ function init(mount: HTMLElement): void {
   scene.add(rim);
 
   // -- dust in the light -----------------------------------------------------
-  const N = 500;
+  const N = 700;
   const pos = new Float32Array(N * 3);
   for (let i = 0; i < N; i++) {
     pos[i * 3] = (Math.random() - 0.5) * 16;
@@ -172,8 +175,8 @@ function init(mount: HTMLElement): void {
     // camera: slow breathing + pointer parallax + scroll pull-back
     camera.position.x = Math.sin(s * 0.16) * 0.5 + mx * 0.9;
     camera.position.y = lerp(2.1 + my * -0.35, 5.2, leave);
-    camera.position.z = 8.4 + leave * 4.5;
-    camera.lookAt(0, 0.9 - leave * 0.4, 0);
+    camera.position.z = 7.6 + leave * 4.5;
+    camera.lookAt(1.4, 0.9 - leave * 0.4, -0.6);
 
     // dust rises and wraps
     const p = dustGeo.attributes.position as THREE.BufferAttribute;
