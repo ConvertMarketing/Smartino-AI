@@ -14,9 +14,48 @@
  *   npm run build && npm run preview &   then   node scripts/verify.mjs
  */
 import { chromium } from 'playwright-core';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 
 const URL = process.env.VERIFY_URL ?? 'http://localhost:4321/Smartino-AI/';
-const EXE = process.env.CHROMIUM ?? '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
+/**
+ * Resolve a Chromium binary wherever this happens to run.
+ *
+ * A hardcoded path worked locally and failed on the CI runner, which installs
+ * browsers into a different root -- so the gate that was meant to catch layout
+ * regressions became the thing that blocked the deploy.
+ */
+function findChromium() {
+  if (process.env.CHROMIUM) return process.env.CHROMIUM;
+  const roots = [
+    process.env.PLAYWRIGHT_BROWSERS_PATH,
+    '/opt/pw-browsers',
+    path.join(os.homedir(), '.cache', 'ms-playwright'),
+    path.join(os.homedir(), 'Library', 'Caches', 'ms-playwright'),
+  ].filter(Boolean);
+
+  for (const root of roots) {
+    if (!fs.existsSync(root)) continue;
+    for (const dir of fs.readdirSync(root)) {
+      if (!/^chromium/.test(dir)) continue;
+      for (const rel of [
+        'chrome-linux/chrome',
+        'chrome-linux/headless_shell',
+        'chrome-mac/Chromium.app/Contents/MacOS/Chromium',
+      ]) {
+        const candidate = path.join(root, dir, rel);
+        if (fs.existsSync(candidate)) return candidate;
+      }
+    }
+  }
+  throw new Error(
+    'Chromium negasit. Cauta in: ' + roots.join(', ') +
+    '. Ruleaza `npx playwright install chromium` sau seteaza CHROMIUM.'
+  );
+}
+
+const EXE = findChromium();
 const VIEWPORTS = [
   ['390', 390, 844],
   ['768', 768, 1024],
