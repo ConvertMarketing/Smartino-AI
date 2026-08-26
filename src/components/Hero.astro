@@ -90,7 +90,7 @@ const cards = [
     gap: 1rem;
     min-height: 64px;
     padding-inline: var(--gutter);
-    background-color: var(--paper);
+    background-color: var(--mist);
     color: var(--fg);
     border-bottom: 1px solid rgba(11, 15, 16, 0.12);
   }
@@ -115,9 +115,64 @@ const cards = [
     min-height: calc(100dvh - 64px);
     display: flex;
     flex-direction: column;
-    background-color: var(--paper);
-    background-image: radial-gradient(90% 55% at 50% 118%, rgba(19, 180, 198, 0.16), transparent 62%);
+    background-color: var(--mist);
     overflow: hidden;
+  }
+
+  /* ---- the living ground ------------------------------------------------
+     Two decorative layers under everything: soft turquoise auroras adrift,
+     and a fine dot grid sliding diagonally. Both move by transform only, and
+     the grid travels exact tile multiples so its loop has no seam. Washes
+     stay at or under 0.20 alpha: every text colour on this ground clears AA
+     even at the deepest point of a wash. */
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: -22%;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      radial-gradient(38% 30% at 22% 24%, rgba(19, 180, 198, 0.2), transparent 68%),
+      radial-gradient(44% 36% at 82% 72%, rgba(75, 216, 232, 0.17), transparent 70%),
+      radial-gradient(30% 26% at 60% 10%, rgba(11, 111, 122, 0.1), transparent 72%);
+    animation: aurora-drift 26s var(--ease-in-out) infinite alternate;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    inset: -30%;
+    z-index: 0;
+    pointer-events: none;
+    background-image: radial-gradient(rgba(11, 15, 16, 0.055) 1px, transparent 1.5px);
+    background-size: 24px 24px;
+    animation: grid-drift 48s linear infinite;
+  }
+
+  @keyframes aurora-drift {
+    to {
+      transform: translate3d(4%, 6%, 0) rotate(6deg) scale(1.08);
+    }
+  }
+
+  @keyframes grid-drift {
+    to {
+      transform: translate3d(240px, 168px, 0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero::before,
+    .hero::after {
+      animation: none;
+    }
+  }
+
+  .hero__head,
+  .units,
+  .hero__cue {
+    position: relative;
+    z-index: 1;
   }
 
   .hero__head {
@@ -127,9 +182,9 @@ const cards = [
 
   .hero__over {
     font-family: var(--font-display);
-    font-size: 0.6875rem;
+    font-size: clamp(0.9375rem, 0.7rem + 0.8vw, 1.25rem);
     font-weight: 700;
-    letter-spacing: 0.34em;
+    letter-spacing: 0.3em;
     text-transform: uppercase;
     color: var(--t-deep);
   }
