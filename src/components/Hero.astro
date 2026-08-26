@@ -130,7 +130,7 @@ const cards = [
 
   .hero__head {
     text-align: center;
-    padding: clamp(1.5rem, 4.5vh, 3.25rem) var(--gutter) 0;
+    padding: clamp(1.25rem, 3.5vh, 2.5rem) var(--gutter) 0;
   }
 
   .hero__over {
@@ -145,7 +145,7 @@ const cards = [
   .hero__title {
     margin-top: 0.75rem;
     font-family: var(--font-display);
-    font-size: clamp(1.875rem, 1.1rem + 3.4vw, 3.75rem);
+    font-size: clamp(1.75rem, 1rem + 3vw, 3.4rem);
     font-weight: 800;
     line-height: 1.02;
     letter-spacing: -0.03em;
@@ -188,19 +188,22 @@ const cards = [
     flex-direction: column;
     justify-content: center;
     min-height: 0;
-    --cardw: clamp(230px, 24vw, 320px);
-    --cardh: calc(var(--cardw) * 1.38);
+    --cardw: clamp(230px, 24vw, 300px);
+    --cardh: calc(var(--cardw) * 1.26);
     --radius: calc(var(--cardw) * 1.18);
+    /* how far the orbit's far side rises above its near side */
+    --lift: calc(var(--cardh) * 0.19);
   }
 
-  /* The front card projects larger than the stage box (it stands closer than
-     the perspective plane), so the ring gets headroom above and the nav gets
-     clearance below -- both sized from the card, not guessed. */
+  /* The card behind rises above the card in front (the tilted orbit below),
+     and the front card projects larger than the stage box -- so the ring gets
+     headroom above and the nav gets clearance below, both sized from the
+     card, not guessed. */
   .car__persp {
     perspective: 2200px;
     display: grid;
     place-items: center;
-    padding-block: calc(var(--cardh) * 0.11) 0;
+    padding-block: calc(var(--cardh) * 0.32) 0;
   }
 
   /* The drag surface. Horizontal gestures turn the ring, vertical ones stay
@@ -280,6 +283,17 @@ const cards = [
     --a: calc(var(--i) * 90deg + var(--rot, 0deg));
     transform: rotateY(var(--a)) translateZ(var(--radius)) rotateY(calc(var(--a) * -1));
     backface-visibility: hidden;
+  }
+
+  /* The orbit is seen slightly from above: the further round a card sits,
+     the higher it rides, so the far card peeks over the near one and all
+     four stay in sight. cos() keeps it continuous for any rotation; browsers
+     without CSS trigonometry keep the flat orbit above. */
+  @supports (top: calc(1px * cos(0deg))) {
+    .car__card {
+      transform: rotateY(var(--a)) translateZ(var(--radius)) rotateY(calc(var(--a) * -1))
+        translateY(calc((cos(var(--a)) - 1) * var(--lift)));
+    }
   }
 
   /* Depth of field, drawn: everyone but the front card sits under a veil. */
@@ -393,7 +407,7 @@ const cards = [
     display: none;
     justify-content: center;
     gap: 0.875rem;
-    margin-top: calc(var(--cardh) * 0.13);
+    margin-top: calc(var(--cardh) * 0.145);
     position: relative;
     z-index: 1;
   }
@@ -431,13 +445,13 @@ const cards = [
     flex-direction: column;
     align-items: center;
     gap: 0.4rem;
-    padding-bottom: 0.875rem;
+    padding-bottom: 0.625rem;
     text-decoration: none;
   }
 
   .hero__cueLine {
     width: 1px;
-    height: 34px;
+    height: 24px;
     background-image: linear-gradient(180deg, transparent, var(--t-deep));
     position: relative;
     overflow: hidden;
