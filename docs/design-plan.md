@@ -304,3 +304,40 @@ Clientul a semnalat că scheletul static nu are suficient impact. Planul alesese
 „un singur moment wow, restul disciplinat". Registrul s-a schimbat: hero pe gradient
 închis cu H1 la 80 px, panouri de turcoaz cu umbre stratificate, tipografie mult mai mare.
 Impactul static trebuie să existe **înainte** de animație.
+
+## Revizie: macheta 3D (secțiunea a doua)
+
+Clientul a construit în Claude Design o machetă 3D a ansamblului Snagov Plaza
+și a cerut, în cuvinte simple, „o a doua secțiune HERO … ceva WOW cu ajutorul
+acestei machete", trecând explicit peste bugetul de JavaScript din brief.
+
+**Ce s-a construit.** `Maquette.astro` + `src/scripts/maquette.ts`: modelul,
+viu, într-o secțiune pinată de 260vh. Camera zboară pe trei chei conduse de
+scroll (ansamblu → trecere joasă pe lângă supermarket → sosire deasupra
+inelului Home), mâna poate roti oricând, modelul derivă lent singur când e
+lăsat în pace, iar cele două clădiri răspund la hover — în scenă și pe
+etichetele HTML, care sunt linkuri reale proiectate din ancore 3D la fiecare
+cadru.
+
+**Modelul.** Sursa (Draco, 618 KB, 2.964 de noduri — fiecare copac, mașină și
+linie de parcare un nod propriu) trece prin `scripts/model.mjs`: instanțiere
+GPU pentru copii (`EXT_mesh_gpu_instancing`), unire pe materiale pentru restul,
+cuantizare, meshopt. Rezultat: 438 KB, 60 de noduri, ~204k de triunghiuri
+randate, 16 noduri adresabile cu nume. Materialul `turcoaz` e mutat pe
+turcoazul de brand, singurul permis de paletă.
+
+**Bugetul, măsurat.** three.js + încărcător + decodor meshopt: chunk separat
+de ~160 KB gzip, cerut abia când secțiunea e la un ecran de viewport; bundle-ul
+principal rămâne ~2,7 KB gzip. Modelul: 438 KB (≈209 KB gzip). Posterul
+pre-randat acoperă LCP-ul secțiunii până sosesc ambele.
+
+**Degradări.** Fără WebGL sau la eșec de încărcare rămâne posterul
+(`scripts/poster.mjs` îl randează din aceeași scenă, sub reduced-motion, și
+scrie pozițiile etichetelor lângă el). Fără JavaScript: poster + etichete la
+pozițiile posterului + fără indiciul „trage ca să rotești". Cu reduced-motion:
+nimic nu se mișcă singur — nici zborul, nici deriva — dar drag-ul rămâne,
+fiind persoana cea care mișcă.
+
+**De clarificat cu clientul.** Macheta e o ilustrație, etichetată ca atare pe
+pagină („nu un plan tehnic"). Amprentele clădirilor și traseul drumurilor
+trebuie confirmate față de terenul real înainte de lansare.

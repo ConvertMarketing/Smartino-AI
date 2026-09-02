@@ -145,9 +145,10 @@ function countUps(): void {
   const run = (el: HTMLElement): void => {
     const target = parseInt(el.dataset.count!, 10);
     const suffix = el.dataset.suffix ?? '';
-    const t0 = performance.now();
+    let t0 = 0;
     const dur = 1200;
     const tick = (t: number): void => {
+      if (!t0) t0 = t; // the clock starts at the first frame, not at the request
       const k = Math.min(1, (t - t0) / dur);
       const eased = 1 - Math.pow(1 - k, 3);
       el.textContent = Math.round(target * eased).toLocaleString('ro-RO') + suffix;
@@ -295,6 +296,29 @@ function tilt(): void {
 }
 
 /* ---------------------------------------------------------------------------
+ * The maquette: three.js and the model are a separate chunk, fetched only once
+ * the section is within a screen of the viewport. Until then -- and forever,
+ * without WebGL -- the section is its pre-rendered poster and two links.
+ * ------------------------------------------------------------------------ */
+function maquette(): void {
+  const section = document.querySelector<HTMLElement>('[data-maquette]');
+  if (!section || !('IntersectionObserver' in window)) return;
+  const io = new IntersectionObserver(
+    (entries) => {
+      if (!entries.some((e) => e.isIntersecting)) return;
+      io.disconnect();
+      import('./maquette')
+        .then((m) => m.mount(section))
+        .catch(() => {
+          /* the poster stays */
+        });
+    },
+    { rootMargin: '100% 0px' }
+  );
+  io.observe(section);
+}
+
+/* ---------------------------------------------------------------------------
  * The index chips: a floating image follows the pointer along the giant list.
  * Pointer-only -- touch and reduced motion never see it.
  * ------------------------------------------------------------------------ */
@@ -316,6 +340,7 @@ function chips(): void {
 document.documentElement.setAttribute('data-ready', '');
 story();
 tilt();
+maquette();
 chips();
 reveals();
 countUps();

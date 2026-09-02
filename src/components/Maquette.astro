@@ -1,0 +1,335 @@
+---
+import { Image } from 'astro:assets';
+import poster from '../assets/photos/snagov-plaza-macheta.png';
+import pins from '../data/maquette-pins.json';
+import { COMPANY, UNITS, TIMELINE, SUPERMARKET_HOURS, FACTS } from '../lib/data';
+
+/**
+ * The maquette: Snagov Plaza as a living 3D model, one fold under the hero.
+ *
+ * The scene itself lives in src/scripts/maquette.ts and arrives lazily. This
+ * file ships everything that must work before -- or without -- it: the
+ * pre-rendered poster (scripts/poster.mjs writes it from the very same
+ * scene), the two labels as real links at their poster positions, and the
+ * words. When the model is live the labels are re-projected every frame and
+ * the poster fades under the canvas.
+ *
+ * The model is an illustration of the plot, drawn by the client in Claude
+ * Design. It is labelled as such on the page and must not be read as a site
+ * plan. TODO(client): confirm the maquette's footprints and road layout
+ * against the real plot before launch.
+ */
+const [, home] = UNITS;
+const hours = SUPERMARKET_HOURS.map((h) => `${h.open}–${h.close}`).join(' · ');
+const area = FACTS[1].value;
+---
+
+<section class="mq" id="macheta" aria-labelledby="mq-title" data-maquette>
+  <div class="mq__stage" data-mq-stage>
+    <div class="mq__canvas" data-mq-canvas aria-hidden="true"></div>
+    <Image
+      class="mq__poster"
+      src={poster}
+      alt="Macheta ilustrativă a ansamblului Snagov Plaza: inelul Smartino Home și hala Smartino Supermarket"
+      widths={[720, 1200, 1600]}
+      sizes="100vw"
+      loading="lazy"
+    />
+
+    <div class="mq__copy">
+      <p class="mq__kicker" data-reveal>{COMPANY.address.oneLine}</p>
+      <h2 class="mq__title" id="mq-title" data-reveal>Două magazine, un singur loc.</h2>
+      <p class="mq__lead" data-reveal>
+        Smartino Supermarket, deschis din {TIMELINE.first.label}. Smartino Home, peste {area}, din{' '}
+        {TIMELINE.second.label}. Vizavi unul de celălalt, la DN-1.
+      </p>
+      <p class="mq__note">Machetă ilustrativă a ansamblului — nu un plan tehnic.</p>
+    </div>
+
+    <a
+      class="mq__pin"
+      data-pin="supermarket"
+      href="#snagov-plaza"
+      style={`left: ${pins.supermarket.x}%; top: ${pins.supermarket.y}%`}
+      aria-label="Smartino Supermarket — vezi adresa și programul"
+    >
+      <span class="mq__tag">
+        <span class="mq__tagName">Supermarket</span>
+        <span class="mq__tagMeta tnum">{hours}</span>
+      </span>
+    </a>
+    <a
+      class="mq__pin"
+      data-pin="home"
+      href={home.href}
+      rel="noopener"
+      style={`left: ${pins.home.x}%; top: ${pins.home.y}%`}
+      aria-label={`Smartino Home — deschide ${home.domain}`}
+    >
+      <span class="mq__tag">
+        <span class="mq__tagName">Home</span>
+        <span class="mq__tagMeta tnum">din {TIMELINE.second.label} · {area}</span>
+      </span>
+    </a>
+
+    <p class="mq__hint" data-mq-hint>Trage ca să rotești · derulează ca să zbori</p>
+  </div>
+</section>
+
+<style>
+  .mq {
+    position: relative;
+    height: 260vh;
+    background-color: var(--ink);
+    color: var(--fg-inv);
+  }
+
+  .mq__stage {
+    position: sticky;
+    top: 0;
+    height: 100dvh;
+    overflow: hidden;
+    background-color: var(--ink);
+  }
+
+  /* studio light behind the model: a turquoise pool low on the floor and a
+     vignette at the edges, both on a layer the text never sits on */
+  .mq__stage::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      radial-gradient(60% 45% at 62% 82%, rgba(19, 180, 198, 0.22), transparent 70%),
+      radial-gradient(120% 90% at 50% 50%, transparent 55%, rgba(0, 0, 0, 0.55) 100%);
+  }
+
+  .mq__canvas {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 900ms var(--ease-out);
+    touch-action: pan-y;
+    user-select: none;
+    -webkit-user-select: none;
+    cursor: grab;
+  }
+
+  .mq[data-dragging] .mq__canvas {
+    cursor: grabbing;
+  }
+
+  .mq[data-ready] .mq__canvas {
+    opacity: 1;
+  }
+
+  .mq__canvas :global(canvas) {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .mq__poster {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 900ms var(--ease-out);
+  }
+
+  .mq[data-ready] .mq__poster {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* ---- words ------------------------------------------------------------ */
+  /* The words open the scene, then step aside: once the flight is a fifth
+     of the way through (--mqp, written by the scene each frame) the model
+     has the screen to itself. Without the scene, --mqp is 0 and they stay. */
+  .mq__copy {
+    position: absolute;
+    z-index: 3;
+    left: var(--gutter);
+    top: clamp(3.5rem, 9vh, 6.5rem);
+    max-width: 27rem;
+    pointer-events: none;
+    opacity: clamp(0, calc((0.3 - var(--mqp, 0)) / 0.16), 1);
+  }
+
+  .mq__kicker {
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--t-glow);
+  }
+
+  .mq__title {
+    margin-top: 0.875rem;
+    font-family: var(--font-display);
+    font-size: clamp(1.75rem, 1.1rem + 2.4vw, 3rem);
+    font-weight: 800;
+    line-height: 1.02;
+    letter-spacing: -0.025em;
+    color: var(--fg-inv);
+  }
+
+  .mq__lead {
+    margin-top: 1rem;
+    font-size: 0.9375rem;
+    line-height: 1.55;
+    color: var(--fg-inv-2);
+    max-width: 24rem;
+  }
+
+  .mq__note {
+    margin-top: 1.25rem;
+    font-size: 0.6875rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--fg-inv-2);
+  }
+
+  /* ---- labels: real links, projected from the model ---------------------- */
+  /* the anchor itself: a lit point on the building, the tag floats above it */
+  .mq__pin {
+    position: absolute;
+    z-index: 2;
+    width: 10px;
+    height: 10px;
+    margin: -5px 0 0 -5px;
+    border-radius: 50%;
+    background-color: var(--t);
+    box-shadow: 0 0 0 4px rgba(19, 180, 198, 0.28);
+    text-decoration: none;
+  }
+
+  .mq__tag {
+    --tx: -50%;
+    --stem: 50%;
+    position: absolute;
+    left: 50%;
+    bottom: 19px;
+    transform: translateX(var(--tx));
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding: 0.55rem 0.8rem 0.6rem;
+    border-radius: 10px;
+    white-space: nowrap;
+    background-color: rgba(11, 15, 16, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    box-shadow: var(--lift-2);
+    transition:
+      transform var(--d-micro) var(--ease-out),
+      border-color var(--d-micro) var(--ease-out),
+      box-shadow var(--d-micro) var(--ease-out);
+  }
+
+  /* the stem down to the anchor */
+  .mq__tag::after {
+    content: '';
+    position: absolute;
+    left: var(--stem);
+    top: 100%;
+    width: 1px;
+    height: 14px;
+    background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.5), var(--t));
+  }
+
+  .mq__pin:hover .mq__tag,
+  .mq__pin[data-hot] .mq__tag,
+  .mq__pin:focus-visible .mq__tag {
+    transform: translateX(var(--tx)) translateY(-4px);
+    border-color: var(--t);
+    box-shadow: var(--lift-t);
+  }
+
+  .mq__pin[data-edge='l'] .mq__tag {
+    --tx: -12%;
+    --stem: 12%;
+  }
+
+  .mq__pin[data-edge='r'] .mq__tag {
+    --tx: -88%;
+    --stem: 88%;
+  }
+
+  .mq__pin[data-behind] {
+    visibility: hidden;
+  }
+
+  .mq__tagName {
+    font-family: var(--font-display);
+    font-size: 0.9375rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    color: var(--fg-inv);
+  }
+
+  .mq__tagMeta {
+    font-size: 0.6875rem;
+    letter-spacing: 0.04em;
+    color: var(--fg-inv-2);
+  }
+
+  /* ---- hint ------------------------------------------------------------ */
+  .mq__hint {
+    display: none;
+    position: absolute;
+    z-index: 3;
+    left: 50%;
+    bottom: 1.25rem;
+    transform: translateX(-50%);
+    font-family: var(--font-display);
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--fg-inv-2);
+    pointer-events: none;
+    transition: opacity 600ms var(--ease-out);
+  }
+
+  :global([data-js]) .mq__hint {
+    display: block;
+  }
+
+  .mq[data-dragged] .mq__hint {
+    opacity: 0;
+  }
+
+  @media (max-width: 899px) {
+    .mq {
+      height: 220vh;
+    }
+
+    .mq__copy {
+      right: var(--gutter);
+      max-width: none;
+      top: clamp(2.5rem, 6vh, 4rem);
+    }
+
+    .mq__lead {
+      max-width: 22rem;
+    }
+
+    .mq__tag {
+      padding: 0.45rem 0.65rem 0.5rem;
+    }
+
+    .mq__tagName {
+      font-size: 0.8125rem;
+    }
+
+    .mq__tagMeta {
+      font-size: 0.625rem;
+    }
+  }
+</style>
