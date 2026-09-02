@@ -55,11 +55,13 @@ for (const mat of root.listMaterials()) {
 
 await doc.transform(dedup());
 
-// The pin poles share a mesh with the umbrella poles and the supermarket's
-// parapet with other boxes; instancing would fold them into anonymous
-// batches. A private copy of the mesh keeps each an addressable named node.
+// After dedup, the supermarket's body and roof are the same unit cube as
+// hundreds of other boxes, the pin poles the same cylinder as the umbrella
+// poles; instancing would fold them into anonymous batches and leave the
+// named nodes empty -- the building simply vanished. A private copy of the
+// mesh keeps every addressable node its own geometry.
 for (const node of root.listNodes()) {
-  if (/^(pin_tija|supermarket_atic)/.test(node.getName()) && node.getMesh()) node.setMesh(node.getMesh().clone());
+  if (KEEP.test(node.getName()) && node.getMesh()) node.setMesh(node.getMesh().clone());
 }
 
 await doc.transform(
