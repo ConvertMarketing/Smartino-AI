@@ -296,6 +296,41 @@ function tilt(): void {
 }
 
 /* ---------------------------------------------------------------------------
+ * The hero ground leans toward the pointer and drifts with the scroll. Two
+ * numbers on the section, read by one transform; pointer-only for the lean,
+ * and nothing at all under reduced motion.
+ * ------------------------------------------------------------------------ */
+function ground(): void {
+  const hero = document.querySelector<HTMLElement>('[data-hero]');
+  if (!hero || reduced) return;
+  let raf = 0;
+  if (matchMedia('(hover: hover)').matches) {
+    hero.addEventListener('pointermove', (e) => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        const r = hero.getBoundingClientRect();
+        hero.style.setProperty('--mx', (((e.clientX - r.left) / r.width) * 2 - 1).toFixed(3));
+        hero.style.setProperty('--my', (((e.clientY - r.top) / r.height) * 2 - 1).toFixed(3));
+      });
+    });
+    hero.addEventListener('pointerleave', () => {
+      hero.style.setProperty('--mx', '0');
+      hero.style.setProperty('--my', '0');
+    });
+  }
+  let sraf = 0;
+  const onScroll = (): void => {
+    if (sraf) return;
+    sraf = requestAnimationFrame(() => {
+      sraf = 0;
+      hero.style.setProperty('--sy', String(Math.min(window.scrollY, window.innerHeight * 1.5) * 0.28));
+    });
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+}
+
+/* ---------------------------------------------------------------------------
  * The maquette: three.js and the model are a separate chunk, fetched only once
  * the section is within a screen of the viewport. Until then -- and forever,
  * without WebGL -- the section is its pre-rendered poster and two links.
@@ -340,6 +375,7 @@ function chips(): void {
 document.documentElement.setAttribute('data-ready', '');
 story();
 tilt();
+ground();
 maquette();
 chips();
 reveals();
