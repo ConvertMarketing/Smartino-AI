@@ -319,16 +319,17 @@ lăsat în pace, iar cele două clădiri răspund la hover — în scenă și pe
 etichetele HTML, care sunt linkuri reale proiectate din ancore 3D la fiecare
 cadru.
 
-**Modelul.** Sursa (Draco, 618 KB, 2.964 de noduri — fiecare copac, mașină și
-linie de parcare un nod propriu) trece prin `scripts/model.mjs`: instanțiere
-GPU pentru copii (`EXT_mesh_gpu_instancing`), unire pe materiale pentru restul,
-cuantizare, meshopt. Rezultat: 438 KB, 60 de noduri, ~204k de triunghiuri
-randate, 16 noduri adresabile cu nume. Materialul `turcoaz` e mutat pe
+**Modelul.** Sursa (exportul brut three.js din Claude Design, 2,3 MB, 2.964
+de noduri — fiecare copac, mașină și linie de parcare un nod propriu; o primă
+predare Draco cuantizase detaliile) trece prin `scripts/model.mjs`:
+instanțiere GPU pentru copii (`EXT_mesh_gpu_instancing`), unire pe materiale
+pentru restul, cuantizare pe 16 biți, texturi WebP, meshopt. Rezultat: 432 KB,
+60 de noduri, ~204k de triunghiuri randate, 16 noduri adresabile cu nume. Materialul `turcoaz` e mutat pe
 turcoazul de brand, singurul permis de paletă.
 
 **Bugetul, măsurat.** three.js + încărcător + decodor meshopt: chunk separat
 de ~160 KB gzip, cerut abia când secțiunea e la un ecran de viewport; bundle-ul
-principal rămâne ~2,7 KB gzip. Modelul: 438 KB (≈209 KB gzip). Posterul
+principal rămâne ~2,7 KB gzip. Modelul: 432 KB (≈188 KB gzip). Posterul
 pre-randat acoperă LCP-ul secțiunii până sosesc ambele.
 
 **Degradări.** Fără WebGL sau la eșec de încărcare rămâne posterul

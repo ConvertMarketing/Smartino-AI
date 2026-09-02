@@ -1,11 +1,12 @@
 /**
  * The maquette pipeline: source GLB -> the file the site ships.
  *
- * The source (exported from Claude Design) is Draco-compressed but carries
- * 2.964 individually named nodes -- every tree, car and parking line -- so
- * 85% of its bytes are JSON and, rendered as-is, it would cost ~3.000 draw
- * calls a frame. That is what makes a phone stutter, not the triangle count
- * (~19k).
+ * The source is the raw three.js export from Claude Design (2.3 MB, full
+ * float precision; an earlier Draco hand-off had quantized the details
+ * away). It carries 2.964 individually named nodes -- every tree, car and
+ * parking line -- so rendered as-is it would cost ~3.000 draw calls a frame.
+ * That is what makes a phone stutter, not the triangle count (~204k with
+ * every instance counted).
  *
  * So: keep names only on what the runtime addresses (the two buildings, the
  * label pins, the plinth), join everything else by material, quantize, and
@@ -17,7 +18,8 @@
  */
 import { NodeIO } from '@gltf-transform/core';
 import { ALL_EXTENSIONS } from '@gltf-transform/extensions';
-import { dedup, instance, flatten, join, weld, quantize, prune, meshopt } from '@gltf-transform/functions';
+import { dedup, instance, flatten, join, weld, quantize, prune, meshopt, textureCompress } from '@gltf-transform/functions';
+import sharp from 'sharp';
 import draco3d from 'draco3dgltf';
 import { MeshoptEncoder } from 'meshoptimizer';
 import fs from 'node:fs';
@@ -68,8 +70,12 @@ await doc.transform(
   flatten(),
   join({ keepNamed: true }),
   weld(),
-  quantize({ quantizePosition: 14, quantizeNormal: 10, quantizeTexcoord: 12 }),
+  // 16-bit positions cost the same bytes as 14-bit (int16 either way) and
+  // keep four times the precision: the fine parking lines survive.
+  quantize({ quantizePosition: 16, quantizeNormal: 12, quantizeTexcoord: 12 }),
   prune(),
+  // the billboard and the two plaque faces: PNG -> WebP, invisible at scene scale
+  textureCompress({ encoder: sharp, targetFormat: 'webp', quality: 86 }),
   meshopt({ encoder: MeshoptEncoder, level: 'medium' })
 );
 
