@@ -18,7 +18,7 @@
  */
 import { NodeIO } from '@gltf-transform/core';
 import { ALL_EXTENSIONS } from '@gltf-transform/extensions';
-import { dedup, instance, flatten, join, weld, quantize, prune, meshopt, textureCompress } from '@gltf-transform/functions';
+import { dedup, instance, flatten, join, weld, quantize, prune, meshopt, textureCompress, transformMesh } from '@gltf-transform/functions';
 import sharp from 'sharp';
 import draco3d from 'draco3dgltf';
 import { MeshoptEncoder } from 'meshoptimizer';
@@ -60,8 +60,29 @@ await doc.transform(dedup());
 // poles; instancing would fold them into anonymous batches and leave the
 // named nodes empty -- the building simply vanished. A private copy of the
 // mesh keeps every addressable node its own geometry.
+// quantize() compensates a mesh's node scale once per distinct vertex data,
+// and the buildings are all the same unit cube: the body came out right, the
+// parapet and the roof exactly twice too big. So every addressable node gets
+// a private copy of its mesh AND its node transform baked into the vertices,
+// which makes the data unique per node. The label plaques keep their
+// translation on the node, since the runtime reads it as the pin anchor.
+const IDENTITY = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
 for (const node of root.listNodes()) {
-  if (KEEP.test(node.getName()) && node.getMesh()) node.setMesh(node.getMesh().clone());
+  if (!KEEP.test(node.getName()) || !node.getMesh()) continue;
+  const mesh = node.getMesh().clone();
+  for (const prim of mesh.listPrimitives()) {
+    for (const semantic of prim.listSemantics()) prim.setAttribute(semantic, prim.getAttribute(semantic).clone());
+    if (prim.getIndices()) prim.setIndices(prim.getIndices().clone());
+  }
+  if (node.getName().startsWith('pin_placa')) {
+    const [sx, sy, sz] = node.getScale();
+    transformMesh(mesh, [sx, 0, 0, 0, 0, sy, 0, 0, 0, 0, sz, 0, 0, 0, 0, 1]);
+    node.setScale([1, 1, 1]);
+  } else {
+    transformMesh(mesh, node.getMatrix());
+    node.setMatrix(IDENTITY);
+  }
+  node.setMesh(mesh);
 }
 
 await doc.transform(
