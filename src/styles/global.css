@@ -284,3 +284,37 @@ body {
     transition: none;
   }
 }
+
+/* ---- page progress ---------------------------------------------------------
+   A hairline of brand turquoise that grows with the scroll: the page keeps its
+   own place. Driven by the scroll timeline; without support it stays at zero. */
+.progress {
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 3px;
+  z-index: 60;
+  background-color: var(--t);
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+  pointer-events: none;
+}
+
+/* the timeline sits in its own rule of higher specificity (doubled class):
+   apart from the shorthand, so the minifier cannot fold it into `animation:`
+   (a form no browser parses), and above it, so the shorthand's reset of
+   animation-timeline does not win the cascade */
+@supports (animation-timeline: scroll(root)) {
+  .progress {
+    animation: progress-grow linear both;
+  }
+
+  .progress.progress {
+    animation-timeline: scroll(root);
+  }
+}
+
+@keyframes progress-grow {
+  to {
+    transform: scaleX(1);
+  }
+}

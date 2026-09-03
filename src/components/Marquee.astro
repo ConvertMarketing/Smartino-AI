@@ -7,14 +7,45 @@
 const LINE = 'SUPERMARKET · HOME · SHOP · MOLDOVA · ';
 ---
 
+<div class="marquee-wrap">
 <div class="marquee" aria-hidden="true">
   <div class="marquee__track">
     <span class="marquee__text">{LINE}</span>
     <span class="marquee__text">{LINE}</span>
   </div>
 </div>
+</div>
 
 <style>
+  /* the strip is pushed sideways by the scroll (below); this box clips that
+     push so the page never grows a horizontal scrollbar */
+  .marquee-wrap {
+    overflow: hidden;
+  }
+
+  /* the whole strip slides against the scroll while it crosses the viewport,
+     over and above the track's own drift */
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .marquee {
+        animation: marquee-shift linear both;
+      }
+
+      .marquee.marquee {
+        animation-timeline: view();
+      }
+    }
+  }
+
+  @keyframes marquee-shift {
+    from {
+      transform: translateX(6%);
+    }
+    to {
+      transform: translateX(-6%);
+    }
+  }
+
   .marquee {
     overflow: hidden;
     padding-block: 1.25rem;

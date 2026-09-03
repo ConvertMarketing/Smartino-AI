@@ -26,6 +26,26 @@ import { COMPANY } from '../lib/data';
 </section>
 
 <style>
+  /* the block arrives a touch smaller and settles to size while it enters */
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .stmt__inner {
+        animation: stmt-settle linear both;
+      }
+
+      .stmt__inner.stmt__inner {
+        animation-timeline: view();
+        animation-range: entry 0% entry 90%;
+      }
+    }
+  }
+
+  @keyframes stmt-settle {
+    from {
+      transform: translateY(6vh) scale(0.96);
+    }
+  }
+
   .stmt {
     background-color: var(--paper);
     color: var(--fg);

@@ -166,8 +166,8 @@ const cards = [
   /* the stage: solid brand turquoise at the floor, dissolving upward, with a
      light sweeping across it forever */
   .hero__floor {
-    top: 44%;
-    background-image: linear-gradient(180deg, transparent 0%, rgba(19, 180, 198, 0.55) 34%, var(--t) 62%, var(--t-floor) 100%);
+    top: 50%;
+    background-image: linear-gradient(180deg, transparent 0%, rgba(19, 180, 198, 0.24) 42%, rgba(19, 180, 198, 0.56) 100%);
   }
 
   .hero__floor::after {
@@ -244,6 +244,65 @@ const cards = [
   .hero__cue {
     position: relative;
     z-index: 1;
+  }
+
+  /* ---- leaving the hero, on the scroll itself -----------------------------
+     The words rise faster than the page and fade; the deck tips back and
+     sinks. Both are driven by the scroll position, not by time, so they
+     follow the hand exactly and cost nothing. Browsers without scroll-driven
+     animations simply scroll; reduced motion keeps only the fade. */
+  /* The timeline lives in its own rule, apart from the shorthand, and with
+     HIGHER specificity (the doubled class): the minifier would otherwise fold
+     it into `animation:`, a form no browser parses -- and in a separate rule
+     of lower specificity the shorthand's reset of animation-timeline would
+     win, leaving a zero-duration animation stuck at its end state. */
+  @supports (animation-timeline: scroll(root)) {
+    .hero__head {
+      animation: head-away linear both;
+    }
+
+    .hero__head.hero__head {
+      animation-timeline: scroll(root);
+      animation-range: 0 80vh;
+    }
+
+    .units {
+      animation: deck-away linear both;
+    }
+
+    .units.units {
+      animation-timeline: scroll(root);
+      animation-range: 0 100vh;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .hero__head {
+        animation-name: head-fade;
+      }
+      .units {
+        animation: none;
+      }
+    }
+  }
+
+  @keyframes head-away {
+    to {
+      transform: translateY(-24vh);
+      opacity: 0;
+    }
+  }
+
+  @keyframes head-fade {
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes deck-away {
+    to {
+      transform: perspective(1400px) translateY(18vh) rotateX(-14deg) scale(0.95);
+      opacity: 0.3;
+    }
   }
 
   .hero__head {
