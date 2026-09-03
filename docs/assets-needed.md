@@ -19,3 +19,23 @@
 - FISIER DE TOKENI IMPLEMENTABIL, in trei formate, pentru ca cele trei platforme sunt incompatibile: (a) JSON/W3C design tokens ca sursa unica de adevar; (b) settings_data.json pentru cele doua instante Ella - obligatoriu si popularea --color-base-accent-1/2/text, care sunt VIDE pe ambele; (c) o foaie de variabile pentru md, care azi nu are nicio custom property si necesita find-replace pe hex in 18 fisiere, inclusiv in bootstrap.min.css editat manual.
 - SPECIFICATIE DE STARI SEMANTICE - success, error, warning, info, coerente cu turcoazul. Azi shop foloseste default-urile Ella necorelate (#5A5A5A success, #D93333 error), iar home are un set --sm-ok/--sm-sale/--sm-warn nedocumentat si nefolosit consecvent. Sistemul propus rezolva doar Signal #D62828; restul starilor raman de definit.
 - AUDIT DE ACCESIBILITATE DUPA IMPLEMENTARE, pe toate cele patru proprietati - inclusiv verificarea bordurilor de camp de formular, unde niciun site nu are azi un token conform WCAG 1.4.11 (de aceea sistemul introduce Line Strong #749499, absent peste tot).
+
+## Revizie: fotografii reale pe cardurile din hero
+
+Trei din patru carduri poartă acum imagini reale, obținute din surse publice
+ale grupului:
+
+- **Smartino Home** — cadru din filmul de campanie de pe smartinohome.ro
+  (clădirea la amurg, vedere aeriană, firma aprinsă). Extras la 1 secundă din
+  videoclipul de pe pagina principală.
+- **Smartino Shop** — vitrina reală a smartinoshop.ro, capturată din site-ul
+  live la raportul cardului, cu ferestrele de cookie-uri și notificări închise
+  ca de către un vizitator obișnuit.
+- **Smartino Moldova** — la fel, de pe smartino.md.
+
+**Rămâne de la client:** fotografia exterioară a **Smartino Supermarket**
+(clădirea la amurg, cu firma aprinsă). Nu există publicată nicăieri accesibil:
+nu e pe smartinoshop.ro (nici pe pagina dedicată, nici în articolul de
+deschidere), nu e pe smartinohome.ro, iar Google Business și Facebook nu sunt
+accesibile din mediul de build. Până atunci cardul poartă câmpul desenat.
+Fișierul se pune în `src/assets/photos/` și se leagă în `Hero.astro`.

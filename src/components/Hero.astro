@@ -1,6 +1,8 @@
 ---
 import { Image } from 'astro:assets';
-import familie from '../assets/photos/familie-lounge.jpg';
+import homeCladire from '../assets/photos/smartino-home-cladire.jpg';
+import shopSite from '../assets/photos/smartinoshop-site.jpg';
+import mdSite from '../assets/photos/smartino-md-site.jpg';
 import { COMPANY, UNITS, SUPERMARKET_HOURS } from '../lib/data';
 
 /**
@@ -16,17 +18,22 @@ import { COMPANY, UNITS, SUPERMARKET_HOURS } from '../lib/data';
  * and the page is simply there; without JavaScript everything is visible and
  * every link still a link.
  *
- * The units without any real photography (01, 03, 04) carry their drawn
- * fields -- the aisle, the bubbles, the route -- rather than a fake photo.
+ * Each card carries the real thing: the Home building at dusk (a still from
+ * the group's own campaign film), and the two online shops as their actual
+ * storefronts, captured from the live sites. Only Smartino Supermarket still
+ * wears its drawn field -- no photograph of it is published anywhere public.
+ * TODO(client): the supermarket's exterior photo, to replace that field.
  */
 const hoursShort = SUPERMARKET_HOURS.map((h) => `${h.open}–${h.close}`).join(' · ');
 const [u1, u2, u3, u4] = UNITS;
 
 const cards = [
-  { unit: u1, art: null, pattern: 'aisle', href: '#snagov-plaza', exit: hoursShort, line: 'Nevoile zilnice ale familiei, din 2025.' },
-  { unit: u2, art: familie, pattern: null, href: u2.href!, exit: u2.domain!, line: 'Peste 1.200 m² de acasă, vizavi.' },
-  { unit: u3, art: null, pattern: 'bloom', href: u3.href!, exit: u3.domain!, line: 'Îngrijire și curățenie, livrate în toată țara.' },
-  { unit: u4, art: null, pattern: 'route', href: u4.href!, exit: u4.domain!, line: 'Partenerul din Republica Moldova.' },
+  { unit: u1, art: null, pattern: 'aisle', fit: null, href: '#snagov-plaza', exit: hoursShort, line: 'Nevoile zilnice ale familiei, din 2025.' },
+  { unit: u2, art: homeCladire, pattern: null, fit: null, href: u2.href!, exit: u2.domain!, line: 'Peste 1.200 m² de acasă, vizavi.' },
+  // the two shops show their own storefront, so the crop holds the top of the
+  // page -- the logo and the banner -- rather than drifting into the products
+  { unit: u3, art: shopSite, pattern: null, fit: 'top', href: u3.href!, exit: u3.domain!, line: 'Îngrijire și curățenie, livrate în toată țara.' },
+  { unit: u4, art: mdSite, pattern: null, fit: 'top', href: u4.href!, exit: u4.domain!, line: 'Partenerul din Republica Moldova.' },
 ];
 ---
 
@@ -65,9 +72,9 @@ const cards = [
                 : `${c.unit.name} — vezi adresa și programul`
             }
           >
-            <span class="uc__media" data-pattern={c.pattern}>
+            <span class="uc__media" data-pattern={c.pattern} data-fit={c.fit}>
               {c.art && (
-                <Image src={c.art} alt="" widths={[480, 720]} sizes="(min-width: 1024px) 24vw, 46vw" loading="eager" />
+                <Image src={c.art} alt="" widths={[480, 720, 960]} sizes="(min-width: 1024px) 24vw, 46vw" loading="eager" />
               )}
               <span class="uc__n tnum">{c.unit.index}</span>
             </span>
@@ -505,6 +512,10 @@ const cards = [
     height: 100%;
     object-fit: cover;
     transition: transform 700ms var(--ease-out);
+  }
+
+  .uc__media[data-fit='top'] img {
+    object-position: top center;
   }
 
   .uc:hover .uc__media img {
