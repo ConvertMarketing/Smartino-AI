@@ -33,9 +33,20 @@ ale grupului:
   ca de către un vizitator obișnuit.
 - **Smartino Moldova** — la fel, de pe smartino.md.
 
+- **Smartino Supermarket** — interior, fotografie de presă din reportajul
+  revistei Progresiv (ianuarie 2026), `static.revistaprogresiv.ro/uploads/2026/01/309-Smartino-05.jpg`.
+  Este magazinul real, fotografiat profesionist, dar e o soluție intermediară.
+  TODO(client): confirmă dreptul de folosire (fotografiile par furnizate de
+  grup pentru articol) și trimite fotografia exterioară.
+
 **Rămâne de la client:** fotografia exterioară a **Smartino Supermarket**
 (clădirea la amurg, cu firma aprinsă). Nu există publicată nicăieri accesibil:
 nu e pe smartinoshop.ro (nici pe pagina dedicată, nici în articolul de
 deschidere), nu e pe smartinohome.ro, iar Google Business și Facebook nu sunt
-accesibile din mediul de build. Până atunci cardul poartă câmpul desenat.
+accesibile din mediul de build. Până atunci cardul poartă interiorul de mai sus.
 Fișierul se pune în `src/assets/photos/` și se leagă în `Hero.astro`.
+
+**Cum ajunge un fișier la build:** atașat ca fișier în conversație (așa au
+ajuns machetele .glb și captura de pe telefon), sau pus la o adresă publică
+de unde poate fi descărcat. O imagine lipită direct în mesaj se vede, dar nu
+ajunge pe disc, deci nu poate intra în site.

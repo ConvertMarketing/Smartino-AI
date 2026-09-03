@@ -1,5 +1,6 @@
 ---
 import { Image } from 'astro:assets';
+import supermarket from '../assets/photos/smartino-supermarket-interior.jpg';
 import homeCladire from '../assets/photos/smartino-home-cladire.jpg';
 import shopSite from '../assets/photos/smartinoshop-site.jpg';
 import mdSite from '../assets/photos/smartino-md-site.jpg';
@@ -18,17 +19,19 @@ import { COMPANY, UNITS, SUPERMARKET_HOURS } from '../lib/data';
  * and the page is simply there; without JavaScript everything is visible and
  * every link still a link.
  *
- * Each card carries the real thing: the Home building at dusk (a still from
- * the group's own campaign film), and the two online shops as their actual
- * storefronts, captured from the live sites. Only Smartino Supermarket still
- * wears its drawn field -- no photograph of it is published anywhere public.
- * TODO(client): the supermarket's exterior photo, to replace that field.
+ * Every card carries the real thing: the supermarket's own aisles, the Home
+ * building at dusk (a still from the group's campaign film), and the two
+ * online shops as their actual storefronts, captured from the live sites.
+ * TODO(client): the supermarket card holds a press photo of the interior,
+ * because no exterior photograph of the building is published anywhere
+ * reachable. Swap it for the client's own exterior shot -- see
+ * docs/assets-needed.md.
  */
 const hoursShort = SUPERMARKET_HOURS.map((h) => `${h.open}–${h.close}`).join(' · ');
 const [u1, u2, u3, u4] = UNITS;
 
 const cards = [
-  { unit: u1, art: null, pattern: 'aisle', fit: null, href: '#snagov-plaza', exit: hoursShort, line: 'Nevoile zilnice ale familiei, din 2025.' },
+  { unit: u1, art: supermarket, pattern: null, fit: null, href: '#snagov-plaza', exit: hoursShort, line: 'Nevoile zilnice ale familiei, din 2025.' },
   { unit: u2, art: homeCladire, pattern: null, fit: null, href: u2.href!, exit: u2.domain!, line: 'Peste 1.200 m² de acasă, vizavi.' },
   // the two shops show their own storefront, so the crop holds the top of the
   // page -- the logo and the banner -- rather than drifting into the products
