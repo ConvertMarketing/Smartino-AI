@@ -23,9 +23,48 @@ const description =
     <Statement />
     <BrandIndex />
     <Marquee />
-    <Brands />
-    <Story />
+    {/* One dark room, not two sections that happen to be the same colour.
+        The lamp lives here, above the wall and below the story's first
+        chapter, so the light crosses the join because nothing cuts it -- there
+        is no second light to match. The ground is solid on this wrapper, which
+        is what the sections' text is measured against. */}
+    <div class="zone">
+      <span class="zone__lamp" aria-hidden="true"></span>
+      <Brands />
+      <Story />
+    </div>
     <SnagovPlaza />
   </main>
   <SiteFooter />
 </Base>
+
+<style>
+  .zone {
+    position: relative;
+    background-color: var(--ink);
+  }
+
+  .zone__lamp {
+    position: absolute;
+    inset: 0 0 auto 0;
+    z-index: 0;
+    height: clamp(58rem, 160vh, 100rem);
+    pointer-events: none;
+    /* Geometry, not taste: in this box the wall stands between 22% and 55%,
+       the story starts at 57%, and the light has to be dead by ~92%. So the
+       main ellipse is centred at 45% with a 45% vertical radius -- it peaks
+       behind the wall and still carries a third of its strength across the
+       join, then dies on its own. */
+    background-image:
+      radial-gradient(46% 45% at 50% 45%, rgba(19, 180, 198, 0.24), transparent 78%),
+      radial-gradient(26% 14% at 12% 14%, rgba(75, 216, 232, 0.14), transparent 74%),
+      radial-gradient(26% 14% at 88% 16%, rgba(75, 216, 232, 0.12), transparent 74%);
+  }
+
+  /* both sections sit in the same light: transparent grounds, content above */
+  .zone > :global(section) {
+    position: relative;
+    z-index: 1;
+    background-color: transparent;
+  }
+</style>

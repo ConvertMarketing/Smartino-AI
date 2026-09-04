@@ -43,7 +43,6 @@ const ROW_MOTION = [
 ---
 
 <section class="brands" id="branduri" aria-labelledby="brands-title">
-  <span class="brands__lamp" aria-hidden="true"></span>
 
   <div class="brands__head">
     <p class="brands__kicker" data-reveal>Import direct</p>
@@ -93,27 +92,13 @@ const ROW_MOTION = [
 <style>
   .brands {
     position: relative;
-    z-index: 0;
     overflow: clip; /* clip, not hidden: hidden makes this a scroll container,
                        and every scroll-driven animation inside would then
                        measure against a box that never scrolls */
-    background-color: var(--ink);
     color: var(--fg-inv);
     /* the bottom padding is a runway, not a margin: the wall sinks through it
        while the first chapter of the story is already rising over it */
     padding-block: clamp(4rem, 10vh, 7rem) clamp(9rem, 34vh, 20rem);
-  }
-
-  /* the lamp behind the wall: the same turquoise light the hero is lit with */
-  .brands__lamp {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    background-image:
-      radial-gradient(58% 46% at 50% 62%, rgba(19, 180, 198, 0.26), transparent 72%),
-      radial-gradient(30% 26% at 12% 22%, rgba(75, 216, 232, 0.14), transparent 74%),
-      radial-gradient(30% 26% at 88% 26%, rgba(75, 216, 232, 0.12), transparent 74%);
   }
 
   .brands__head {
