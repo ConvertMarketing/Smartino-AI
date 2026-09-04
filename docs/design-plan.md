@@ -348,10 +348,17 @@ trebuie confirmate față de terenul real înainte de lansare.
 
 «Un grup crescut dintr-un singur magazin.» a fost înlocuit, la cererea
 clientului, fiindcă arcul „am crescut dintr-unul singur" e un clișeu de
-comunicare corporate. Noul H1 — «Pe drumul spre casă, tot ce-ți trebuie în
-ea.» — spune același lucru prin locul real: cele două magazine stau pe DN-1,
-drumul pe care oamenii se întorc acasă, iar catalogul grupului acoperă exact
-ce intră în casă. Balamaua e între „spre casă" și „în ea".
+comunicare corporate. Prima variantă („Pe drumul spre casă…") a mers pe loc;
+clientul a cerut, în schimb, amploarea grupului. H1-ul actual — «Patru
+magazine. Peste zece nișe. Un singur grup.» — o spune în
+cifre care există în src/lib/data.ts: patru unități (Supermarket, Home, Shop,
+Moldova) și șaisprezece categorii distincte declarate de ele, adică peste zece
+nișe reale. Nicio cifră nu e rotunjită în sus.
+
+Clientul a propus „10 branduri". Cifra nu e verificată nicăieri: datele
+documentează patru unități Smartino și două branduri de produs (Sleepy,
+Unleashia). Rândul se schimbă în secunda în care clientul confirmă ce
+numără acel 10.
 
 Tot atunci s-a reparat un defect vechi al titlului: cozile literelor lipseau
 pe rândul turcoaz. Cauza nu era masca de animație, cum părea, ci faptul că

@@ -61,8 +61,9 @@ const cards = [
   <div class="hero__head">
     <p class="hero__over" data-reveal>Smartino International</p>
     <h1 class="hero__title" data-animate="lines">
-      <span class="line"><span class="line__in">Pe drumul spre casă,</span></span>
-      <span class="line"><span class="line__in line__in--t">tot ce-ți trebuie în ea.</span></span>
+      <span class="line"><span class="line__in">Patru magazine.</span></span>
+      <span class="line"><span class="line__in">Peste zece nișe.</span></span>
+      <span class="line"><span class="line__in line__in--t">Un singur grup.</span></span>
     </h1>
   </div>
 
@@ -461,6 +462,10 @@ const cards = [
 
   :global([data-js]) .line:nth-child(2) .line__in {
     transition-delay: 340ms;
+  }
+
+  :global([data-js]) .line:nth-child(3) .line__in {
+    transition-delay: 480ms;
   }
 
   :global([data-js]) [data-animate='lines'][data-in] .line__in {
