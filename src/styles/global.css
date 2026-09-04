@@ -28,13 +28,15 @@
                         * 2.47:1, so no text may sit on this stop. */
   --t-floor: #0f8998;  /* the darkest stop that still carries near-black (4.63:1) */
   --t-deep: #0b6f7a;   /* the only turquoise allowed to be text on light.
-                        * 5.88:1 on white, 5.31:1 on --paper, 4.99:1 on --mist.
-                        * The previous #0c7985 fell to 4.36:1 on --mist. */
+                        * 5.88:1 on white, 5.31:1 on --paper. On the dark
+                        * sections the turquoise steps UP instead, to --t
+                        * (7.68:1 on ink) or --t-glow (11.27:1). */
 
   /* ---- Ground --------------------------------------------------------- */
   --white: #ffffff;
   --paper: #f6f3ed;    /* warm editorial paper; ink 17.4:1, t-deep 5.31:1 */
-  --mist: #e9edee;     /* cool grey ground (the hero); ink 16.3:1, fg-2 5.5:1 */
+                       /* the hero's cool grey is gone: that section now opens on
+                        * --ink, the same ground the maquette below is built on. */
   --ink: #0b0f10;      /* near-black: the dark ground */
   --ink-2: #14191b;    /* dark section alternate */
 

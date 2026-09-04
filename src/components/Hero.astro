@@ -99,16 +99,28 @@ const cards = [
 </section>
 
 <style>
+  /* The fascia carries the LED line the two buildings wear along their roof:
+     a turquoise hairline under a near-black band. */
   .fascia {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
     min-height: 64px;
     padding-inline: var(--gutter);
-    background-color: var(--mist);
-    color: var(--fg);
-    border-bottom: 1px solid rgba(11, 15, 16, 0.12);
+    background-color: var(--ink);
+    color: var(--fg-inv);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .fascia::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 -1px 0;
+    height: 1px;
+    background-image: linear-gradient(90deg, transparent, var(--t) 22%, var(--t-glow) 50%, var(--t) 78%, transparent);
+    opacity: 0.75;
   }
 
   .fascia__mark {
@@ -123,15 +135,20 @@ const cards = [
     letter-spacing: 0.1em;
     text-transform: uppercase;
     text-align: right;
-    color: var(--fg-2);
+    color: var(--fg-inv-2);
   }
 
+  /* The hero opens on the same near-black the maquette below is built on, so
+     the top of the page reads as one dark room with the four lit cards in it.
+     Everything turquoise here is LIGHT: on this ground it finally behaves
+     like light rather than paint. */
   .hero {
     position: relative;
     min-height: calc(100dvh - 64px);
     display: flex;
     flex-direction: column;
-    background-color: var(--mist);
+    background-color: var(--ink);
+    color: var(--fg-inv);
     overflow: hidden;
   }
 
@@ -158,38 +175,41 @@ const cards = [
     display: block;
   }
 
+  /* 0.16 and 0.12 are not taste, they are the ceiling: stacked over the ink
+     they leave every text colour on this section above AA -- white 11.7:1,
+     --t 4.65:1, --t-glow 6.8:1, --fg-inv-2 4.9:1 at the brightest point where
+     both pools overlap. Brighter pools would sink the turquoise text. */
   .hero__aurora {
     background-image:
-      radial-gradient(34% 28% at 20% 22%, rgba(19, 180, 198, 0.34), transparent 68%),
-      radial-gradient(40% 34% at 84% 30%, rgba(75, 216, 232, 0.28), transparent 70%),
-      radial-gradient(26% 22% at 56% 8%, rgba(11, 111, 122, 0.14), transparent 72%);
+      radial-gradient(38% 32% at 20% 24%, rgba(19, 180, 198, 0.16), transparent 70%),
+      radial-gradient(44% 36% at 84% 30%, rgba(75, 216, 232, 0.12), transparent 72%),
+      radial-gradient(30% 26% at 58% 82%, rgba(19, 180, 198, 0.1), transparent 74%);
     animation: aurora-drift 22s var(--ease-in-out) infinite alternate;
   }
 
   .hero__grid {
     inset: -30%;
-    background-image: radial-gradient(rgba(11, 15, 16, 0.07) 1px, transparent 1.5px);
+    background-image: radial-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1.5px);
     background-size: 24px 24px;
     animation: grid-drift 48s linear infinite;
   }
 
-  /* The floor: the grey loses itself downward into the exact near-black the
-     next section starts with, so the two meet with no visible seam. It sits
-     outside the parallax layer and paints over it, which is what keeps that
-     seam closed at every scroll position. A light still sweeps across it. */
+  /* The floor: a pool of turquoise light low in the room, closed off by a veil
+     that returns to exactly the ink the next section starts with -- so the
+     glow never reaches the edge and the seam stays invisible. It sits outside
+     the parallax layer, which is what keeps that seam closed at every scroll
+     position. A light still sweeps across it. */
   .hero__floor {
     position: absolute;
-    inset: 50% 0 0 0;
+    inset: 44% 0 0 0;
     z-index: 0;
     pointer-events: none;
-    background-image: linear-gradient(
-      180deg,
-      transparent 0%,
-      rgba(11, 15, 16, 0.1) 38%,
-      rgba(11, 15, 16, 0.5) 66%,
-      var(--ink) 86%,
-      var(--ink) 100%
-    );
+    /* the veil is listed FIRST because the first background layer paints on
+       TOP: with the glow first, light leaked past it to the very edge and the
+       seam measured 11,21,22 against the 10,14,15 of the section below */
+    background-image:
+      linear-gradient(180deg, transparent 52%, var(--ink) 92%),
+      radial-gradient(78% 64% at 50% 68%, rgba(19, 180, 198, 0.22), transparent 72%);
   }
 
   /* A turquoise light travels along the horizon, where the grey gives way to
@@ -199,8 +219,8 @@ const cards = [
   .hero__floor::after {
     content: '';
     position: absolute;
-    inset: 24% 0 auto 0;
-    height: 30%;
+    inset: 30% 0 auto 0;
+    height: 34%;
     background-image: linear-gradient(105deg, transparent 32%, rgba(75, 216, 232, 0.22) 50%, transparent 68%);
     background-size: 62% 100%;
     background-repeat: no-repeat;
@@ -348,7 +368,7 @@ const cards = [
     font-weight: 700;
     letter-spacing: 0.32em;
     text-transform: uppercase;
-    color: var(--t-deep);
+    color: var(--t-glow);
   }
 
   .hero__title {
@@ -358,7 +378,7 @@ const cards = [
     font-weight: 800;
     line-height: 1;
     letter-spacing: -0.035em;
-    color: var(--fg);
+    color: var(--fg-inv);
   }
 
   .line {
@@ -387,9 +407,11 @@ const cards = [
 
   /* the second line shimmers: every stop is --t-deep or darker, so the
      contrast never dips below the solid colour's */
+  /* On the dark ground the turquoise steps UP: --t reads 7.68:1 on ink, and
+     the shimmer only ever brightens it. */
   .line__in--t {
-    color: var(--t-deep);
-    background-image: linear-gradient(100deg, var(--t-deep) 0%, var(--t-deep) 35%, var(--t-dark) 50%, var(--t-deep) 65%, var(--t-deep) 100%);
+    color: var(--t);
+    background-image: linear-gradient(100deg, var(--t) 0%, var(--t) 35%, var(--t-glow) 50%, var(--t) 65%, var(--t) 100%);
     background-size: 240% 100%;
     -webkit-background-clip: text;
     background-clip: text;
@@ -477,7 +499,9 @@ const cards = [
     border-radius: 20px;
     overflow: hidden;
     background-color: #fffdf9;
-    box-shadow: var(--lift-2);
+    box-shadow:
+      0 2px 6px rgba(0, 0, 0, 0.45),
+      0 26px 70px rgba(0, 0, 0, 0.55);
     text-decoration: none;
     transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg))
       translateY(var(--uy, 0px));
@@ -511,7 +535,10 @@ const cards = [
 
   .uc:hover {
     --uy: -10px;
-    box-shadow: var(--lift-t);
+    box-shadow:
+      0 2px 8px rgba(0, 0, 0, 0.5),
+      0 30px 80px rgba(10, 91, 101, 0.55),
+      0 0 0 1px rgba(75, 216, 232, 0.35);
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -664,11 +691,10 @@ const cards = [
   }
 
   /* ---- cue -------------------------------------------------------------- */
-  /* The cue stands on the near-black floor, so it carries its own ground:
-     invisible against a floor that is already this colour, and honest to the
-     contrast checker, which cannot see an out-of-flow layer behind text. */
+  /* No ground of its own any more: the section itself is solid ink, so the
+     contrast checker composites the real colour behind this text, and a patch
+     of ink here would only show as a dark box over the turquoise pool. */
   .hero__cue {
-    background-color: var(--ink);
     align-self: center;
     display: flex;
     flex-direction: column;
@@ -723,7 +749,7 @@ const cards = [
     }
 
     .hero__floor {
-      inset: 46% 0 0 0;
+      inset: 40% 0 0 0;
     }
   }
 
