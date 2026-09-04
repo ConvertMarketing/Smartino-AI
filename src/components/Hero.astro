@@ -49,8 +49,8 @@ const cards = [
   <div class="hero__ground" data-animate="ground" aria-hidden="true">
     <span class="hero__aurora"></span>
     <span class="hero__grid"></span>
-    <span class="hero__floor"></span>
   </div>
+  <div class="hero__floor" data-animate="floor" aria-hidden="true"></div>
 
   <div class="hero__head">
     <p class="hero__over" data-reveal>Smartino International</p>
@@ -136,10 +136,11 @@ const cards = [
   }
 
   /* ---- the living ground ------------------------------------------------
-     Three layers under everything: auroras adrift, a dot grid sliding
-     diagonally, and a turquoise stage rising under the cards. The whole
-     ground leans toward the pointer (--mx/--my) and drifts with the scroll
-     (--sy), both written by the runtime; without it they are simply 0. */
+     Auroras adrift and a dot grid sliding diagonally, both leaning toward the
+     pointer (--mx/--my) and drifting with the scroll (--sy), written by the
+     runtime; without it they are simply 0. The floor below is deliberately
+     NOT in here: it must not move, or the seam with the next section would
+     slide open as the page scrolls. */
   .hero__ground {
     position: absolute;
     inset: -8%;
@@ -151,8 +152,7 @@ const cards = [
   }
 
   .hero__aurora,
-  .hero__grid,
-  .hero__floor {
+  .hero__grid {
     position: absolute;
     inset: 0;
     display: block;
@@ -173,20 +173,39 @@ const cards = [
     animation: grid-drift 48s linear infinite;
   }
 
-  /* the stage: solid brand turquoise at the floor, dissolving upward, with a
-     light sweeping across it forever */
+  /* The floor: the grey loses itself downward into the exact near-black the
+     next section starts with, so the two meet with no visible seam. It sits
+     outside the parallax layer and paints over it, which is what keeps that
+     seam closed at every scroll position. A light still sweeps across it. */
   .hero__floor {
-    top: 50%;
-    background-image: linear-gradient(180deg, transparent 0%, rgba(19, 180, 198, 0.24) 42%, rgba(19, 180, 198, 0.56) 100%);
+    position: absolute;
+    inset: 50% 0 0 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image: linear-gradient(
+      180deg,
+      transparent 0%,
+      rgba(11, 15, 16, 0.1) 38%,
+      rgba(11, 15, 16, 0.5) 66%,
+      var(--ink) 86%,
+      var(--ink) 100%
+    );
   }
 
+  /* A turquoise light travels along the horizon, where the grey gives way to
+     the dark. It is masked to that band alone: a sweep reaching the near-black
+     below would lift it off the colour the next section starts with, and the
+     seam would show. */
   .hero__floor::after {
     content: '';
     position: absolute;
-    inset: 0;
-    background-image: linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, 0.22) 50%, transparent 70%);
-    background-size: 60% 100%;
+    inset: 24% 0 auto 0;
+    height: 30%;
+    background-image: linear-gradient(105deg, transparent 32%, rgba(75, 216, 232, 0.22) 50%, transparent 68%);
+    background-size: 62% 100%;
     background-repeat: no-repeat;
+    -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 45%, transparent 100%);
+    mask-image: linear-gradient(180deg, transparent 0%, #000 45%, transparent 100%);
     animation: floor-sheen 9s var(--ease-in-out) infinite;
   }
 
@@ -212,13 +231,18 @@ const cards = [
     }
   }
 
-  /* Entry: the stage rises from the floor while the auroras come up. */
-  :global([data-js]) [data-animate='ground'] .hero__floor {
+  /* Entry: the dark floor rises while the auroras come up. */
+  :global([data-js]) [data-animate='floor'] {
     opacity: 0;
-    transform: translateY(14%);
+    transform: translateY(10%);
     transition:
       opacity 900ms var(--ease-out) 120ms,
       transform 1300ms var(--ease-out) 120ms;
+  }
+
+  :global([data-js]) [data-animate='floor'][data-in] {
+    opacity: 1;
+    transform: none;
   }
 
   :global([data-js]) [data-animate='ground'] .hero__aurora {
@@ -226,10 +250,8 @@ const cards = [
     transition: opacity 1400ms var(--ease-out) 300ms;
   }
 
-  :global([data-js]) [data-animate='ground'][data-in] .hero__floor,
   :global([data-js]) [data-animate='ground'][data-in] .hero__aurora {
     opacity: 1;
-    transform: none;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -241,7 +263,7 @@ const cards = [
     .hero__floor::after {
       animation: none;
     }
-    :global([data-js]) [data-animate='ground'] .hero__floor,
+    :global([data-js]) [data-animate='floor'],
     :global([data-js]) [data-animate='ground'] .hero__aurora {
       opacity: 1;
       transform: none;
@@ -642,7 +664,11 @@ const cards = [
   }
 
   /* ---- cue -------------------------------------------------------------- */
+  /* The cue stands on the near-black floor, so it carries its own ground:
+     invisible against a floor that is already this colour, and honest to the
+     contrast checker, which cannot see an out-of-flow layer behind text. */
   .hero__cue {
+    background-color: var(--ink);
     align-self: center;
     display: flex;
     flex-direction: column;
@@ -655,7 +681,7 @@ const cards = [
   .hero__cueLine {
     width: 1px;
     height: 24px;
-    background-image: linear-gradient(180deg, transparent, var(--ink));
+    background-image: linear-gradient(180deg, transparent, var(--t));
     position: relative;
     overflow: hidden;
   }
@@ -666,7 +692,7 @@ const cards = [
     inset-inline: 0;
     top: -40%;
     height: 40%;
-    background-color: var(--ink);
+    background-color: var(--t-glow);
     animation: cue-drop 1.8s var(--ease-in-out) infinite;
   }
 
@@ -684,7 +710,7 @@ const cards = [
     font-weight: 700;
     letter-spacing: 0.3em;
     text-transform: uppercase;
-    color: var(--ink);
+    color: var(--fg-inv-2);
   }
 
   @media (max-width: 1023px) {
@@ -697,7 +723,7 @@ const cards = [
     }
 
     .hero__floor {
-      top: 36%;
+      inset: 46% 0 0 0;
     }
   }
 
