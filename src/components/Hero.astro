@@ -56,9 +56,8 @@ const cards = [
   <div class="hero__head">
     <p class="hero__over" data-reveal>Smartino International</p>
     <h1 class="hero__title" data-animate="lines">
-      <span class="line"><span class="line__in">Patru magazine.</span></span>
-      <span class="line"><span class="line__in">Peste zece nișe.</span></span>
-      <span class="line"><span class="line__in line__in--t">Un singur grup.</span></span>
+      <span class="line"><span class="line__in">Zeci de branduri,</span></span>
+      <span class="line"><span class="line__in line__in--t">un singur grup.</span></span>
     </h1>
   </div>
 
@@ -388,7 +387,7 @@ const cards = [
   .hero__title {
     margin-top: 0.75rem;
     font-family: var(--font-display);
-    font-size: clamp(1.875rem, 0.6rem + 4vw, 5rem);
+    font-size: clamp(1.625rem, 0.55rem + 3.2vw, 4rem);
     font-weight: 800;
     line-height: 1;
     letter-spacing: -0.035em;
@@ -418,10 +417,6 @@ const cards = [
 
   :global([data-js]) .line:nth-child(2) .line__in {
     transition-delay: 340ms;
-  }
-
-  :global([data-js]) .line:nth-child(3) .line__in {
-    transition-delay: 480ms;
   }
 
   :global([data-js]) [data-animate='lines'][data-in] .line__in {
@@ -825,7 +820,7 @@ const cards = [
     }
 
     .uc__media {
-      height: clamp(140px, 19vh, 200px);
+      height: clamp(120px, 15vh, 170px);
     }
 
     .hero__floor {
@@ -834,16 +829,24 @@ const cards = [
   }
 
   @media (max-width: 599px) {
+    /* On a phone the four cards stand two by two, so their height is what the
+       page costs to scroll past. The band shrinks and the caption tightens. */
+    .uc__media {
+      height: clamp(96px, 13vh, 130px);
+    }
+
     .uc__caption {
-      padding: 0.625rem 0.75rem 0.75rem;
+      gap: 0.2rem;
+      padding: 0.5rem 0.625rem 0.625rem;
     }
 
     .uc__name {
-      font-size: 1.0625rem;
+      font-size: 1rem;
     }
 
     .uc__line {
-      font-size: 0.75rem;
+      font-size: 0.6875rem;
+      line-height: 1.35;
     }
   }
 </style>
