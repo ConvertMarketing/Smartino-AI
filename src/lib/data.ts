@@ -164,8 +164,6 @@ export const ORIGIN = {
   online: '2020',
 } as const;
 
-export const BRAND_ORIGIN_NOTE =
-  'Brandul s-a născut în Republica Moldova. În România este operat de SMARTINO INTERNATIONAL SRL, în parteneriat; smartino.md rămâne operat de RINCOM-GRUP SRL, Chișinău.';
 
 /** Mandatory for a Romanian company selling online. Linked as text, with marks
  *  drawn in-system and hosted locally -- never as badges from another domain. */

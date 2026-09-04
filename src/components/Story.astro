@@ -3,7 +3,7 @@ import { Image } from 'astro:assets';
 import homeCladire from '../assets/photos/smartino-home-cladire.jpg';
 import supermarketFoto from '../assets/photos/smartino-supermarket-interior.jpg';
 import shopSite from '../assets/photos/smartinoshop-site.jpg';
-import { TIMELINE, FACTS, ORIGIN, BRAND_ORIGIN_NOTE } from '../lib/data';
+import { TIMELINE, FACTS, ORIGIN } from '../lib/data';
 
 /**
  * The story, told properly: five chapters scrolling past a pinned visual that
@@ -11,9 +11,10 @@ import { TIMELINE, FACTS, ORIGIN, BRAND_ORIGIN_NOTE } from '../lib/data';
  * early years carry no day or month, because none was given and none is
  * invented.
  *
- * The chapter that names the Republic of Moldova is also the one that carries
- * the note about who operates what: the brand starts there, the Romanian
- * company operates it here, and smartino.md belongs to RINCOM-GRUP SRL.
+ * The note about who operates smartino.md used to sit in the first chapter and
+ * is gone at the client's request. The disclosure itself is not gone from the
+ * site: it stays where a reader can act on it -- under Moldova in the index of
+ * directions, and in the footer.
  *
  * The pinned plates are decorative (aria-hidden): the words carry the story,
  * the visual carries the feeling. Without JS the first plate simply stays.
@@ -26,7 +27,6 @@ const chapters = [
       `${ORIGIN.year}. Numele Smartino apare pentru prima dată în Republica Moldova, pe rafturi de produse pentru casă și îngrijire.`,
       `În anii care urmează ajunge unul dintre numele mari ale pieței de acolo — destul de puternic cât să merite dus mai departe.`,
     ],
-    note: true,
   },
   {
     n: 'Capitolul doi',
@@ -171,7 +171,6 @@ const chapters = [
             {c.body.map((p) => (
               <p class="story__copy" data-reveal>{p}</p>
             ))}
-            {c.note && <p class="story__legal" data-reveal>{BRAND_ORIGIN_NOTE}</p>}
             {c.facts && (
               <>
                 <dl class="story__facts" data-reveal>
@@ -412,11 +411,6 @@ const chapters = [
     color: var(--fg-inv-2);
   }
 
-  .story__legal {
-    margin-top: 1.25rem;
-    font-size: 0.8125rem;
-    color: var(--fg-inv-2);
-  }
 
   @media (max-width: 899px) {
     .story__frame {
