@@ -207,9 +207,14 @@ const ROW_MOTION = [
         animation: wall-sink linear both;
       }
 
+      /* The sink used to start at `exit 0%` -- the moment the wall's top edge
+         reaches the top of the screen, which is late: half the wall is already
+         gone before anything happens. `contain` starts the clock while the
+         wall is still fully on screen, so it begins dissolving a good 400 px
+         of scroll earlier and is finished just after it starts leaving. */
       .brands__stage.brands__stage {
         animation-timeline: view();
-        animation-range: exit 0% exit 96%;
+        animation-range: contain 34% exit 16%;
       }
 
       .brands__head {
@@ -218,7 +223,7 @@ const ROW_MOTION = [
 
       .brands__head.brands__head {
         animation-timeline: view();
-        animation-range: exit 0% exit 70%;
+        animation-range: contain 18% contain 92%;
       }
     }
   }
