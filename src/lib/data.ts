@@ -148,6 +148,23 @@ export const UNITS: Unit[] = [
  */
 export const MOLDOVA_OPERATOR = 'smartino.md este operat de RINCOM-GRUP SRL, Chișinău.';
 
+/** The brand's own timeline, as stated by the client (years only for the first
+ *  three -- exact dates were not available and are not invented here).
+ *
+ *  The relationship the client confirmed: the name is born in the Republic of
+ *  Moldova in 2001 and is brought to Romania in 2017, where SMARTINO
+ *  INTERNATIONAL SRL operates it under partnership. smartino.md stays with
+ *  RINCOM-GRUP SRL, Chișinău -- so the story may say where the brand comes
+ *  from, and may never say the Moldovan shop is ours. */
+export const ORIGIN = {
+  year: '2001',
+  romania: '2017',
+  online: '2020',
+} as const;
+
+export const BRAND_ORIGIN_NOTE =
+  'Brandul s-a născut în Republica Moldova. În România este operat de SMARTINO INTERNATIONAL SRL, în parteneriat; smartino.md rămâne operat de RINCOM-GRUP SRL, Chișinău.';
+
 /** Mandatory for a Romanian company selling online. Linked as text, with marks
  *  drawn in-system and hosted locally -- never as badges from another domain. */
 export const CONSUMER_LINKS = [
@@ -156,8 +173,11 @@ export const CONSUMER_LINKS = [
 ];
 
 export const FACTS = [
+  /* 2001 -> 2026. Counted, not rounded: the brand's first year is ORIGIN.year
+   * below, and the label says "ani de brand", not "ani de firmă" -- the
+   * Romanian company is younger than the name it carries. */
+  { value: '25', n: 25, suffix: '', label: 'ani de brand' },
   { value: '2', n: 2, suffix: '', label: 'magazine fizice' },
   { value: '1.200 m²', n: 1200, suffix: ' m²', label: 'Smartino Home' },
-  { value: '4', n: 4, suffix: '', label: 'branduri' },
   { value: '2', n: 2, suffix: '', label: 'țări' },
 ];

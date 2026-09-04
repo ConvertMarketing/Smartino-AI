@@ -1,13 +1,19 @@
 ---
 import { Image } from 'astro:assets';
-import terasa from '../assets/photos/gradina-terasa.jpg';
-import { TIMELINE, FACTS, MOLDOVA_OPERATOR } from '../lib/data';
+import homeCladire from '../assets/photos/smartino-home-cladire.jpg';
+import supermarketFoto from '../assets/photos/smartino-supermarket-interior.jpg';
+import shopSite from '../assets/photos/smartinoshop-site.jpg';
+import { TIMELINE, FACTS, ORIGIN, BRAND_ORIGIN_NOTE } from '../lib/data';
 
 /**
- * The story, told properly: four chapters scrolling past a pinned visual that
- * answers each one. Every fact in the copy is real — dates, days, square
- * metres, counts — and the one legal caveat stays inside the chapter that
- * earns it, not in a footnote.
+ * The story, told properly: five chapters scrolling past a pinned visual that
+ * answers each one. Every fact in the copy comes from the client -- the three
+ * early years carry no day or month, because none was given and none is
+ * invented.
+ *
+ * The chapter that names the Republic of Moldova is also the one that carries
+ * the note about who operates what: the brand starts there, the Romanian
+ * company operates it here, and smartino.md belongs to RINCOM-GRUP SRL.
  *
  * The pinned plates are decorative (aria-hidden): the words carry the story,
  * the visual carries the feeling. Without JS the first plate simply stays.
@@ -15,33 +21,43 @@ import { TIMELINE, FACTS, MOLDOVA_OPERATOR } from '../lib/data';
 const chapters = [
   {
     n: 'Capitolul unu',
-    title: 'Un magazin',
+    title: 'Începutul',
     body: [
-      `11 iulie 2025. La intersecția Snagov, pe DN-1, se aprind luminile în primul magazin Smartino: un supermarket cu lucrurile de care o familie are nevoie în fiecare zi — igienă, îngrijire, curățenie.`,
-      `Fără artificii. Un program lung, rafturi pline și un drum mai scurt pentru oamenii din jur.`,
+      `${ORIGIN.year}. Numele Smartino apare pentru prima dată în Republica Moldova, pe rafturi de produse pentru casă și îngrijire.`,
+      `În anii care urmează ajunge unul dintre numele mari ale pieței de acolo — destul de puternic cât să merite dus mai departe.`,
     ],
+    note: true,
   },
   {
     n: 'Capitolul doi',
-    title: 'Măsura',
+    title: 'Peste Prut',
     body: [
-      `Între prima și a doua deschidere stau exact 379 de zile: un an întreg, apoi încă paisprezece.`,
-      `Pe rigla acestui site, fiecare zi e un pixel. Se vede cu ochiul liber: al doilea magazin a venit imediat după prima aniversare.`,
+      `${ORIGIN.romania}. Brandul intră în România, cu aceleași categorii care l-au făcut cunoscut acasă: igienă, îngrijire, curățenie.`,
+      `Aceeași idee, o piață de zece ori mai mare.`,
     ],
   },
   {
     n: 'Capitolul trei',
-    title: 'Vizavi',
+    title: 'Non-stop',
     body: [
-      `25 iulie 2026. Peste drum de primul magazin se deschide al doilea: Smartino Home — peste 1.200 m² de mobilier, grădină, textile și decor.`,
-      `Aceeași promisiune, extinsă de la nevoile zilei către casă. Iar cele două clădiri au rămas așa cum s-au născut: față în față.`,
+      `${ORIGIN.online}. Se deschide smartinoshop.ro — catalogul de îngrijire și curățenie al grupului, livrat în toată țara.`,
+      `Primul raft Smartino fără program de funcționare.`,
     ],
   },
   {
     n: 'Capitolul patru',
-    title: 'Astăzi',
+    title: 'Un magazin',
     body: [
-      `Două magazine care se privesc peste gol, două cataloage online, două țări. Totul numărat mai jos, fără nicio cifră umflată.`,
+      `${TIMELINE.first.label}. La Snagov Plaza se aprind luminile în primul magazin fizic: un supermarket cu lucrurile de care o familie are nevoie în fiecare zi.`,
+      `Fără artificii. Program lung, rafturi pline, drum scurt.`,
+    ],
+  },
+  {
+    n: 'Capitolul cinci',
+    title: 'Vizavi',
+    body: [
+      `${TIMELINE.second.label}, la 379 de zile după primul magazin. Peste drum se deschide Smartino Home: peste 1.200 m² de mobilier, grădină, textile și decor, plus catalogul online.`,
+      `Aceeași promisiune, extinsă de la nevoile zilei către casa întreagă. Douăzeci și cinci de ani de la primul raft.`,
     ],
     facts: true,
   },
@@ -53,63 +69,90 @@ const chapters = [
 
   <div class="story__frame">
     <div class="story__visual" aria-hidden="true">
-      {/* Plate 1 — the aisle: shelf lines running to a lit vanishing point. */}
+      {/* Plate 1 — the year the name is born, on a line that starts climbing. */}
       <div class="story__plate" data-plate="1">
         <svg viewBox="0 0 800 500" preserveAspectRatio="xMidYMid slice">
           <rect width="800" height="500" fill="var(--ink)"></rect>
-          <g stroke="var(--t)" stroke-width="1.4">
-            <line x1="0" y1="60"  x2="400" y2="250" opacity="0.16"></line>
-            <line x1="0" y1="140" x2="400" y2="250" opacity="0.28"></line>
-            <line x1="0" y1="230" x2="400" y2="250" opacity="0.42"></line>
-            <line x1="0" y1="330" x2="400" y2="250" opacity="0.32"></line>
-            <line x1="0" y1="440" x2="400" y2="250" opacity="0.2"></line>
-            <line x1="800" y1="60"  x2="400" y2="250" opacity="0.16"></line>
-            <line x1="800" y1="140" x2="400" y2="250" opacity="0.28"></line>
-            <line x1="800" y1="230" x2="400" y2="250" opacity="0.42"></line>
-            <line x1="800" y1="330" x2="400" y2="250" opacity="0.32"></line>
-            <line x1="800" y1="440" x2="400" y2="250" opacity="0.2"></line>
+          <g stroke="var(--t)" fill="none">
+            <path d="M -20 470 C 180 460, 300 430, 420 380 S 660 270, 830 210" stroke-width="2.6" opacity="0.85"></path>
+            <path d="M -20 490 C 180 484, 300 464, 420 428 S 660 348, 830 300" stroke-width="1.2" opacity="0.35"></path>
           </g>
-          <circle cx="400" cy="250" r="130" fill="url(#story-glow)"></circle>
+          <circle cx="120" cy="466" r="7" fill="var(--t-glow)"></circle>
+          <circle cx="400" cy="250" r="180" fill="url(#glow-a)"></circle>
           <defs>
-            <radialGradient id="story-glow">
-              <stop offset="0%" stop-color="rgba(75,216,232,0.65)"></stop>
-              <stop offset="100%" stop-color="rgba(75,216,232,0)"></stop>
+            <radialGradient id="glow-a">
+              <stop offset="0%" stop-color="rgba(19,180,198,0.34)"></stop>
+              <stop offset="100%" stop-color="rgba(19,180,198,0)"></stop>
             </radialGradient>
           </defs>
         </svg>
-        <p class="story__plateLabel tnum">{TIMELINE.first.label}</p>
+        <p class="story__giant tnum">{ORIGIN.year}</p>
+        <p class="story__plateLabel">Republica Moldova</p>
       </div>
 
-      {/* Plate 2 — the measure itself. */}
+      {/* Plate 2 — the same line, crossing a border. */}
       <div class="story__plate" data-plate="2">
-        <p class="story__giant tnum">379</p>
-        <p class="story__plateLabel">un an <span class="story__plus">+ 14 zile</span></p>
-        <span class="story__ticks"></span>
+        <svg viewBox="0 0 800 500" preserveAspectRatio="xMidYMid slice">
+          <rect width="800" height="500" fill="var(--ink)"></rect>
+          <g stroke="var(--t)" fill="none">
+            <path d="M -20 470 C 180 460, 300 430, 420 380 S 660 250, 830 160" stroke-width="2.6" opacity="0.85"></path>
+          </g>
+          <line x1="400" y1="40" x2="400" y2="460" stroke="var(--fg-inv-2)" stroke-dasharray="4 10" opacity="0.6"></line>
+          <circle cx="400" cy="392" r="9" fill="var(--t-glow)"></circle>
+          <circle cx="400" cy="250" r="180" fill="url(#glow-b)"></circle>
+          <defs>
+            <radialGradient id="glow-b">
+              <stop offset="0%" stop-color="rgba(19,180,198,0.34)"></stop>
+              <stop offset="100%" stop-color="rgba(19,180,198,0)"></stop>
+            </radialGradient>
+          </defs>
+        </svg>
+        <p class="story__giant tnum">{ORIGIN.romania}</p>
+        <p class="story__plateLabel">România</p>
       </div>
 
-      {/* Plate 3 — real photography from the group's own Home campaign:
-          the garden the store furnishes. */}
+      {/* Plate 3 — the shop that has no opening hours. */}
       <div class="story__plate" data-plate="3">
         <Image
-          class="story__photo"
-          src={terasa}
+          class="story__photo story__photo--top"
+          src={shopSite}
           alt=""
           widths={[640, 960, 1440]}
           sizes="(max-width: 899px) 100vw, 46vw"
           loading="lazy"
         />
         <span class="story__scrim"></span>
-        <p class="story__plateLabel tnum">{TIMELINE.second.label} · 1.200 m²</p>
+        <p class="story__plateLabel tnum">smartinoshop.ro · {ORIGIN.online}</p>
       </div>
 
-      {/* Plate 4 — the pair, facing. */}
+      {/* Plate 4 — the first shelves, photographed. */}
       <div class="story__plate" data-plate="4">
-        <svg viewBox="0 0 800 500" preserveAspectRatio="xMidYMid meet">
-          <rect x="120" y="150" width="220" height="200" rx="18" fill="var(--t)" opacity="0.92"></rect>
-          <rect x="460" y="120" width="220" height="230" rx="18" fill="var(--t-glow)" opacity="0.92"></rect>
-          <line x1="400" y1="120" x2="400" y2="360" stroke="var(--fg-inv-2)" stroke-dasharray="4 9" opacity="0.7"></line>
-        </svg>
-        <p class="story__plateLabel">față în față, din 2026</p>
+        <Image
+          class="story__photo"
+          src={supermarketFoto}
+          alt=""
+          widths={[640, 960, 1440]}
+          sizes="(max-width: 899px) 100vw, 46vw"
+          loading="lazy"
+        />
+        <span class="story__scrim"></span>
+        <p class="story__plateLabel tnum">{TIMELINE.first.label}</p>
+      </div>
+
+      {/* Plate 5 — the second building, and the count of days between them. */}
+      <div class="story__plate" data-plate="5">
+        <Image
+          class="story__photo"
+          src={homeCladire}
+          alt=""
+          widths={[640, 960, 1440]}
+          sizes="(max-width: 899px) 100vw, 46vw"
+          loading="lazy"
+        />
+        <span class="story__scrim story__scrim--deep"></span>
+        <p class="story__giant story__giant--over tnum">379</p>
+        <p class="story__plateLabel tnum">{TIMELINE.second.label} · 1.200 m²</p>
+        <span class="story__ticks"></span>
       </div>
     </div>
 
@@ -128,6 +171,7 @@ const chapters = [
             {c.body.map((p) => (
               <p class="story__copy" data-reveal>{p}</p>
             ))}
+            {c.note && <p class="story__legal" data-reveal>{BRAND_ORIGIN_NOTE}</p>}
             {c.facts && (
               <>
                 <dl class="story__facts" data-reveal>
@@ -138,7 +182,6 @@ const chapters = [
                     </div>
                   ))}
                 </dl>
-                <p class="story__legal" data-reveal>{MOLDOVA_OPERATOR}</p>
               </>
             )}
           </article>
@@ -213,7 +256,8 @@ const chapters = [
   [data-step='1'] .story__plate[data-plate='1'],
   [data-step='2'] .story__plate[data-plate='2'],
   [data-step='3'] .story__plate[data-plate='3'],
-  [data-step='4'] .story__plate[data-plate='4'] {
+  [data-step='4'] .story__plate[data-plate='4'],
+  [data-step='5'] .story__plate[data-plate='5'] {
     opacity: 1;
     transform: none;
   }
@@ -231,6 +275,11 @@ const chapters = [
     width: 100%;
     height: 100%;
     object-fit: cover;
+  }
+
+  /* a website screenshot is read from the top, not from its middle */
+  .story__photo--top {
+    object-position: top center;
   }
 
   .story__scrim {
@@ -254,7 +303,15 @@ const chapters = [
     text-shadow: 0 1px 8px rgba(11, 15, 16, 0.8);
   }
 
+  .story__scrim--deep {
+    background-image:
+      linear-gradient(180deg, rgba(11, 15, 16, 0.45), rgba(11, 15, 16, 0.82) 85%),
+      linear-gradient(120deg, rgba(19, 180, 198, 0.3), transparent 55%);
+  }
+
   .story__giant {
+    position: relative;
+    z-index: 1;
     font-family: var(--font-display);
     font-size: clamp(6rem, 14vw, 13rem);
     font-weight: 800;
@@ -265,9 +322,11 @@ const chapters = [
     -webkit-text-fill-color: transparent;
   }
 
-  .story__plus {
-    color: var(--fg-inv-2);
-    font-weight: 500;
+  /* over a photograph the number needs its own weight behind it */
+  .story__giant--over {
+    position: relative;
+    z-index: 1;
+    filter: drop-shadow(0 6px 26px rgba(11, 15, 16, 0.85));
   }
 
   .story__ticks {
