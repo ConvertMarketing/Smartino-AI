@@ -18,7 +18,7 @@
  *
  * So the rule is absolute: the turquoise is a SURFACE. It carries near-black,
  * never white. Where turquoise must be text on a light ground, it steps down
- * to --t-deep, which is the same hue at 70% lightness and clears AA at 4.80:1.
+ * to --t-deep, which is the same hue at 70% lightness and clears AA at 5.88:1.
  */
 :root {
   /* ---- The brand ------------------------------------------------------ */
@@ -28,15 +28,17 @@
                         * 2.47:1, so no text may sit on this stop. */
   --t-floor: #0f8998;  /* the darkest stop that still carries near-black (4.63:1) */
   --t-deep: #0b6f7a;   /* the only turquoise allowed to be text on light.
-                        * 5.88:1 on white, 5.31:1 on --paper. On the dark
+                        * 5.88:1 on white, which is what --paper now is. On the dark
                         * sections the turquoise steps UP instead, to --t
                         * (7.68:1 on ink) or --t-glow (11.27:1). */
 
   /* ---- Ground --------------------------------------------------------- */
   --white: #ffffff;
-  --paper: #f6f3ed;    /* warm editorial paper; ink 17.4:1, t-deep 5.31:1 */
-                       /* the hero's cool grey is gone: that section now opens on
-                        * --ink, the same ground the maquette below is built on. */
+  --paper: #ffffff;    /* the light sections are white: the client asked for the
+                        * warm paper (#f6f3ed) to go. Contrast goes UP, not down --
+                        * ink 19.6:1, t-deep 5.88:1, fg-2 7.0:1. The hero's cool
+                        * grey is gone too: that section opens on --ink, the same
+                        * ground the maquette below is built on. */
   --ink: #0b0f10;      /* near-black: the dark ground */
   --ink-2: #14191b;    /* dark section alternate */
 

@@ -1,9 +1,9 @@
 ---
 import { Image } from 'astro:assets';
-import terasa from '../assets/photos/gradina-terasa.jpg';
-import familie from '../assets/photos/familie-lounge.jpg';
-import salvie from '../assets/textures/salvie.jpg';
-import textil from '../assets/textures/textil.jpg';
+import supermarket from '../assets/photos/smartino-supermarket-interior.jpg';
+import homeCladire from '../assets/photos/smartino-home-cladire.jpg';
+import shopSite from '../assets/photos/smartinoshop-site.jpg';
+import mdSite from '../assets/photos/smartino-md-site.jpg';
 import { UNITS, SUPERMARKET_HOURS, MOLDOVA_OPERATOR } from '../lib/data';
 
 /**
@@ -13,11 +13,14 @@ import { UNITS, SUPERMARKET_HOURS, MOLDOVA_OPERATOR } from '../lib/data';
  * A floating image chip follows the pointer along the list -- pointer-only,
  * decorative, and absent for touch and reduced motion.
  */
+/* The chip that follows the pointer shows the unit itself -- the same four
+ * photographs the hero cards carry -- instead of the texture crops that stood
+ * in for them. */
 const CHIP: Record<string, ImageMetadata> = {
-  u1: textil,
-  u2: familie,
-  u3: salvie,
-  u4: terasa,
+  u1: supermarket,
+  u2: homeCladire,
+  u3: shopSite,
+  u4: mdSite,
 };
 ---
 
