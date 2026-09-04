@@ -93,10 +93,15 @@ const ROW_MOTION = [
 <style>
   .brands {
     position: relative;
-    overflow: hidden;
+    z-index: 0;
+    overflow: clip; /* clip, not hidden: hidden makes this a scroll container,
+                       and every scroll-driven animation inside would then
+                       measure against a box that never scrolls */
     background-color: var(--ink);
     color: var(--fg-inv);
-    padding-block: clamp(4rem, 10vh, 7rem);
+    /* the bottom padding is a runway, not a margin: the wall sinks through it
+       while the first chapter of the story is already rising over it */
+    padding-block: clamp(4rem, 10vh, 7rem) clamp(9rem, 34vh, 20rem);
   }
 
   /* the lamp behind the wall: the same turquoise light the hero is lit with */
@@ -188,6 +193,47 @@ const ROW_MOTION = [
     }
     to {
       transform: rotateX(-9deg) scale(0.97);
+    }
+  }
+
+  /* ---- the handover -----------------------------------------------------
+     The wall does not scroll out of the way: it sinks backwards into the dark
+     while the story's first words are already coming up through the same
+     black. The two sections overlap by a third of a screen, so there is no
+     line where one ends and the other starts. */
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .brands__stage {
+        animation: wall-sink linear both;
+      }
+
+      .brands__stage.brands__stage {
+        animation-timeline: view();
+        animation-range: exit 0% exit 96%;
+      }
+
+      .brands__head {
+        animation: head-sink linear both;
+      }
+
+      .brands__head.brands__head {
+        animation-timeline: view();
+        animation-range: exit 0% exit 70%;
+      }
+    }
+  }
+
+  @keyframes wall-sink {
+    to {
+      transform: translate3d(0, -8vh, 0) scale(0.86);
+      opacity: 0;
+      filter: blur(6px);
+    }
+  }
+
+  @keyframes head-sink {
+    to {
+      opacity: 0;
     }
   }
 

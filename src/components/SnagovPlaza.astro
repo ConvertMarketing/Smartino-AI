@@ -108,7 +108,9 @@ const [phoneA, phoneB, phoneShop] = COMPANY.phones;
 <style>
   .plaza {
     position: relative;
-    overflow: hidden;
+    overflow: clip; /* clip, not hidden: hidden makes this a scroll container,
+                       and every scroll-driven animation inside would then
+                       measure against a box that never scrolls */
     background-color: var(--ink);
     color: var(--fg-inv);
     padding-block: clamp(4rem, 9vh, 6rem) clamp(3rem, 6vh, 4.5rem);

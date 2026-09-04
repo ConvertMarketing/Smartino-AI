@@ -52,7 +52,9 @@ import { COMPANY } from '../lib/data';
 
   .stmt {
     position: relative;
-    overflow: hidden;
+    overflow: clip; /* clip, not hidden: hidden makes this a scroll container,
+                       and every scroll-driven animation inside would then
+                       measure against a box that never scrolls */
     background-color: var(--paper);
     color: var(--fg);
     padding-block: clamp(5rem, 12vh, 8.5rem);
