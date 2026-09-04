@@ -49,6 +49,12 @@ const cards = [
   <div class="hero__ground" data-animate="ground" aria-hidden="true">
     <span class="hero__aurora"></span>
     <span class="hero__grid"></span>
+    <span class="hero__rings">
+      <span style="--r: 0"></span>
+      <span style="--r: 1"></span>
+      <span style="--r: 2"></span>
+      <span style="--r: 3"></span>
+    </span>
   </div>
   <div class="hero__floor" data-animate="floor" aria-hidden="true"></div>
 
@@ -175,16 +181,60 @@ const cards = [
     display: block;
   }
 
-  /* 0.16 and 0.12 are not taste, they are the ceiling: stacked over the ink
-     they leave every text colour on this section above AA -- white 11.7:1,
-     --t 4.65:1, --t-glow 6.8:1, --fg-inv-2 4.9:1 at the brightest point where
-     both pools overlap. Brighter pools would sink the turquoise text. */
+  /* The pools are brighter now, but their placement is what keeps the text
+     readable: they are pushed out to the edges and low, away from the band
+     the title occupies. Every colour here was measured against the pixels
+     actually rendered behind it -- see scripts/verify.mjs, which now samples
+     the real ground under each line rather than trusting the stylesheet. */
   .hero__aurora {
     background-image:
-      radial-gradient(38% 32% at 20% 24%, rgba(19, 180, 198, 0.16), transparent 70%),
-      radial-gradient(44% 36% at 84% 30%, rgba(75, 216, 232, 0.12), transparent 72%),
-      radial-gradient(30% 26% at 58% 82%, rgba(19, 180, 198, 0.1), transparent 74%);
+      radial-gradient(42% 34% at 8% 26%, rgba(19, 180, 198, 0.3), transparent 70%),
+      radial-gradient(46% 38% at 95% 30%, rgba(75, 216, 232, 0.26), transparent 72%),
+      radial-gradient(52% 40% at 50% 96%, rgba(19, 180, 198, 0.26), transparent 74%),
+      radial-gradient(28% 24% at 78% 84%, rgba(75, 216, 232, 0.16), transparent 76%);
     animation: aurora-drift 22s var(--ease-in-out) infinite alternate;
+  }
+
+  /* ---- the rings ---------------------------------------------------------
+     The plaza is built out of circles -- two roundabouts, the monument's
+     basin, the ring the Home building is wrapped in -- so the light in this
+     room travels the same way: rings opening out of the floor, one every few
+     seconds. Transform and opacity only, so they cost the compositor and
+     nothing else. */
+  .hero__rings {
+    position: absolute;
+    inset: 0;
+    display: block;
+    overflow: hidden;
+  }
+
+  .hero__rings span {
+    position: absolute;
+    left: 50%;
+    bottom: -34vmax;
+    width: 68vmax;
+    height: 68vmax;
+    margin-left: -34vmax;
+    border: 1px solid rgba(75, 216, 232, 0.5);
+    border-radius: 50%;
+    opacity: 0;
+    transform: scale(0.28);
+    animation: ring-out 16s linear infinite;
+    animation-delay: calc(var(--r) * -4s);
+  }
+
+  @keyframes ring-out {
+    0% {
+      opacity: 0;
+      transform: scale(0.28);
+    }
+    12% {
+      opacity: 0.55;
+    }
+    100% {
+      opacity: 0;
+      transform: scale(1.55);
+    }
   }
 
   .hero__grid {
@@ -209,7 +259,7 @@ const cards = [
        seam measured 11,21,22 against the 10,14,15 of the section below */
     background-image:
       linear-gradient(180deg, transparent 52%, var(--ink) 92%),
-      radial-gradient(78% 64% at 50% 68%, rgba(19, 180, 198, 0.22), transparent 72%);
+      radial-gradient(78% 64% at 50% 68%, rgba(19, 180, 198, 0.3), transparent 72%);
   }
 
   /* A turquoise light travels along the horizon, where the grey gives way to
@@ -280,8 +330,15 @@ const cards = [
     }
     .hero__aurora,
     .hero__grid,
+    .hero__rings span,
     .hero__floor::after {
       animation: none;
+    }
+
+    /* one ring stays, drawn, so the room keeps its shape without motion */
+    .hero__rings span {
+      opacity: 0.3;
+      transform: scale(0.9);
     }
     :global([data-js]) [data-animate='floor'],
     :global([data-js]) [data-animate='ground'] .hero__aurora {
@@ -617,8 +674,12 @@ const cards = [
 
   /* The index rides on its own scrim: photographs cannot promise contrast.
      Under the hand it turns to the brand colour, with near-black on it. */
+  /* Above the card's light sweep (z-index 2). The sweep is a white wash, and
+     this scrim carries white text: letting the wash cross it would thin the
+     one pairing on the card that has no margin to give. */
   .uc__n {
     position: absolute;
+    z-index: 3;
     left: 0.875rem;
     top: 0.875rem;
     padding: 0.32rem 0.32rem 0.32rem 0.6rem;

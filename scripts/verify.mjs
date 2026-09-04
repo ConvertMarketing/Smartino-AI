@@ -222,6 +222,144 @@ for (const [label, width, height] of VIEWPORTS) {
   await page.close();
 }
 
+/* -- Rendered contrast -----------------------------------------------------
+ * The composited-ancestors check above walks background COLOURS up the tree.
+ * It is blind to a decorative layer that sits behind text without being its
+ * ancestor: the hero's pools of turquoise light, the maquette's live 3D
+ * render under its heading. Brightening either could sink a line of text and
+ * every earlier check would still pass.
+ *
+ * So this pass measures the pixels that were actually behind each line: it
+ * makes the glyphs transparent (layout untouched), photographs the section,
+ * and takes the worst contrast across a grid of samples inside every text
+ * box. Sampled at four moments, because the light moves.
+ */
+async function renderedContrast(page, sectionSel, label) {
+  await page.evaluate((sel) => document.querySelector(sel)?.scrollIntoView({ block: 'start' }), sectionSel);
+  await page.waitForTimeout(1200);
+
+  const count = await page.evaluate((sel) => {
+    const root = document.querySelector(sel);
+    if (!root) return 0;
+    const leaves = [...root.querySelectorAll('h1,h2,h3,p,li,span,a,dt,dd,address,figcaption')].filter((e) => {
+      if (!e.textContent.trim()) return false;
+      if ([...e.children].some((c) => c.textContent.trim())) return false;
+      const cs = getComputedStyle(e);
+      if (cs.visibility === 'hidden' || cs.display === 'none' || parseFloat(cs.opacity) < 0.5) return false;
+      const r = e.getBoundingClientRect();
+      return r.width > 2 && r.height > 2 && r.bottom > 0 && r.top < innerHeight;
+    });
+    // the ink each line is painted with, recorded BEFORE the glyphs are made
+    // transparent -- read afterwards it would be rgba(0,0,0,0) and every line
+    // would measure as black against black
+    leaves.forEach((e) => {
+      e.setAttribute('data-rc', '');
+      e.setAttribute('data-rc-ink', getComputedStyle(e).color);
+    });
+    return leaves.length;
+  }, sectionSel);
+  if (!count) return [];
+
+  // glyphs off, boxes untouched -- including text painted through
+  // background-clip, which a plain transparent colour would leave visible
+  await page.addStyleTag({
+    content: `[data-rc]{color:transparent!important;-webkit-text-fill-color:transparent!important;text-shadow:none!important}
+              [data-rc][data-rc-clip]{background-image:none!important}`,
+  });
+  await page.evaluate(() => {
+    for (const e of document.querySelectorAll('[data-rc]')) {
+      const cs = getComputedStyle(e);
+      if (cs.webkitBackgroundClip === 'text' || cs.backgroundClip === 'text') e.setAttribute('data-rc-clip', '');
+    }
+  });
+
+  const worst = new Map();
+  for (let frame = 0; frame < 4; frame++) {
+    const b64 = (await page.screenshot()).toString('base64');
+    const found = await page.evaluate(async (png) => {
+      const img = new Image();
+      img.src = 'data:image/png;base64,' + png;
+      await img.decode();
+      const cv = document.createElement('canvas');
+      cv.width = img.width;
+      cv.height = img.height;
+      const ctx = cv.getContext('2d', { willReadFrequently: true });
+      ctx.drawImage(img, 0, 0);
+      const k = img.width / innerWidth;
+      const lin = (c) => { c /= 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; };
+      const L = (c) => 0.2126 * lin(c[0]) + 0.7152 * lin(c[1]) + 0.0722 * lin(c[2]);
+      const ratio = (a, b) => { const x = L(a), y = L(b), hi = Math.max(x, y), lo = Math.min(x, y); return (hi + 0.05) / (lo + 0.05); };
+      const parse = (css) => { const n = (css.match(/[\d.]+/g) ?? []).map(Number); return [n[0] ?? 0, n[1] ?? 0, n[2] ?? 0]; };
+
+      // The glyph runs, not the element box: a rounded pill's corners are
+      // transparent and a paragraph's last line ends early, so sampling the
+      // box reads the photo behind the padding and calls it a failure.
+      const runs = (el) => {
+        const rg = document.createRange();
+        rg.selectNodeContents(el);
+        return [...rg.getClientRects()].filter((r) => r.width > 3 && r.height > 3);
+      };
+
+      const out = [];
+      for (const el of document.querySelectorAll('[data-rc]')) {
+        const r = el.getBoundingClientRect();
+        if (r.bottom <= 0 || r.top >= innerHeight) continue;
+        const cs = getComputedStyle(el);
+        // the ink the glyphs are painted with: the element's own colour, or
+        // the mid stop of the gradient when the text is painted through one
+        // text painted through a gradient keeps its plain colour as the base
+        // stop, and the gradient only ever brightens it, so the base is the
+        // honest worst case
+        const ink = parse(el.dataset.rcInk || cs.color);
+        const size = parseFloat(cs.fontSize);
+        const large = size >= 24 || (size >= 18.66 && (parseInt(cs.fontWeight) || 400) >= 700);
+        let low = Infinity;
+        for (const run of runs(el)) {
+          // inset, so a sample never lands on the very edge of a glyph run
+          const x0 = run.left + run.width * 0.12;
+          const w = run.width * 0.76;
+          const y0 = run.top + run.height * 0.2;
+          const h = run.height * 0.6;
+          for (let gx = 0; gx <= 8; gx++) {
+            for (let gy = 0; gy <= 2; gy++) {
+              const yy = y0 + (h * gy) / 2;
+              if (yy < 0 || yy >= innerHeight) continue;
+              const x = Math.round((x0 + (w * gx) / 8) * k);
+              const y = Math.round(yy * k);
+              if (x < 0 || y < 0 || x >= img.width || y >= img.height) continue;
+              const d = ctx.getImageData(x, y, 1, 1).data;
+              low = Math.min(low, ratio(ink, [d[0], d[1], d[2]]));
+            }
+          }
+        }
+        if (low < Infinity) out.push({ text: el.textContent.trim().slice(0, 22), min: +low.toFixed(2), need: large ? 3 : 4.5 });
+      }
+      return out;
+    }, b64);
+    for (const f of found) {
+      const prev = worst.get(f.text);
+      if (!prev || f.min < prev.min) worst.set(f.text, f);
+    }
+    if (frame < 3) await page.waitForTimeout(2200);
+  }
+
+  const bad = [...worst.values()].filter((f) => f.min < f.need);
+  record(bad.length === 0, `contrast pe fundalul randat (${label})`,
+    bad.length ? bad.slice(0, 4).map((f) => `${f.min}:1 <${f.need} "${f.text}"`).join(' | ')
+               : `${worst.size} linii, minim ${Math.min(...[...worst.values()].map((f) => f.min)).toFixed(2)}:1`);
+  return bad;
+}
+
+console.log('\n[contrast pe fundal randat]');
+for (const [w, h] of [[1440, 900], [390, 844]]) {
+  const page = await browser.newPage({ viewport: { width: w, height: h } });
+  await page.goto(URL, { waitUntil: 'networkidle' });
+  await page.evaluate(() => document.querySelectorAll('[data-reveal], [data-animate]').forEach((e) => e.setAttribute('data-in', '')));
+  await page.waitForTimeout(2600);
+  await renderedContrast(page, '.hero', `hero ${w}px`);
+  await page.close();
+}
+
 /* -- Degradations --------------------------------------------------------- */
 console.log('\n[degradari]');
 {
