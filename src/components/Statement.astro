@@ -8,6 +8,10 @@ import { COMPANY } from '../lib/data';
 ---
 
 <section class="stmt" aria-label="Despre grup">
+  {/* The white does not arrive as an edge: it floods up over the last of the
+      3D model while that section is still pinned, so the page opens into the
+      light instead of cutting to it. Driven by the scroll, decorative. */}
+  <span class="stmt__dawn" aria-hidden="true"></span>
   <span class="stmt__glow" aria-hidden="true"></span>
 
   <div class="stmt__inner">
@@ -52,12 +56,44 @@ import { COMPANY } from '../lib/data';
 
   .stmt {
     position: relative;
-    overflow: clip; /* clip, not hidden: hidden makes this a scroll container,
+    z-index: 1;
+    /* pulled up over the maquette's tail: the two share a stretch of scroll */
+    margin-top: clamp(-16rem, -30vh, -7rem);
+    /* clipped sideways, open upwards: the drifting glow inside must not push
+       the page wider (measured: it did, by 84-316 px), while the dawn sheet
+       above this box has to stay visible */
+    overflow: clip visible; /* clip, not hidden: hidden makes this a scroll container,
                        and every scroll-driven animation inside would then
                        measure against a box that never scrolls */
     background-color: var(--paper);
     color: var(--fg);
     padding-block: clamp(5rem, 12vh, 8.5rem);
+  }
+
+  /* The dawn.
+     The white does not arrive as an edge. This sheet sits above the section
+     (its bottom edge on the section's top edge) and is a long, soft front:
+     transparent at the top, solid white at the bottom. While the 3D section
+     below is still pinned to the screen, the front rises across it with the
+     scroll and the model dissolves into the light.
+     It needs no animation of its own -- the scroll already moves it, and an
+     earlier attempt to grow it with a scroll-driven scale finished its whole
+     travel while still below the fold, which nobody could see. */
+  .stmt__dawn {
+    position: absolute;
+    inset: auto 0 100% 0;
+    z-index: 0;
+    height: clamp(24rem, 68vh, 40rem);
+    pointer-events: none;
+    background-image: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.08) 34%,
+      rgba(255, 255, 255, 0.3) 58%,
+      rgba(255, 255, 255, 0.72) 80%,
+      rgba(255, 255, 255, 0.95) 93%,
+      #fff 100%
+    );
   }
 
   /* the same faint drifting light the index carries, so the two white
