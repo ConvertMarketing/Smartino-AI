@@ -26,9 +26,15 @@ const mark = (slug: string): ImageMetadata => {
   return hit;
 };
 
-/* Each row is rendered twice inside its track: the animation slides the track
- * by exactly half its width, so the seam never shows. The second copy is
- * hidden from assistive tech -- one list of names is enough. */
+/* Each row is rendered four times inside its track.
+ *
+ * Two copies were not enough: the animation slides the track by exactly one
+ * copy, so at the end of a cycle only ONE copy's width is still covering the
+ * screen -- about 1.250 px. On a wide desktop that leaves the right half of
+ * the wall empty, which is what the client saw. With four copies, three are
+ * always on screen (~3.700 px), so the row runs edge to edge on any monitor.
+ * Only the first copy is read by assistive tech -- one list of names is
+ * enough. */
 const ROW_MOTION = [
   { dur: '78s', dir: 'normal', delay: '0s' },
   { dur: '62s', dir: 'reverse', delay: '-2.4s' },
@@ -59,9 +65,9 @@ const ROW_MOTION = [
             style={`--dur: ${ROW_MOTION[r].dur}; --dir: ${ROW_MOTION[r].dir}; --delay: ${ROW_MOTION[r].delay}`}
           >
             <ul class="brands__track" aria-label={`Branduri, rândul ${r + 1}`}>
-              {[0, 1].map((copy) =>
+              {[0, 1, 2, 3].map((copy) =>
                 row.map((brand) => (
-                  <li class="chip" aria-hidden={copy === 1 ? 'true' : undefined}>
+                  <li class="chip" aria-hidden={copy > 0 ? 'true' : undefined}>
                     {brand.marks.map((slug, m) => (
                       <Image
                         class:list={['chip__mark', brand.marks.length > 1 && `chip__mark--of${brand.marks.length}`]}
@@ -235,10 +241,12 @@ const ROW_MOTION = [
     animation-direction: var(--dir);
   }
 
-  /* the track holds two identical copies, so half a track is one full loop */
+  /* One loop is one copy. With four copies the track is W = 4·k·(chip) plus
+     the gaps, and one copy measures (W + gap) / 4 -- hence the quarter and the
+     quarter-gap. Same distance per cycle as before, so the speed is unchanged. */
   @keyframes row-run {
     to {
-      transform: translate3d(calc(-50% - clamp(5px, 0.7vw, 9px)), 0, 0);
+      transform: translate3d(calc(-25% - clamp(2.5px, 0.35vw, 4.5px)), 0, 0);
     }
   }
 
@@ -371,7 +379,7 @@ const ROW_MOTION = [
       justify-content: center;
     }
 
-    /* the duplicate copy exists only for the loop */
+    /* the duplicate copies exist only for the loop */
     .brands__track .chip[aria-hidden='true'] {
       display: none;
     }
