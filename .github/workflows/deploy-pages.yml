@@ -41,8 +41,25 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
 
+      # npm has twice hung here for ten minutes with no output while GitHub
+      # reported every service operational, so the step is no longer allowed
+      # to wait forever: it gets a deadline and two more tries. --prefer-offline
+      # takes what the setup-node cache already holds instead of re-asking the
+      # registry for it.
       - name: Install dependencies
-        run: npm ci
+        timeout-minutes: 6
+        run: |
+          for attempt in 1 2 3; do
+            echo "npm ci, incercarea $attempt"
+            if timeout 100s npm ci --prefer-offline --no-audit --no-fund; then
+              exit 0
+            fi
+            echo "incercarea $attempt a esuat sau a depasit timpul; se reia"
+            rm -rf node_modules
+            sleep $((attempt * 10))
+          done
+          echo "npm ci nu a reusit in trei incercari"
+          exit 1
 
       - name: Type check
         run: npm run check
