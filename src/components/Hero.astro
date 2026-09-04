@@ -508,22 +508,63 @@ const cards = [
     margin-block: auto;
     padding-block: clamp(1.25rem, 3.5vh, 2.5rem) clamp(1rem, 2.5vh, 2rem);
     perspective: 1400px;
+    transform-style: preserve-3d;
   }
 
-  /* Entry: each card rises and unfolds toward the viewer, one beat apart;
-     landed, it floats -- a slow breath, out of phase with its neighbours. */
+  /* Entry: the four gather into the dark room from where each of them stands
+     -- the outer two swing in from their own side, the inner two rise from
+     the floor -- all of them out of depth, turning as they come. Landed, each
+     floats: a slow breath, out of phase with its neighbours. */
   :global([data-js]) [data-animate='deck'] .units__cell {
     opacity: 0;
-    transform: translateY(70px) rotateX(18deg) scale(0.93);
+    transform: translate3d(var(--fx, 0), var(--fy, 0), -220px) rotateY(var(--fr, 0deg)) rotateX(12deg) scale(0.94);
     transition:
-      transform 1000ms var(--ease-out) calc(var(--i) * 120ms + 500ms),
-      opacity 700ms var(--ease-out) calc(var(--i) * 120ms + 500ms);
+      transform 1150ms var(--ease-out) calc(var(--i) * 130ms + 420ms),
+      opacity 620ms var(--ease-out) calc(var(--i) * 130ms + 420ms);
+  }
+
+  :global([data-js]) [data-animate='deck'] .units__cell:nth-child(1) {
+    --fx: -30%;
+    --fr: 16deg;
+  }
+
+  :global([data-js]) [data-animate='deck'] .units__cell:nth-child(2) {
+    --fy: 90px;
+    --fr: 7deg;
+  }
+
+  :global([data-js]) [data-animate='deck'] .units__cell:nth-child(3) {
+    --fy: 90px;
+    --fr: -7deg;
+  }
+
+  :global([data-js]) [data-animate='deck'] .units__cell:nth-child(4) {
+    --fx: 30%;
+    --fr: -16deg;
   }
 
   :global([data-js]) [data-animate='deck'][data-in] .units__cell {
     opacity: 1;
     transform: none;
-    animation: card-float 7s var(--ease-in-out) calc(var(--i) * -1.75s + 2.2s) infinite;
+    animation: card-float 7s var(--ease-in-out) calc(var(--i) * -1.75s + 2.4s) infinite;
+  }
+
+  /* ...and they do not simply appear: each arrives unlit and the light finds
+     it, a beat after it lands. The veil is the room's own near-black, so an
+     unlit card reads as a dark panel rather than a hole in the layout. */
+  :global([data-js]) [data-animate='deck'] .uc::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    pointer-events: none;
+    background-color: var(--ink);
+    opacity: 1;
+    transition: opacity 900ms var(--ease-out) calc(var(--i) * 130ms + 700ms);
+  }
+
+  :global([data-js]) [data-animate='deck'][data-in] .uc::before {
+    opacity: 0;
   }
 
   @keyframes card-float {
@@ -543,6 +584,11 @@ const cards = [
       transform: none;
       transition: none;
       animation: none;
+    }
+
+    /* nothing arrives unlit when motion is refused: the veil never exists */
+    :global([data-js]) [data-animate='deck'] .uc::before {
+      display: none;
     }
   }
 
