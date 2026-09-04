@@ -230,11 +230,13 @@ const chapters = [
     z-index: 0;
     height: clamp(26rem, 66vh, 44rem);
     pointer-events: none;
-    /* The alpha at the first pixel is not a taste decision: the ground above
-       this edge measures 20.6 of 255 and the bare ink below measures 13.4, so
-       the light has to be worth exactly those ~7 levels there and decay from
-       it. 0.062 of #13b4c6 over #0b0f10 lands on 20.5. */
-    background-image: radial-gradient(130% 100% at 50% 0%, rgba(19, 180, 198, 0.062), transparent 72%);
+    /* Matched to the lamp above pixel by pixel, and not by its average: that
+       lamp peaks in the middle and dies at the sides, so a wide flat glow
+       under it was 7 levels too dark in the centre and 4 too bright at the
+       edges -- a cut in the middle and a seam at both ends. This one is as
+       narrow as the light above it (52% radius) and worth 0.125 alpha where
+       it is brightest, which is the ~15 levels the centre needs. */
+    background-image: radial-gradient(52% 100% at 50% 0%, rgba(19, 180, 198, 0.125), transparent 70%);
   }
 
   .story__frame {
