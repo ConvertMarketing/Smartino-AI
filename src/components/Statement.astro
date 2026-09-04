@@ -8,6 +8,8 @@ import { COMPANY } from '../lib/data';
 ---
 
 <section class="stmt" aria-label="Despre grup">
+  <span class="stmt__glow" aria-hidden="true"></span>
+
   <div class="stmt__inner">
     <p class="stmt__kicker" data-reveal>Grupul</p>
     <p class="stmt__text" data-animate="words" aria-label="Un grup, zeci de branduri, un raft în care găsești ce cauți. Cumpărături smart, în fiecare zi.">
@@ -49,12 +51,34 @@ import { COMPANY } from '../lib/data';
   }
 
   .stmt {
+    position: relative;
+    overflow: hidden;
     background-color: var(--paper);
     color: var(--fg);
     padding-block: clamp(5rem, 12vh, 8.5rem);
   }
 
+  /* the same faint drifting light the index carries, so the two white
+     sections read as one lit room rather than two sheets of paper */
+  .stmt__glow {
+    position: absolute;
+    inset: -25% -10%;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      radial-gradient(32% 30% at 76% 22%, rgba(19, 180, 198, 0.1), transparent 70%),
+      radial-gradient(28% 26% at 10% 78%, rgba(19, 180, 198, 0.07), transparent 72%);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .stmt__glow {
+      animation: drift-b 30s var(--ease-in-out) infinite alternate;
+    }
+  }
+
   .stmt__inner {
+    position: relative;
+    z-index: 1;
     max-width: var(--content);
     margin-inline: auto;
     padding-inline: var(--gutter);
@@ -113,6 +137,27 @@ import { COMPANY } from '../lib/data';
     height: 7px;
     background-color: var(--t-deep);
     transform: rotate(45deg);
+  }
+
+  /* light runs along the four marks, one after another, and starts over */
+  @media (prefers-reduced-motion: no-preference) {
+    .stmt__value::before {
+      animation: value-spark 5.2s var(--ease-in-out) infinite;
+      animation-delay: calc(var(--vi) * 0.42s);
+    }
+  }
+
+  @keyframes value-spark {
+    0%,
+    18%,
+    100% {
+      background-color: var(--t-deep);
+      box-shadow: 0 0 0 0 rgba(19, 180, 198, 0);
+    }
+    6% {
+      background-color: var(--t);
+      box-shadow: 0 0 10px 2px rgba(19, 180, 198, 0.45);
+    }
   }
 
   /* they arrive one after another once the block is in view */

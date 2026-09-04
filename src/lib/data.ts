@@ -61,8 +61,10 @@ export const TIMELINE = {
  *  TODO(client): opening hours for Smartino Home, plus public-holiday exceptions
  *  for both stores. */
 export const SUPERMARKET_HOURS = [
-  { days: 'Luni – Vineri', open: '07:00', close: '22:00' },
-  { days: 'Sâmbătă – Duminică', open: '08:00', close: '21:00' },
+  /* dow: JavaScript day numbers (0 = duminică). They exist so the "deschis
+   * acum" line can be computed without parsing Romanian day names. */
+  { days: 'Luni – Vineri', open: '07:00', close: '22:00', dow: [1, 2, 3, 4, 5] },
+  { days: 'Sâmbătă – Duminică', open: '08:00', close: '21:00', dow: [6, 0] },
 ] as const;
 
 export const UNITS: Unit[] = [

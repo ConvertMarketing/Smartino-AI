@@ -1,13 +1,37 @@
 ---
 import { COMPANY, SUPERMARKET_HOURS, TIMELINE } from '../lib/data';
 
+/**
+ * Where to find the group, and how to reach it.
+ *
+ * The schematic site plan that used to sit here is gone at the client's
+ * request: it drew two rectangles and a dashed line, which said less than the
+ * one word "vizavi" already says, and it claimed a geometry nobody had
+ * measured. What is left is the part a visitor actually uses -- address,
+ * hours, phones, e-mail -- arranged as four panels lit against the dark.
+ *
+ * The "deschis acum" line is the only thing on this page that changes by
+ * itself: site.ts computes it in the reader's browser against Bucharest time,
+ * and it stays hidden until it can be computed, so no JavaScript means no
+ * wrong claim about whether the door is open.
+ */
 const mapsQuery = encodeURIComponent(
   `${COMPANY.address.venue}, ${COMPANY.address.street}, ${COMPANY.address.locality}`
 );
+
+/** The shape site.ts reads: day numbers plus the two clock times. */
+const hoursSpec = JSON.stringify(
+  SUPERMARKET_HOURS.map((h) => ({ dow: h.dow, open: h.open, close: h.close }))
+);
+
+const [phoneA, phoneB, phoneShop] = COMPANY.phones;
 ---
 
 <section class="plaza" id="snagov-plaza" aria-labelledby="plaza-title">
+  <span class="plaza__lamp" aria-hidden="true"></span>
+
   <div class="plaza__inner">
+    <p class="plaza__kicker" data-reveal>Ne găsești aici</p>
     <h2 class="plaza__title" id="plaza-title" data-animate="words" aria-label="Snagov Plaza">
       <span aria-hidden="true">
         {'Snagov Plaza'.split(' ').map((w, i) => (
@@ -15,99 +39,67 @@ const mapsQuery = encodeURIComponent(
         ))}
       </span>
     </h2>
-    <p class="plaza__lede">
+    <p class="plaza__lede" data-reveal style="--i: 1">
       Cele două magazine fizice ale grupului, unul în fața celuilalt.
     </p>
 
-    {/* Inline SVG, no third party: zero consent banners, zero external requests,
-        full colour control. Only TWO footprints are drawn -- the group has two
-        physical stores, and drawing four would imply a spatial claim over the
-        one whose ownership cannot be asserted.
-
-        TODO(client): the geometry below is schematic. Replace with the real site
-        plan or an overhead photo -- "vizavi" says they face each other, not at
-        what distance, with what between them, or how they sit against the DN-1. */}
-    <figure class="plaza__figure" data-reveal style="--i: 1">
-      <svg viewBox="0 0 640 300" role="img" aria-labelledby="plan-title plan-desc">
-        <title id="plan-title">Plan schematic al amplasamentului din Snagov Plaza</title>
-        <desc id="plan-desc">
-          Două clădiri așezate una în fața celeilalte, separate de un spațiu deschis, cu
-          șoseaua DN-1 pe o latură.
-        </desc>
-
-        <rect x="0" y="0" width="640" height="300" fill="var(--ink)"></rect>
-
-        <rect x="0" y="248" width="640" height="52" fill="#1d3238"></rect>
-        <text x="24" y="279" class="plan__road">ȘOSEAUA BUCUREȘTI–PLOIEȘTI · DN-1</text>
-
-        <rect class="plan__b" x="52" y="46" width="228" height="150" rx="16" fill="var(--t)" stroke="var(--t)" stroke-width="2" pathLength="100"></rect>
-        <text x="76" y="86" class="plan__idx">01</text>
-        <text x="76" y="116" class="plan__name">Supermarket</text>
-        <text x="76" y="140" class="plan__meta">deschis 11 iulie 2025</text>
-
-        <rect class="plan__b" x="360" y="46" width="228" height="150" rx="16" fill="var(--t-glow)" stroke="var(--t-glow)" stroke-width="2" pathLength="100"></rect>
-        <text x="384" y="86" class="plan__idx">02</text>
-        <text x="384" y="116" class="plan__name">Home</text>
-        <text x="384" y="140" class="plan__meta">deschis 25 iulie 2026 · 1.200 m²</text>
-
-        {/* The band, opened to full width: it was this space all along. */}
-        <line x1="320" y1="46" x2="320" y2="196" stroke="var(--fg-inv-2)" stroke-width="1" stroke-dasharray="4 8"></line>
-        {/* The response from the hero, echoed here: a signal marching between
-            the two buildings. */}
-        <line class="plan__pulse" x1="288" y1="121" x2="352" y2="121"></line>
-        <text x="320" y="222" class="plan__gap">vizavi</text>
-      </svg>
-      <figcaption class="plaza__caption">
-        Plan schematic. Geometria exactă urmează planului de amplasament.
-      </figcaption>
-    </figure>
-
-    <div class="plaza__cols" data-reveal style="--i: 2">
-      <div>
-        <h3 class="plaza__h3">Adresă</h3>
-        <address class="plaza__address">
+    <div class="plaza__deck">
+      <article class="pc pc--place" data-reveal style="--i: 1">
+        <p class="pc__label">Adresa</p>
+        <span class="pc__pin" aria-hidden="true"></span>
+        <address class="pc__address">
           {COMPANY.address.venue}<br />
           {COMPANY.address.street}<br />
           {COMPANY.address.locality}
         </address>
         <a
-          class="plaza__maps"
+          class="pc__action"
           href={`https://www.google.com/maps/search/?api=1&query=${mapsQuery}`}
           rel="noopener"
         >
           Deschide în hărți <span aria-hidden="true">↗</span>
         </a>
-      </div>
+      </article>
 
-      <div>
-        <h3 class="plaza__h3">Program — Smartino Supermarket</h3>
-        <table class="plaza__hours tnum">
-          <tbody>
-            {
-              SUPERMARKET_HOURS.map((h) => (
-                <tr>
-                  <th scope="row">{h.days}</th>
-                  <td>
-                    {h.open}–{h.close}
-                  </td>
-                </tr>
-              ))
-            }
-          </tbody>
-        </table>
-
-        <h3 class="plaza__h3 plaza__h3--spaced">Program — Smartino Home</h3>
+      <article class="pc" data-reveal style="--i: 2">
+        <p class="pc__label">Program · Supermarket</p>
+        <p class="pc__status" data-open-now data-hours={hoursSpec} hidden></p>
+        <dl class="pc__hours tnum">
+          {
+            SUPERMARKET_HOURS.map((h) => (
+              <div class="pc__hourRow">
+                <dt>{h.days}</dt>
+                <dd>
+                  {h.open}–{h.close}
+                </dd>
+              </div>
+            ))
+          }
+        </dl>
         {/* Not guessed. This is the largest store in the group and a wrong time
             sends someone driving to Tâncăbești for nothing.
             TODO(client): opening hours for Smartino Home. */}
-        <p class="plaza__pending">
-          Se anunță în curând. Până atunci, ne poți suna la
-          <a href={COMPANY.phones[0].href}>{COMPANY.phones[0].value}</a>.
+        <p class="pc__note">Smartino Home: programul se anunță în curând.</p>
+      </article>
+
+      <article class="pc" data-reveal style="--i: 3">
+        <p class="pc__label">Telefon</p>
+        <a class="pc__big" href={phoneA.href}>{phoneA.value}</a>
+        <a class="pc__big" href={phoneB.href}>{phoneB.value}</a>
+        <p class="pc__sub">
+          <span>{phoneShop.label}</span>
+          <a href={phoneShop.href}>{phoneShop.value}</a>
         </p>
-      </div>
+      </article>
+
+      <article class="pc" data-reveal style="--i: 4">
+        <p class="pc__label">E-mail</p>
+        <a class="pc__big pc__big--mail" href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a>
+        <p class="pc__note">Pentru colaborări, furnizori și presă.</p>
+      </article>
     </div>
 
-    <p class="plaza__opened tnum">
+    <p class="plaza__opened tnum" data-reveal style="--i: 5">
       Supermarket, {TIMELINE.first.label}. Home, {TIMELINE.second.label}.
     </p>
   </div>
@@ -116,21 +108,45 @@ const mapsQuery = encodeURIComponent(
 <style>
   .plaza {
     position: relative;
+    overflow: hidden;
     background-color: var(--ink);
-    color: #fff;
-    padding-block: 4.5rem 3.5rem;
+    color: var(--fg-inv);
+    padding-block: clamp(4rem, 9vh, 6rem) clamp(3rem, 6vh, 4.5rem);
+  }
+
+  /* the same turquoise light the rest of the dark half is lit with */
+  .plaza__lamp {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      radial-gradient(46% 40% at 14% 18%, rgba(19, 180, 198, 0.22), transparent 72%),
+      radial-gradient(40% 36% at 92% 70%, rgba(75, 216, 232, 0.16), transparent 74%);
   }
 
   .plaza__inner {
+    position: relative;
+    z-index: 1;
     max-width: var(--content);
     margin-inline: auto;
     padding-inline: var(--gutter);
   }
 
+  .plaza__kicker {
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--t-glow);
+  }
+
   .plaza__title {
+    margin-top: 0.875rem;
     font-family: var(--font-display);
     font-size: clamp(1.75rem, 1.3rem + 1.8vw, 2.75rem);
-    font-weight: 700;
+    font-weight: 800;
     letter-spacing: -0.02em;
   }
 
@@ -139,193 +155,222 @@ const mapsQuery = encodeURIComponent(
     color: var(--fg-inv-2);
   }
 
-  .plaza__figure {
-    margin-top: 2rem;
-  }
-
-  .plaza__figure svg {
-    width: 100%;
-    height: auto;
-    border-radius: 20px;
-    display: block;
-  }
-
-  .plan__idx {
-    font-family: var(--font-display);
-    font-size: 15px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    fill: var(--ink);
-  }
-
-  .plan__name {
-    font-family: var(--font-display);
-    font-size: 24px;
-    font-weight: 700;
-    fill: var(--ink);
-  }
-
-  .plan__meta {
-    font-size: 13px;
-    fill: var(--ink);
-  }
-
-  .plan__road {
-    font-size: 11px;
-    letter-spacing: 1.5px;
-    fill: var(--fg-inv-2);
-  }
-
-  .plan__gap {
-    font-size: 12px;
-    letter-spacing: 1px;
-    text-anchor: middle;
-    fill: var(--fg-inv-2);
-  }
-
-  /* The buildings draw their own outline when the section arrives, then fill. */
-  :global([data-js]) .plan__b {
-    fill-opacity: 0;
-    stroke-dasharray: 100;
-    stroke-dashoffset: 100;
-    transition:
-      stroke-dashoffset 1100ms var(--ease-out) 150ms,
-      fill-opacity 500ms var(--ease-out) 1050ms;
-  }
-
-  :global([data-js]) [data-in] .plan__b {
-    stroke-dashoffset: 0;
-    fill-opacity: 1;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    :global([data-js]) .plan__b {
-      fill-opacity: 1;
-      stroke-dashoffset: 0;
-      transition: none;
-    }
-  }
-
-  .plan__pulse {
-    stroke: var(--t);
-    stroke-width: 2.5;
-    stroke-linecap: round;
-    stroke-dasharray: 6 14;
-    animation: plan-march 1.6s linear infinite;
-  }
-
-  @keyframes plan-march {
-    to {
-      stroke-dashoffset: -40;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    /* The buildings draw their own outline when the section arrives, then fill. */
-  :global([data-js]) .plan__b {
-    fill-opacity: 0;
-    stroke-dasharray: 100;
-    stroke-dashoffset: 100;
-    transition:
-      stroke-dashoffset 1100ms var(--ease-out) 150ms,
-      fill-opacity 500ms var(--ease-out) 1050ms;
-  }
-
-  :global([data-js]) [data-in] .plan__b {
-    stroke-dashoffset: 0;
-    fill-opacity: 1;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    :global([data-js]) .plan__b {
-      fill-opacity: 1;
-      stroke-dashoffset: 0;
-      transition: none;
-    }
-  }
-
-  .plan__pulse {
-      animation: none;
-    }
-  }
-
-  .plaza__caption {
-    margin-top: 0.625rem;
-    font-size: 0.75rem;
-    color: var(--fg-inv-2);
-  }
-
-  .plaza__cols {
-    margin-top: 3rem;
+  /* ---- the four panels -------------------------------------------------- */
+  .plaza__deck {
+    margin-top: clamp(2rem, 5vh, 3rem);
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 2.5rem;
+    gap: clamp(12px, 1.4vw, 20px);
   }
 
-  .plaza__h3 {
-    font-size: 0.75rem;
-    letter-spacing: 0.1em;
+  .pc {
+    position: relative;
+    padding: clamp(1.25rem, 2.4vw, 1.75rem);
+    border: 1px solid var(--line-dark);
+    border-radius: 18px;
+    background-color: var(--ink-2);
+    transition:
+      border-color var(--d-state) var(--ease-out),
+      box-shadow var(--d-state) var(--ease-out),
+      transform var(--d-state) var(--ease-out);
+  }
+
+  .pc:hover,
+  .pc:focus-within {
+    border-color: rgba(75, 216, 232, 0.55);
+    box-shadow: 0 18px 46px rgba(19, 180, 198, 0.18);
+    transform: translateY(-3px);
+  }
+
+  .pc__label {
+    font-family: var(--font-display);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
     text-transform: uppercase;
     color: var(--fg-inv-2);
   }
 
-  .plaza__h3--spaced {
-    margin-top: 2rem;
-  }
-
-  .plaza__address {
-    margin-top: 0.75rem;
+  .pc__address {
+    margin-top: 0.875rem;
+    font-family: var(--font-display);
+    font-size: clamp(1.0625rem, 0.95rem + 0.4vw, 1.375rem);
+    font-weight: 600;
     font-style: normal;
-    line-height: 1.65;
+    line-height: 1.5;
   }
 
-  .plaza__maps,
-  .plaza__pending a {
-    color: #fff;
+  /* a light on the map, breathing */
+  .pc__pin {
+    position: absolute;
+    top: clamp(1.25rem, 2.4vw, 1.75rem);
+    right: clamp(1.25rem, 2.4vw, 1.75rem);
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: var(--t-glow);
+    box-shadow: 0 0 0 0 rgba(75, 216, 232, 0.55);
   }
 
-  .plaza__maps {
+  @media (prefers-reduced-motion: no-preference) {
+    .pc__pin {
+      animation: pin-pulse 2.6s var(--ease-in-out) infinite;
+    }
+  }
+
+  @keyframes pin-pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(75, 216, 232, 0.5);
+    }
+    70% {
+      box-shadow: 0 0 0 16px rgba(75, 216, 232, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(75, 216, 232, 0);
+    }
+  }
+
+  .pc__action {
     display: inline-block;
-    margin-top: 1rem;
+    margin-top: 1.125rem;
+    font-family: var(--font-display);
+    font-weight: 600;
     font-size: 0.9375rem;
+    color: var(--t-glow);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(75, 216, 232, 0.4);
+    padding-bottom: 2px;
   }
 
-  .plaza__hours {
-    margin-top: 0.75rem;
-    border-collapse: collapse;
-    width: 100%;
-    max-width: 22rem;
+  .pc__action:hover {
+    border-bottom-color: var(--t-glow);
   }
 
-  .plaza__hours th,
-  .plaza__hours td {
-    text-align: left;
+  /* ---- hours ------------------------------------------------------------ */
+  .pc__status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.875rem;
+    padding: 0.3125rem 0.75rem 0.3125rem 0.625rem;
+    border-radius: 999px;
+    border: 1px solid var(--line-dark-strong);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--fg-inv);
+  }
+
+  .pc__status::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--fg-inv-2);
+  }
+
+  .pc__status[data-state='open'] {
+    border-color: rgba(75, 216, 232, 0.5);
+  }
+
+  .pc__status[data-state='open']::before {
+    background-color: var(--t-glow);
+    box-shadow: 0 0 10px var(--t-glow);
+  }
+
+  .pc__hours {
+    margin: 0.875rem 0 0;
+  }
+
+  .pc__hourRow {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
     padding-block: 0.5rem;
-    border-bottom: 1px solid #2a3d43;
-    font-weight: 400;
+    border-bottom: 1px solid var(--line-dark);
   }
 
-  .plaza__hours td {
-    text-align: right;
-  }
-
-  .plaza__pending {
-    margin-top: 0.75rem;
+  .pc__hourRow dt {
     color: var(--fg-inv-2);
     font-size: 0.9375rem;
-    max-width: 22rem;
+  }
+
+  /* the gap between day and time is a dotted leader, the way a timetable
+     prints it -- it also survives any width */
+  .pc__hourRow dt::after {
+    content: '';
+    display: inline-block;
+    width: 100%;
+  }
+
+  .pc__hourRow dd {
+    margin: 0;
+    margin-left: auto;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1rem;
+    white-space: nowrap;
+  }
+
+  .pc__note {
+    margin-top: 0.875rem;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    color: var(--fg-inv-2);
+  }
+
+  /* ---- phones and mail --------------------------------------------------- */
+  .pc__big {
+    display: block;
+    margin-top: 0.75rem;
+    font-family: var(--font-display);
+    font-size: clamp(1.125rem, 0.95rem + 0.6vw, 1.5rem);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--fg-inv);
+    text-decoration: none;
+  }
+
+  .pc__big:hover {
+    color: var(--t-glow);
+  }
+
+  .pc__big--mail {
+    font-size: clamp(1rem, 0.85rem + 0.5vw, 1.25rem);
+    overflow-wrap: anywhere;
+  }
+
+  .pc__sub {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-top: 1.125rem;
+    padding-top: 0.875rem;
+    border-top: 1px solid var(--line-dark);
+    font-size: 0.875rem;
+    color: var(--fg-inv-2);
+  }
+
+  .pc__sub a {
+    font-family: var(--font-display);
+    font-weight: 600;
+    color: var(--fg-inv);
+    text-decoration: none;
+  }
+
+  .pc__sub a:hover {
+    color: var(--t-glow);
   }
 
   .plaza__opened {
-    margin-top: 2.5rem;
+    margin-top: clamp(1.75rem, 4vh, 2.5rem);
     font-size: 0.8125rem;
     color: var(--fg-inv-2);
   }
 
   @media (max-width: 899px) {
-    .plaza__cols {
+    .plaza__deck {
       grid-template-columns: 1fr;
-      gap: 2rem;
     }
   }
 </style>

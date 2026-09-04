@@ -25,6 +25,8 @@ const CHIP: Record<string, ImageMetadata> = {
 ---
 
 <section class="bx" aria-labelledby="bx-title" data-chips>
+  <span class="bx__glow" aria-hidden="true"></span>
+
   <div class="bx__inner">
     <h2 class="bx__kicker" id="bx-title" data-reveal>Direcțiile</h2>
 
@@ -90,12 +92,35 @@ const CHIP: Record<string, ImageMetadata> = {
 
 <style>
   .bx {
+    position: relative;
+    overflow: hidden;
     background-color: var(--paper);
     color: var(--fg);
     padding-block: 1rem clamp(5rem, 11vh, 8rem);
   }
 
+  /* Light on a white ground has to be almost nothing or it turns to dirt: two
+     wide turquoise washes at 8%, drifting slowly against each other. You do
+     not see them; you see that the page is not a flat sheet. */
+  .bx__glow {
+    position: absolute;
+    inset: -20% -10%;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      radial-gradient(34% 30% at 18% 26%, rgba(19, 180, 198, 0.09), transparent 70%),
+      radial-gradient(30% 28% at 84% 66%, rgba(19, 180, 198, 0.07), transparent 72%);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .bx__glow {
+      animation: drift-a 26s var(--ease-in-out) infinite alternate;
+    }
+  }
+
   .bx__inner {
+    position: relative;
+    z-index: 1;
     max-width: var(--content);
     margin-inline: auto;
     padding-inline: var(--gutter);
@@ -112,7 +137,40 @@ const CHIP: Record<string, ImageMetadata> = {
   }
 
   .bx__row {
+    position: relative;
     border-top: 1px solid rgba(11, 15, 16, 0.16);
+  }
+
+  /* the hairline above each row is redrawn in turquoise, left to right, as
+     the row crosses the viewport -- the list lights itself up while you read */
+  .bx__row::before {
+    content: '';
+    position: absolute;
+    inset: -1px 0 auto 0;
+    height: 1px;
+    background-image: linear-gradient(90deg, var(--t-deep), var(--t) 45%, rgba(19, 180, 198, 0));
+    transform: scaleX(0);
+    transform-origin: left center;
+  }
+
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .bx__row::before {
+        animation: rule-light linear both;
+      }
+
+      /* own rule, higher specificity: the shorthand would reset the timeline */
+      .bx__row.bx__row::before {
+        animation-timeline: view();
+        animation-range: entry 25% cover 40%;
+      }
+    }
+  }
+
+  @keyframes rule-light {
+    to {
+      transform: scaleX(1);
+    }
   }
 
   .bx__row:last-of-type {

@@ -354,6 +354,49 @@ function maquette(): void {
 }
 
 /* ---------------------------------------------------------------------------
+ * "Deschis acum"
+ *
+ * The one line on the page that answers a question about this minute. It is
+ * computed in the reader's browser, against Bucharest time rather than their
+ * own clock, and the element ships hidden: without JavaScript the page says
+ * nothing about whether the door is open instead of saying something wrong.
+ * ------------------------------------------------------------------------ */
+function openNow(): void {
+  const el = document.querySelector<HTMLElement>('[data-open-now]');
+  if (!el) return;
+
+  let spec: { dow: number[]; open: string; close: string }[];
+  try {
+    spec = JSON.parse(el.dataset.hours ?? '[]');
+  } catch {
+    return;
+  }
+  if (!spec.length) return;
+
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Europe/Bucharest',
+    weekday: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).formatToParts(new Date());
+  const read = (type: string) => parts.find((p) => p.type === type)?.value ?? '';
+  const day = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(read('weekday'));
+  if (day < 0) return;
+
+  const today = spec.find((s) => s.dow.includes(day));
+  if (!today) return;
+
+  const minutes = (t: string) => Number(t.slice(0, 2)) * 60 + Number(t.slice(3, 5));
+  const now = Number(read('hour')) * 60 + Number(read('minute'));
+  const open = now >= minutes(today.open) && now < minutes(today.close);
+
+  el.textContent = open ? `Deschis acum, până la ${today.close}` : `Închis acum, deschide la ${today.open}`;
+  el.dataset.state = open ? 'open' : 'closed';
+  el.hidden = false;
+}
+
+/* ---------------------------------------------------------------------------
  * The index chips: a floating image follows the pointer along the giant list.
  * Pointer-only -- touch and reduced motion never see it.
  * ------------------------------------------------------------------------ */
@@ -378,6 +421,7 @@ tilt();
 ground();
 maquette();
 chips();
+openNow();
 reveals();
 countUps();
 scrollFx();
