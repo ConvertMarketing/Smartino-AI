@@ -193,26 +193,20 @@ const chapters = [
 
 <style>
   .story {
-    /* Pulled up into the brand wall's runway: the first chapter rises through
-       the same dark the logos are sinking into, so the two sections share a
-       stretch of scroll instead of meeting at a line. The z-index keeps the
-       words above the wall while they overlap. */
+    /* Pulled up into the brand wall's runway: the first chapter is already on
+       screen while the logos above it are still sinking, so the two sections
+       share a stretch of scroll instead of meeting at a line.
+       The ground stays a SOLID ink, deliberately. A transparent story with a
+       gradient painted behind it looked identical and failed the contrast
+       gate for a real reason: the nearest declared background was then the
+       white page, so white-on-white was one broken paint away. The join is
+       invisible anyway -- both sections are the same #0b0f10 -- and the wall
+       is down to 7% opacity by the time this edge reaches it. */
     position: relative;
     z-index: 1;
     margin-top: clamp(-13rem, -26vh, -6rem);
-    background-color: transparent;
+    background-color: var(--ink);
     color: var(--fg-inv);
-  }
-
-  /* the ground the story stands on, faded in over the overlap so the wall
-     shows through at the top and nothing shows through further down */
-  .story::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-    background-image: linear-gradient(180deg, transparent, var(--ink) clamp(14rem, 28vh, 22rem));
   }
 
   .sr-only {
