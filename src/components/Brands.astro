@@ -1,0 +1,394 @@
+---
+import { Image } from 'astro:assets';
+import { BRAND_ROWS } from '../lib/brands';
+
+/**
+ * The brand wall: the logos the group imports, on lit panels drifting through
+ * the dark room the hero opened.
+ *
+ * Three rows run in alternating directions at different speeds, so nothing
+ * ever lines up twice; the wall itself leans with the scroll, and a bar of
+ * turquoise light crosses it. A tile that holds several lockups of the same
+ * brand cycles through them in place.
+ *
+ * Everything moves in CSS -- no JavaScript owns this section. Under
+ * prefers-reduced-motion the wall stops dead and becomes a plain grid.
+ */
+
+/** Vite hands back ImageMetadata for every logo; the name is the file stem. */
+const files = import.meta.glob<ImageMetadata>('../assets/brands/*.png', {
+  eager: true,
+  import: 'default',
+});
+const mark = (slug: string): ImageMetadata => {
+  const hit = files[`../assets/brands/${slug}.png`];
+  if (!hit) throw new Error(`Lipsește logo-ul: ${slug}.png`);
+  return hit;
+};
+
+/* Each row is rendered twice inside its track: the animation slides the track
+ * by exactly half its width, so the seam never shows. The second copy is
+ * hidden from assistive tech -- one list of names is enough. */
+const ROW_MOTION = [
+  { dur: '78s', dir: 'normal', delay: '0s' },
+  { dur: '62s', dir: 'reverse', delay: '-2.4s' },
+  { dur: '86s', dir: 'normal', delay: '-4.8s' },
+];
+---
+
+<section class="brands" id="branduri" aria-labelledby="brands-title">
+  <span class="brands__lamp" aria-hidden="true"></span>
+
+  <div class="brands__head">
+    <p class="brands__kicker" data-reveal>Import direct</p>
+    <h2 class="brands__title" id="brands-title" data-reveal style="--i: 1">
+      Brandurile pe care le aducem în raft.
+    </h2>
+    <p class="brands__lead" data-reveal style="--i: 2">
+      De la scutece și hârtie la cosmetică coreeană, curățenie și mobilier de grădină — mărcile
+      pe care grupul le importă, în magazine și online.
+    </p>
+  </div>
+
+  <div class="brands__stage">
+    <div class="brands__wall">
+      {
+        BRAND_ROWS.map((row, r) => (
+          <div
+            class="brands__row"
+            style={`--dur: ${ROW_MOTION[r].dur}; --dir: ${ROW_MOTION[r].dir}; --delay: ${ROW_MOTION[r].delay}`}
+          >
+            <ul class="brands__track" aria-label={`Branduri, rândul ${r + 1}`}>
+              {[0, 1].map((copy) =>
+                row.map((brand) => (
+                  <li class="chip" aria-hidden={copy === 1 ? 'true' : undefined}>
+                    {brand.marks.map((slug, m) => (
+                      <Image
+                        class:list={['chip__mark', brand.marks.length > 1 && `chip__mark--of${brand.marks.length}`]}
+                        style={`--m: ${m}`}
+                        src={mark(slug)}
+                        alt={copy === 0 && m === 0 ? brand.name : ''}
+                        widths={[190, 380]}
+                        sizes="(max-width: 599px) 132px, 190px"
+                        loading="lazy"
+                      />
+                    ))}
+                  </li>
+                ))
+              )}
+            </ul>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .brands {
+    position: relative;
+    overflow: hidden;
+    background-color: var(--ink);
+    color: var(--fg-inv);
+    padding-block: clamp(4rem, 10vh, 7rem);
+  }
+
+  /* the lamp behind the wall: the same turquoise light the hero is lit with */
+  .brands__lamp {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      radial-gradient(58% 46% at 50% 62%, rgba(19, 180, 198, 0.26), transparent 72%),
+      radial-gradient(30% 26% at 12% 22%, rgba(75, 216, 232, 0.14), transparent 74%),
+      radial-gradient(30% 26% at 88% 26%, rgba(75, 216, 232, 0.12), transparent 74%);
+  }
+
+  .brands__head {
+    position: relative;
+    z-index: 1;
+    max-width: var(--content);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  .brands__kicker {
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--t-glow);
+  }
+
+  .brands__title {
+    margin-top: 1rem;
+    font-family: var(--font-display);
+    font-size: clamp(1.625rem, 0.9rem + 2.4vw, 3rem);
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+  }
+
+  .brands__lead {
+    margin-top: 1rem;
+    max-width: 46rem;
+    font-size: clamp(0.9375rem, 0.85rem + 0.3vw, 1.125rem);
+    line-height: 1.6;
+    color: var(--fg-inv-2);
+  }
+
+  /* ---- the wall ---------------------------------------------------------
+     The stage holds the perspective; the wall is what leans inside it. The
+     lean is driven by the scroll, so the wall turns to face the reader as
+     the section crosses the viewport. */
+  .brands__stage {
+    position: relative;
+    z-index: 1;
+    margin-top: clamp(2.5rem, 6vh, 4rem);
+    perspective: 1400px;
+    perspective-origin: 50% 30%;
+  }
+
+  .brands__wall {
+    display: grid;
+    gap: clamp(10px, 1.4vw, 18px);
+    transform-style: preserve-3d;
+    transform: rotateX(7deg);
+  }
+
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .brands__wall {
+        animation: wall-face linear both;
+      }
+
+      /* own rule, higher specificity: the minifier folds a timeline into the
+         shorthand otherwise, and the shorthand's reset would win anyway */
+      .brands__wall.brands__wall {
+        animation-timeline: view();
+        animation-range: entry 10% exit 90%;
+      }
+    }
+  }
+
+  @keyframes wall-face {
+    from {
+      transform: rotateX(13deg) scale(0.95);
+    }
+    50% {
+      transform: rotateX(0deg) scale(1);
+    }
+    to {
+      transform: rotateX(-9deg) scale(0.97);
+    }
+  }
+
+  .brands__row {
+    position: relative;
+    overflow: hidden;
+    /* the rows fade into the dark at both ends instead of being cut off */
+    mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+  }
+
+  /* the bar of light that crosses the wall: it only shows where the ground is
+     dark, so it reads as light passing between the panels, not over them */
+  .brands__row::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    mix-blend-mode: screen;
+    background-image: linear-gradient(
+      104deg,
+      transparent 42%,
+      rgba(75, 216, 232, 0.34) 50%,
+      transparent 58%
+    );
+    background-size: 260% 100%;
+    background-repeat: no-repeat;
+    animation: wall-sweep 9s var(--ease-in-out) infinite;
+    animation-delay: var(--delay);
+  }
+
+  @keyframes wall-sweep {
+    from {
+      background-position: 130% 0;
+    }
+    to {
+      background-position: -70% 0;
+    }
+  }
+
+  .brands__track {
+    display: flex;
+    width: max-content;
+    gap: clamp(10px, 1.4vw, 18px);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    will-change: transform;
+    animation: row-run var(--dur) linear infinite;
+    animation-direction: var(--dir);
+  }
+
+  /* the track holds two identical copies, so half a track is one full loop */
+  @keyframes row-run {
+    to {
+      transform: translate3d(calc(-50% - clamp(5px, 0.7vw, 9px)), 0, 0);
+    }
+  }
+
+  .brands__row:hover .brands__track,
+  .brands__row:focus-within .brands__track {
+    animation-play-state: paused;
+  }
+
+  .chip {
+    position: relative;
+    flex: 0 0 auto;
+    width: clamp(132px, 15vw, 190px);
+    aspect-ratio: 3 / 2;
+    border-radius: 14px;
+    background-color: #fff;
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.6) inset,
+      0 10px 30px rgba(0, 0, 0, 0.45);
+    /* resting state is a panel seen from across a dark room */
+    filter: saturate(0.72) brightness(0.9);
+    transition:
+      filter var(--d-state) var(--ease-out),
+      transform var(--d-state) var(--ease-out),
+      box-shadow var(--d-state) var(--ease-out);
+  }
+
+  .chip:hover,
+  .chip:focus-within {
+    filter: none;
+    transform: translate3d(0, -6px, 40px);
+    box-shadow:
+      0 0 0 1px rgba(75, 216, 232, 0.75),
+      0 18px 44px rgba(19, 180, 198, 0.4);
+  }
+
+  .chip__mark {
+    position: absolute;
+    inset: 9px 14px;
+    width: calc(100% - 28px);
+    height: calc(100% - 18px);
+    object-fit: contain;
+    /* the logos ship on an opaque white plate, and the chip under them is the
+       same white, so the plate is already invisible: blending 36 layers to
+       reach the same picture only costs compositing time. Measured: every
+       corner pixel of all 22 files is exactly 255,255,255. */
+  }
+
+  /* a tile that carries several lockups of one brand cycles through them */
+  .chip__mark--of2,
+  .chip__mark--of4 {
+    opacity: 0;
+    animation-timing-function: var(--ease-in-out);
+    animation-iteration-count: infinite;
+  }
+
+  .chip__mark--of2 {
+    animation-name: mark-of2;
+    animation-duration: 9s;
+    animation-delay: calc(var(--m) * -4.5s);
+  }
+
+  .chip__mark--of4 {
+    animation-name: mark-of4;
+    animation-duration: 18s;
+    animation-delay: calc(var(--m) * -4.5s);
+  }
+
+  /* the swap is a blink, not a cross-fade: two logos dissolving through each
+     other read as one blurred mark */
+  @keyframes mark-of2 {
+    0%,
+    47% {
+      opacity: 1;
+    }
+    49%,
+    98% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes mark-of4 {
+    0%,
+    23% {
+      opacity: 1;
+    }
+    24.5%,
+    99% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  @media (max-width: 599px) {
+    .chip {
+      border-radius: 11px;
+    }
+
+    .chip__mark {
+      inset: 7px 10px;
+      width: calc(100% - 20px);
+      height: calc(100% - 14px);
+    }
+  }
+
+  /* ---- degradation ------------------------------------------------------ */
+  @media (prefers-reduced-motion: reduce) {
+    .brands__wall {
+      transform: none;
+    }
+
+    .brands__row {
+      overflow: visible;
+      mask-image: none;
+      -webkit-mask-image: none;
+    }
+
+    .brands__row::after {
+      display: none;
+    }
+
+    .brands__track {
+      animation: none;
+      flex-wrap: wrap;
+      width: 100%;
+      justify-content: center;
+    }
+
+    /* the duplicate copy exists only for the loop */
+    .brands__track .chip[aria-hidden='true'] {
+      display: none;
+    }
+
+    .chip {
+      filter: none;
+    }
+
+    .chip__mark--of2,
+    .chip__mark--of4 {
+      animation: none;
+    }
+
+    /* without the cycle, only the resting mark shows */
+    .chip__mark--of2:not([style*='--m: 0']),
+    .chip__mark--of4:not([style*='--m: 0']) {
+      display: none;
+    }
+  }
+</style>

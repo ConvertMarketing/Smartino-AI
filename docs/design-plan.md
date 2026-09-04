@@ -369,3 +369,35 @@ aceeași valoare, iar masca a fost adâncită ca să nu taie ce pictează acum
 gradientul. `scripts/verify.mjs` are de-atunci o verificare care fotografiază
 secțiunea de două ori — cu și fără gradient, cu și fără măști — și compară
 banda unde stau cozile; pe valorile vechi cade.
+
+
+## Peretele de branduri
+
+Clientul a trimis 22 de logo-uri PNG, toate 300×200 pe plăcuță albă opacă, și
+a cerut o secțiune „super vizuală" pentru mărcile pe care le importă. Cele 22
+de fișiere nu sunt 22 de branduri: patru sunt lockup-uri Sleepy (marca-mamă
+plus Easy Clean, Natural și Bio Natural) și două sunt Remaple în cele două
+culori. Rezultă **18 branduri**, iar plăcile care poartă mai multe lockup-uri
+le rotesc pe loc — fiecare fișier primit e pe perete, dar niciun brand nu se
+numără de două ori.
+
+Secțiunea stă între marchiza de text și poveste, pe același negru ca hero-ul,
+și e complet CSS: trei rânduri care aleargă în direcții alternante și cu
+viteze diferite (78s / 62s / 86s, deci nimic nu se sincronizează niciodată),
+peretele se înclină după scroll (`animation-timeline: view()`), iar o bară de
+lumină turcoaz îl traversează. Rândurile se opresc la hover și la focus, ca
+un logo să poată fi citit. Sub `prefers-reduced-motion` peretele devine o
+grilă statică, iar sub JS oprit nu se schimbă nimic — nicio mișcare de aici
+nu depinde de JavaScript.
+
+Două decizii de performanță, ambele măsurate: plăcuța albă a logo-urilor e
+exact 255,255,255 în toate cele 22 de fișiere, deci placa albă a cardului o
+ascunde singură — `mix-blend-mode: multiply` pe 36 de imagini ar fi costat
+compunere pentru exact aceeași imagine. Iar schimbarea lockup-urilor e o
+clipire, nu un cross-fade: două logo-uri care se dizolvă unul prin altul se
+citesc ca o singură marcă neclară.
+
+Ce lipsește, pentru client: dacă „zeci de branduri" din hero trebuie susținut
+literal, mai sunt necesare logo-uri — pe perete se văd 18. Și rămâne
+neconfirmat dacă toate cele 18 sunt importate direct de grup sau doar
+distribuite; kicker-ul spune „Import direct" pe baza formulării clientului.
