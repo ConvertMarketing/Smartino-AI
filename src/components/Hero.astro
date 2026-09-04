@@ -4,7 +4,7 @@ import supermarket from '../assets/photos/smartino-supermarket-interior.jpg';
 import homeCladire from '../assets/photos/smartino-home-cladire.jpg';
 import shopSite from '../assets/photos/smartinoshop-site.jpg';
 import mdSite from '../assets/photos/smartino-md-site.jpg';
-import { COMPANY, UNITS, SUPERMARKET_HOURS } from '../lib/data';
+import { UNITS, SUPERMARKET_HOURS } from '../lib/data';
 
 /**
  * The hero: the whole group at once, four store cards side by side.
@@ -39,11 +39,6 @@ const cards = [
   { unit: u4, art: mdSite, pattern: null, fit: 'top', href: u4.href!, exit: u4.domain!, line: 'Partenerul din Republica Moldova.' },
 ];
 ---
-
-<header class="fascia">
-  <span class="fascia__mark">SMARTINO</span>
-  <span class="fascia__where">{COMPANY.address.oneLine}</span>
-</header>
 
 <section class="hero" id="continut" data-hero>
   <div class="hero__ground" data-animate="ground" aria-hidden="true">
@@ -106,45 +101,6 @@ const cards = [
 </section>
 
 <style>
-  /* The fascia carries the LED line the two buildings wear along their roof:
-     a turquoise hairline under a near-black band. */
-  .fascia {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    min-height: 64px;
-    padding-inline: var(--gutter);
-    background-color: var(--ink);
-    color: var(--fg-inv);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  }
-
-  .fascia::after {
-    content: '';
-    position: absolute;
-    inset: auto 0 -1px 0;
-    height: 1px;
-    background-image: linear-gradient(90deg, transparent, var(--t) 22%, var(--t-glow) 50%, var(--t) 78%, transparent);
-    opacity: 0.75;
-  }
-
-  .fascia__mark {
-    font-family: var(--font-display);
-    font-weight: 800;
-    font-size: 1rem;
-    letter-spacing: 0.16em;
-  }
-
-  .fascia__where {
-    font-size: 0.6875rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    text-align: right;
-    color: var(--fg-inv-2);
-  }
-
   /* The hero opens on the same near-black the maquette below is built on, so
      the top of the page reads as one dark room with the four lit cards in it.
      Everything turquoise here is LIGHT: on this ground it finally behaves
@@ -878,11 +834,6 @@ const cards = [
   }
 
   @media (max-width: 599px) {
-    .fascia__where {
-      max-width: 11rem;
-      font-size: 0.5625rem;
-    }
-
     .uc__caption {
       padding: 0.625rem 0.75rem 0.75rem;
     }

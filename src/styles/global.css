@@ -212,11 +212,6 @@ body {
   100% { transform: translate3d(3%, -2%, 0) scale(1.18); }
 }
 
-@keyframes fascia-pan {
-  from { background-position: 0% 0; }
-  to   { background-position: 200% 0; }
-}
-
 /* Scroll-linked depth: elements carrying data-depth get --py from one shared
  * rAF loop in site.ts. Pure transform, no layout. */
 [data-depth] {
