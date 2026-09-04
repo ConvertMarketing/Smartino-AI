@@ -15,6 +15,15 @@
  * the palette allows exactly one.
  *
  *   node scripts/model.mjs
+ *
+ * The Home building photograph on the hero's second card is a frame from the
+ * group's campaign film, lifted once with ffmpeg. That is a one-off: the
+ * still is committed, and ffmpeg is NOT a dependency of this project -- it
+ * would add 77 MB to every CI install for a task nobody repeats. To redo it:
+ *
+ *   npm i -D --no-save ffmpeg-static
+ *   FF=$(node -p "require('ffmpeg-static')")
+ *   "$FF" -ss 1.0 -i film.mp4 -frames:v 1 -q:v 2 out.jpg
  */
 import { NodeIO } from '@gltf-transform/core';
 import { ALL_EXTENSIONS } from '@gltf-transform/extensions';
