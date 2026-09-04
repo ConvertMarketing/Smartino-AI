@@ -21,3 +21,6 @@ pnpm-debug.log*
 .vscode/
 .idea/
 .pw-browsers/
+
+# the archive produced by scripts/pack.mjs for a classic web host
+smartino-site.zip
