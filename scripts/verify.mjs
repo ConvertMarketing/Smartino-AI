@@ -350,6 +350,119 @@ async function renderedContrast(page, sectionSel, label) {
   return bad;
 }
 
+/* -- Clipped glyphs --------------------------------------------------------
+ * Every line that rises out of a mask is an `overflow: hidden` box, and a box
+ * sized to the font's em rather than to its ink shaves the bottom off: p, g,
+ * j, and in Romanian the comma below ș and ț, which hangs lower still. The
+ * hero shipped exactly that.
+ *
+ * There is a second, quieter way to lose the same ink: text painted through
+ * background-clip. The gradient only exists inside the element's background
+ * box, which at line-height 1 ends at the line box, so any tail below it has
+ * nothing to be painted with and vanishes -- and no amount of loosening the
+ * mask brings it back. That is what actually ate the g's in this hero.
+ *
+ * Measured, not eyeballed: photograph the section, then photograph it again
+ * with the masks lifted and the gradients swapped for the plain colour, and
+ * compare the strip where the tails belong. Ink that exists only in the
+ * second photograph is ink nobody sees.
+ */
+async function clippedGlyphs(page, label) {
+  const boxes = await page.evaluate(() => {
+    const out = [];
+    const seen = new Set();
+    const add = (el, bottom, em, attr) => {
+      el.setAttribute(attr, '');
+      const r = el.getBoundingClientRect();
+      const key = `${Math.round(r.left)}:${Math.round(bottom)}`;
+      if (seen.has(key)) return;
+      seen.add(key);
+      out.push({ x: r.left, y: bottom, w: r.width, em, text: el.textContent.trim().slice(0, 20) });
+    };
+
+    for (const el of document.querySelectorAll('*')) {
+      const cs = getComputedStyle(el);
+      const em = parseFloat(cs.fontSize);
+      const r = el.getBoundingClientRect();
+      if (!el.textContent.trim() || r.width < 8 || r.height < 8) continue;
+      if (r.bottom <= 0 || r.top >= innerHeight) continue;
+
+      // a mask the text rises out of; a scrolling panel is not a clipped word
+      if ((cs.overflow === 'hidden' || cs.overflowY === 'hidden') && r.height <= em * 2.6) {
+        add(el, r.bottom, em, 'data-clip-test');
+      }
+      // Text painted through its own background: the paint stops at the
+      // BACKGROUND box, not at the line box. The line box is taller (it
+      // carries the leading), so anchoring the strip there would look past
+      // the very ink that goes missing.
+      if (cs.webkitBackgroundClip === 'text' || cs.backgroundClip === 'text') {
+        add(el, r.bottom, em, 'data-clip-paint');
+      }
+    }
+    return out;
+  });
+  if (!boxes.length) return;
+
+  // The two photographs must differ in ONE thing. The section's lights drift
+  // and its rings expand, so without freezing them the background moves
+  // between the shots and every mask reads as clipped.
+  await page.addStyleTag({ content: '*,*::before,*::after{animation:none!important;transition:none!important}' });
+  await page.waitForTimeout(200);
+  const before = (await page.screenshot()).toString('base64');
+  await page.addStyleTag({
+    content: `[data-clip-test]{overflow:visible!important}
+              [data-clip-paint]{background-image:none!important;-webkit-text-fill-color:currentColor!important}`,
+  });
+  await page.waitForTimeout(150);
+  const after = (await page.screenshot()).toString('base64');
+
+  const cut = await page.evaluate(async ({ before, after, boxes }) => {
+    const load = async (b64) => {
+      const img = new Image();
+      img.src = 'data:image/png;base64,' + b64;
+      await img.decode();
+      const cv = document.createElement('canvas');
+      cv.width = img.width;
+      cv.height = img.height;
+      cv.getContext('2d', { willReadFrequently: true }).drawImage(img, 0, 0);
+      return { ctx: cv.getContext('2d', { willReadFrequently: true }), w: img.width, h: img.height };
+    };
+    const A = await load(before);
+    const B = await load(after);
+    const k = A.w / innerWidth;
+    const bad = [];
+    for (const b of boxes) {
+      // the strip a descender would fall into, just under the mask's edge
+      const y0 = Math.round(b.y * k);
+      const y1 = Math.round((b.y + b.em * 0.3) * k);
+      const x0 = Math.max(0, Math.round(b.x * k));
+      const x1 = Math.min(A.w, Math.round((b.x + b.w) * k));
+      if (x1 <= x0 || y1 <= y0 || y1 > A.h) continue;
+      const da = A.ctx.getImageData(x0, y0, x1 - x0, y1 - y0).data;
+      const db = B.ctx.getImageData(x0, y0, x1 - x0, y1 - y0).data;
+      let diff = 0;
+      for (let i = 0; i < da.length; i += 4) {
+        if (Math.abs(da[i] - db[i]) + Math.abs(da[i + 1] - db[i + 1]) + Math.abs(da[i + 2] - db[i + 2]) > 60) diff++;
+      }
+      if (diff > 6) bad.push(`"${b.text}" (${diff} px)`);
+    }
+    return bad;
+  }, { before, after, boxes });
+
+  record(cut.length === 0, `nicio litera retezata de masti (${label})`,
+    cut.length ? cut.slice(0, 3).join(' | ') : `${boxes.length} masti verificate`);
+}
+
+console.log('\n[litere retezate]');
+for (const [w, h] of [[1440, 900], [390, 844]]) {
+  const page = await browser.newPage({ viewport: { width: w, height: h } });
+  await page.goto(URL, { waitUntil: 'networkidle' });
+  await page.evaluate(() => document.querySelectorAll('[data-reveal], [data-animate]').forEach((e) => e.setAttribute('data-in', '')));
+  await page.waitForTimeout(2600);
+  await clippedGlyphs(page, `${w}px`);
+  await page.close();
+}
+
 console.log('\n[contrast pe fundal randat]');
 for (const [w, h] of [[1440, 900], [390, 844]]) {
   const page = await browser.newPage({ viewport: { width: w, height: h } });

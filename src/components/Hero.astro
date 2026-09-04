@@ -61,8 +61,8 @@ const cards = [
   <div class="hero__head">
     <p class="hero__over" data-reveal>Smartino International</p>
     <h1 class="hero__title" data-animate="lines">
-      <span class="line"><span class="line__in">Un grup crescut</span></span>
-      <span class="line"><span class="line__in line__in--t">dintr-un singur magazin.</span></span>
+      <span class="line"><span class="line__in">Pe drumul spre casă,</span></span>
+      <span class="line"><span class="line__in line__in--t">tot ce-ți trebuie în ea.</span></span>
     </h1>
   </div>
 
@@ -438,11 +438,16 @@ const cards = [
     color: var(--fg-inv);
   }
 
+  /* The mask the line rises out of clips at its padding edge, so the padding
+     must clear the deepest ink on the line: descenders, and the comma below
+     ș and ț. At 0.1em it cut the tails off every g. The negative margin puts
+     the leading back, so the extra room costs no space between the lines.
+     scripts/verify.mjs fails on the old value. */
   .line {
     display: block;
     overflow: hidden;
-    padding-bottom: 0.1em;
-    margin-bottom: -0.06em;
+    padding-bottom: 0.26em;
+    margin-bottom: -0.22em;
   }
 
   .line__in {
@@ -467,6 +472,13 @@ const cards = [
   /* On the dark ground the turquoise steps UP: --t reads 7.68:1 on ink, and
      the shimmer only ever brightens it. */
   .line__in--t {
+    /* The mask above clears the deepest ink; this clears the deepest PAINT.
+       background-clip fills only inside this element's background box, so a
+       tail below it has nothing to be drawn with -- 25 px of the comma under
+       ț, measured by the clipping check. Extended and pulled back by the same
+       amount, so nothing moves. */
+    padding-bottom: 0.24em;
+    margin-bottom: -0.24em;
     color: var(--t);
     background-image: linear-gradient(100deg, var(--t) 0%, var(--t) 35%, var(--t-glow) 50%, var(--t) 65%, var(--t) 100%);
     background-size: 240% 100%;

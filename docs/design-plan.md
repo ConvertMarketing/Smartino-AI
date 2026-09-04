@@ -342,3 +342,23 @@ fiind persoana cea care mișcă.
 **De clarificat cu clientul.** Macheta e o ilustrație, etichetată ca atare pe
 pagină („nu un plan tehnic"). Amprentele clădirilor și traseul drumurilor
 trebuie confirmate față de terenul real înainte de lansare.
+
+
+## Revizie: titlul paginii
+
+«Un grup crescut dintr-un singur magazin.» a fost înlocuit, la cererea
+clientului, fiindcă arcul „am crescut dintr-unul singur" e un clișeu de
+comunicare corporate. Noul H1 — «Pe drumul spre casă, tot ce-ți trebuie în
+ea.» — spune același lucru prin locul real: cele două magazine stau pe DN-1,
+drumul pe care oamenii se întorc acasă, iar catalogul grupului acoperă exact
+ce intră în casă. Balamaua e între „spre casă" și „în ea".
+
+Tot atunci s-a reparat un defect vechi al titlului: cozile literelor lipseau
+pe rândul turcoaz. Cauza nu era masca de animație, cum părea, ci faptul că
+rândul e pictat printr-un gradient decupat pe litere — iar gradientul există
+doar în cutia de fundal a elementului, care la line-height 1 se oprește la
+linia de bază. Cutia a fost prelungită sub linia de bază și trasă înapoi cu
+aceeași valoare, iar masca a fost adâncită ca să nu taie ce pictează acum
+gradientul. `scripts/verify.mjs` are de-atunci o verificare care fotografiază
+secțiunea de două ori — cu și fără gradient, cu și fără măști — și compară
+banda unde stau cozile; pe valorile vechi cade.
