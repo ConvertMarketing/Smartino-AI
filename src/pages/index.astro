@@ -30,10 +30,11 @@ const description =
         is what the sections' text is measured against. */}
     <div class="zone">
       <span class="zone__lamp" aria-hidden="true"></span>
+      <span class="zone__lamp--low" aria-hidden="true"></span>
       <Brands />
       <Story />
+      <SnagovPlaza />
     </div>
-    <SnagovPlaza />
   </main>
   <SiteFooter />
 </Base>
@@ -59,6 +60,22 @@ const description =
       radial-gradient(46% 45% at 50% 45%, rgba(19, 180, 198, 0.24), transparent 78%),
       radial-gradient(26% 14% at 12% 14%, rgba(75, 216, 232, 0.14), transparent 74%),
       radial-gradient(26% 14% at 88% 16%, rgba(75, 216, 232, 0.12), transparent 74%);
+  }
+
+  /* The second lamp of the room, at the far end. Same idea as the first: it is
+     one light hung across the story's last chapter and the address block, not
+     two lights meeting at a section edge. It dies before the room does, so the
+     footer below starts from plain dark and there is nothing to match there
+     either. */
+  .zone__lamp--low {
+    position: absolute;
+    inset: auto 0 0 0;
+    z-index: 0;
+    height: clamp(42rem, 116vh, 70rem);
+    pointer-events: none;
+    background-image:
+      radial-gradient(48% 40% at 16% 40%, rgba(19, 180, 198, 0.2), transparent 74%),
+      radial-gradient(42% 34% at 90% 62%, rgba(75, 216, 232, 0.15), transparent 76%);
   }
 
   /* both sections sit in the same light: transparent grounds, content above */

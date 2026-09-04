@@ -28,7 +28,6 @@ const [phoneA, phoneB, phoneShop] = COMPANY.phones;
 ---
 
 <section class="plaza" id="snagov-plaza" aria-labelledby="plaza-title">
-  <span class="plaza__lamp" aria-hidden="true"></span>
 
   <div class="plaza__inner">
     <p class="plaza__kicker" data-reveal>Ne găsești aici</p>
@@ -111,20 +110,8 @@ const [phoneA, phoneB, phoneShop] = COMPANY.phones;
     overflow: clip; /* clip, not hidden: hidden makes this a scroll container,
                        and every scroll-driven animation inside would then
                        measure against a box that never scrolls */
-    background-color: var(--ink);
     color: var(--fg-inv);
     padding-block: clamp(4rem, 9vh, 6rem) clamp(3rem, 6vh, 4.5rem);
-  }
-
-  /* the same turquoise light the rest of the dark half is lit with */
-  .plaza__lamp {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    background-image:
-      radial-gradient(46% 40% at 14% 18%, rgba(19, 180, 198, 0.22), transparent 72%),
-      radial-gradient(40% 36% at 92% 70%, rgba(75, 216, 232, 0.16), transparent 74%);
   }
 
   .plaza__inner {
