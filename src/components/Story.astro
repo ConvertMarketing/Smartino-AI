@@ -65,6 +65,7 @@ const chapters = [
 ---
 
 <section class="story" id="povestea" aria-labelledby="story-title" data-story>
+  <span class="story__glow" aria-hidden="true"></span>
   <h2 class="sr-only" id="story-title">Povestea grupului</h2>
 
   <div class="story__frame">
@@ -217,7 +218,28 @@ const chapters = [
     clip-path: inset(50%);
   }
 
+  /* The brand wall above is lit by a turquoise lamp whose bottom half used to
+     be cut off dead straight, right where this section's solid ground starts.
+     This picks the light up on the other side of that edge and carries it
+     down: brightest at the very top, gone within half a screen. Decorative,
+     and painted over a background-color that stays solid, so the ground the
+     text is measured against does not change. */
+  .story__glow {
+    position: absolute;
+    inset: 0 0 auto 0;
+    z-index: 0;
+    height: clamp(26rem, 66vh, 44rem);
+    pointer-events: none;
+    /* The alpha at the first pixel is not a taste decision: the ground above
+       this edge measures 20.6 of 255 and the bare ink below measures 13.4, so
+       the light has to be worth exactly those ~7 levels there and decay from
+       it. 0.062 of #13b4c6 over #0b0f10 lands on 20.5. */
+    background-image: radial-gradient(130% 100% at 50% 0%, rgba(19, 180, 198, 0.062), transparent 72%);
+  }
+
   .story__frame {
+    position: relative;
+    z-index: 1;
     max-width: var(--content);
     margin-inline: auto;
     padding-inline: var(--gutter);
