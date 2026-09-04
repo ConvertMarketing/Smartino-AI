@@ -30,11 +30,15 @@ export const COMPANY = {
   legalName: 'SMARTINO INTERNATIONAL SRL',
   vat: 'RO37843488',
   address: {
-    venue: 'Snagov Plaza',
+    venue: 'Smartino Snagov',
+    /* The retail park's own name, kept ONLY for the map lookup: Google finds
+     * the place by it, and a visitor driving out to DN-1 needs the pin to
+     * land. Never rendered as text. */
+    mapsVenue: 'Snagov Plaza',
     street: 'Șoseaua București–Ploiești DN-1',
     locality: '075100 Tâncăbești, jud. Ilfov',
     /** Kept as one string for the fascia, where it must fit on a single line. */
-    oneLine: 'Snagov Plaza · DN-1 · Tâncăbești, Ilfov',
+    oneLine: 'Smartino Snagov · DN-1 · Tâncăbești, Ilfov',
   },
   phones: [
     { label: 'Grup', value: '+40 755 210 121', href: 'tel:+40755210121' },
@@ -74,7 +78,7 @@ export const UNITS: Unit[] = [
     token: 'u1',
     presence: 'Magazin fizic',
     summary:
-      'Primul magazin al grupului, deschis în Snagov Plaza. Produsele de care o familie are nevoie în fiecare zi, la îndemână.',
+      'Primul magazin al grupului, deschis în Smartino Snagov. Produsele de care o familie are nevoie în fiecare zi, la îndemână.',
     categories: [
       'Igienă și îngrijire personală',
       'Curățenie pentru casă',
@@ -89,7 +93,7 @@ export const UNITS: Unit[] = [
     domain: 'smartinohome.ro',
     presence: 'Magazin fizic și online',
     summary:
-      'Peste 1.200 m² în Snagov Plaza, vizavi de Supermarket, plus catalogul online. Mobilier și decor pentru interior, grădină și terasă.',
+      'Peste 1.200 m² în Smartino Snagov, vizavi de Supermarket, plus catalogul online. Mobilier și decor pentru interior, grădină și terasă.',
     slogan: 'Acasă începe aici.',
     categories: [
       'Mobilier de interior și exterior',

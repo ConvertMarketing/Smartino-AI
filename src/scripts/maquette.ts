@@ -1,5 +1,5 @@
 /**
- * The maquette: the Snagov Plaza model, live, one fold below the hero.
+ * The maquette: the Smartino Snagov model, live, one fold below the hero.
  *
  * This is the one place the site ships a 3D engine. three.js and the model
  * come in as a separate chunk, only once the section is within a screen of the

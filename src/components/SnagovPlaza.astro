@@ -15,8 +15,11 @@ import { COMPANY, SUPERMARKET_HOURS, TIMELINE } from '../lib/data';
  * and it stays hidden until it can be computed, so no JavaScript means no
  * wrong claim about whether the door is open.
  */
+/* The lookup uses the retail park's registered name, not the group's name for
+ * it: "Smartino Snagov" is what the site calls the place, but the pin has to
+ * land where the cars go. */
 const mapsQuery = encodeURIComponent(
-  `${COMPANY.address.venue}, ${COMPANY.address.street}, ${COMPANY.address.locality}`
+  `${COMPANY.address.mapsVenue}, ${COMPANY.address.street}, ${COMPANY.address.locality}`
 );
 
 /** The shape site.ts reads: day numbers plus the two clock times. */
@@ -31,9 +34,9 @@ const [phoneA, phoneB, phoneShop] = COMPANY.phones;
 
   <div class="plaza__inner">
     <p class="plaza__kicker" data-reveal>Ne găsești aici</p>
-    <h2 class="plaza__title" id="plaza-title" data-animate="words" aria-label="Snagov Plaza">
+    <h2 class="plaza__title" id="plaza-title" data-animate="words" aria-label="Smartino Snagov">
       <span aria-hidden="true">
-        {'Snagov Plaza'.split(' ').map((w, i) => (
+        {'Smartino Snagov'.split(' ').map((w, i) => (
           <span class="w"><span class="w__in" style={`--wi: ${i}`}>{w}</span></span>
         ))}
       </span>
