@@ -212,9 +212,15 @@ const ROW_MOTION = [
          gone before anything happens. `contain` starts the clock while the
          wall is still fully on screen, so it begins dissolving a good 400 px
          of scroll earlier and is finished just after it starts leaving. */
+      /* Exactly between the two versions the client saw: `exit 0% exit 96%`
+         was too late (half the wall gone before anything moved), `contain 34%
+         exit 16%` too early (the logos dissolved while still mid-screen).
+         This starts when the wall's top is about 140 px below the fold and
+         ends when it is 260 px above it -- the dissolve happens across the
+         middle of the crossing. */
       .brands__stage.brands__stage {
         animation-timeline: view();
-        animation-range: contain 34% exit 16%;
+        animation-range: contain 67% exit 55%;
       }
 
       .brands__head {
@@ -223,7 +229,7 @@ const ROW_MOTION = [
 
       .brands__head.brands__head {
         animation-timeline: view();
-        animation-range: contain 18% contain 92%;
+        animation-range: contain 55% exit 35%;
       }
     }
   }
