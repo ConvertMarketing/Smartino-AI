@@ -362,9 +362,10 @@ function maquette(): void {
  * nothing about whether the door is open instead of saying something wrong.
  * ------------------------------------------------------------------------ */
 function openNow(): void {
-  const el = document.querySelector<HTMLElement>('[data-open-now]');
-  if (!el) return;
+  for (const el of document.querySelectorAll<HTMLElement>('[data-open-now]')) tellHours(el);
+}
 
+function tellHours(el: HTMLElement): void {
   let spec: { dow: number[]; open: string; close: string }[];
   try {
     spec = JSON.parse(el.dataset.hours ?? '[]');

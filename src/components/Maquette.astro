@@ -2,7 +2,7 @@
 import { Image } from 'astro:assets';
 import poster from '../assets/photos/snagov-plaza-macheta.png';
 import pins from '../data/maquette-pins.json';
-import { COMPANY, UNITS, TIMELINE, SUPERMARKET_HOURS, FACTS } from '../lib/data';
+import { COMPANY, UNITS, TIMELINE, SUPERMARKET_HOURS, HOME_HOURS, HOME_AREA } from '../lib/data';
 
 /**
  * The maquette: Smartino Snagov as a living 3D model, one fold under the hero.
@@ -21,7 +21,8 @@ import { COMPANY, UNITS, TIMELINE, SUPERMARKET_HOURS, FACTS } from '../lib/data'
  */
 const [, home] = UNITS;
 const hours = SUPERMARKET_HOURS.map((h) => `${h.open}–${h.close}`).join(' · ');
-const area = FACTS[1].value;
+const homeHours = HOME_HOURS.map((h) => `${h.open}–${h.close}`).join(' · ');
+const area = HOME_AREA;
 ---
 
 <section class="mq" id="macheta" aria-labelledby="mq-title" data-maquette>
@@ -64,11 +65,11 @@ const area = FACTS[1].value;
       href={home.href}
       rel="noopener"
       style={`left: ${pins.home.x}%; top: ${pins.home.y}%`}
-      aria-label={`Smartino Home — deschide ${home.domain}`}
+      aria-label={`Smartino Home — deschis zilnic ${HOME_HOURS[0].open}–${HOME_HOURS[0].close}, deschide ${home.domain}`}
     >
       <span class="mq__tag">
         <span class="mq__tagName">Home</span>
-        <span class="mq__tagMeta tnum">din {TIMELINE.second.label} · {area}</span>
+        <span class="mq__tagMeta tnum">{homeHours} · {area}</span>
       </span>
     </a>
 

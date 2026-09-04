@@ -59,11 +59,13 @@ export const TIMELINE = {
   yearMark: 365,
 } as const;
 
-/** Only Smartino Supermarket's hours are known. Smartino Home's are not stated
- *  anywhere in the brief and must not be guessed -- it is the largest store in
- *  the group and a wrong time sends someone driving to Tâncăbești for nothing.
- *  TODO(client): opening hours for Smartino Home, plus public-holiday exceptions
- *  for both stores. */
+/** Both stores' hours, as given by the client. Smartino Home's were the last
+ *  open TODO on this page: it is open every day, 10:00-21:00.
+ *  TODO(client): public-holiday exceptions for both stores. */
+export const HOME_HOURS = [
+  { days: 'Zilnic', open: '10:00', close: '21:00', dow: [0, 1, 2, 3, 4, 5, 6] },
+] as const;
+
 export const SUPERMARKET_HOURS = [
   /* dow: JavaScript day numbers (0 = duminică). They exist so the "deschis
    * acum" line can be computed without parsing Romanian day names. */
@@ -176,12 +178,16 @@ export const CONSUMER_LINKS = [
   { label: 'Soluționarea online a litigiilor (SOL)', href: 'https://ec.europa.eu/consumers/odr' },
 ];
 
+/** Named, because it is quoted in three places and a positional lookup into
+ *  FACTS silently became the wrong number the day a fact was added in front. */
+export const HOME_AREA = '1.200 m²';
+
 export const FACTS = [
   /* 2001 -> 2026. Counted, not rounded: the brand's first year is ORIGIN.year
    * below, and the label says "ani de brand", not "ani de firmă" -- the
    * Romanian company is younger than the name it carries. */
   { value: '25', n: 25, suffix: '', label: 'ani de brand' },
   { value: '2', n: 2, suffix: '', label: 'magazine fizice' },
-  { value: '1.200 m²', n: 1200, suffix: ' m²', label: 'Smartino Home' },
+  { value: HOME_AREA, n: 1200, suffix: ' m²', label: 'Smartino Home' },
   { value: '2', n: 2, suffix: '', label: 'țări' },
 ];

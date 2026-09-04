@@ -4,7 +4,7 @@ import supermarket from '../assets/photos/smartino-supermarket-interior.jpg';
 import homeCladire from '../assets/photos/smartino-home-cladire.jpg';
 import shopSite from '../assets/photos/smartinoshop-site.jpg';
 import mdSite from '../assets/photos/smartino-md-site.jpg';
-import { UNITS, SUPERMARKET_HOURS, MOLDOVA_OPERATOR } from '../lib/data';
+import { UNITS, SUPERMARKET_HOURS, HOME_HOURS, MOLDOVA_OPERATOR } from '../lib/data';
 
 /**
  * The four directions as a giant editorial index. Each row is a native
@@ -61,10 +61,10 @@ const CHIP: Record<string, ImageMetadata> = {
             </ul>
 
             <div class="bx__exit">
-              {unit.token === 'u1' && (
+              {(unit.token === 'u1' || unit.token === 'u2') && (
                 <table class="bx__hours tnum">
                   <tbody>
-                    {SUPERMARKET_HOURS.map((h) => (
+                    {(unit.token === 'u1' ? SUPERMARKET_HOURS : HOME_HOURS).map((h) => (
                       <tr>
                         <th scope="row">{h.days}</th>
                         <td>{h.open}–{h.close}</td>

@@ -1,5 +1,5 @@
 ---
-import { COMPANY, SUPERMARKET_HOURS, TIMELINE } from '../lib/data';
+import { COMPANY, SUPERMARKET_HOURS, HOME_HOURS, TIMELINE } from '../lib/data';
 
 /**
  * Where to find the group, and how to reach it.
@@ -23,9 +23,13 @@ const mapsQuery = encodeURIComponent(
 );
 
 /** The shape site.ts reads: day numbers plus the two clock times. */
-const hoursSpec = JSON.stringify(
-  SUPERMARKET_HOURS.map((h) => ({ dow: h.dow, open: h.open, close: h.close }))
-);
+const spec = (hours: readonly { dow: readonly number[]; open: string; close: string }[]) =>
+  JSON.stringify(hours.map((h) => ({ dow: h.dow, open: h.open, close: h.close })));
+
+const stores = [
+  { name: 'Supermarket', hours: SUPERMARKET_HOURS },
+  { name: 'Home', hours: HOME_HOURS },
+];
 
 const [phoneA, phoneB, phoneShop] = COMPANY.phones;
 ---
@@ -64,24 +68,24 @@ const [phoneA, phoneB, phoneShop] = COMPANY.phones;
       </article>
 
       <article class="pc" data-reveal style="--i: 2">
-        <p class="pc__label">Program · Supermarket</p>
-        <p class="pc__status" data-open-now data-hours={hoursSpec} hidden></p>
-        <dl class="pc__hours tnum">
-          {
-            SUPERMARKET_HOURS.map((h) => (
-              <div class="pc__hourRow">
-                <dt>{h.days}</dt>
-                <dd>
-                  {h.open}–{h.close}
-                </dd>
-              </div>
-            ))
-          }
-        </dl>
-        {/* Not guessed. This is the largest store in the group and a wrong time
-            sends someone driving to Tâncăbești for nothing.
-            TODO(client): opening hours for Smartino Home. */}
-        <p class="pc__note">Smartino Home: programul se anunță în curând.</p>
+        {
+          stores.map((store, i) => (
+            <div class:list={['pc__store', i > 0 && 'pc__store--next']}>
+              <p class="pc__label">Program · {store.name}</p>
+              <p class="pc__status" data-open-now data-hours={spec(store.hours)} hidden></p>
+              <dl class="pc__hours tnum">
+                {store.hours.map((h) => (
+                  <div class="pc__hourRow">
+                    <dt>{h.days}</dt>
+                    <dd>
+                      {h.open}–{h.close}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          ))
+        }
       </article>
 
       <article class="pc" data-reveal style="--i: 3">
@@ -301,6 +305,12 @@ const [phoneA, phoneB, phoneShop] = COMPANY.phones;
     font-weight: 700;
     font-size: 1rem;
     white-space: nowrap;
+  }
+
+  .pc__store--next {
+    margin-top: 1.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--line-dark);
   }
 
   .pc__note {
