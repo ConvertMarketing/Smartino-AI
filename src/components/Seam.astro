@@ -1,0 +1,294 @@
+---
+import { ORIGIN, TIMELINE } from '../lib/data';
+
+/**
+ * The seam between the brand wall and the story.
+ *
+ * A tall section with a panel that sticks to the screen while you scroll
+ * through it: the page holds still for a beat, a rail draws itself from left
+ * to right, and the five years light up one after another as the scroll
+ * passes them. Then the panel releases and the first chapter arrives.
+ *
+ * Decorative, and it says so: every year here is repeated as real text in the
+ * chapters below, so the whole block is aria-hidden and the story stays the
+ * only voice in the accessibility tree.
+ *
+ * Nothing here is JavaScript. The rail and the marks are driven by a named
+ * view timeline on the section itself; where that is not supported -- and
+ * under prefers-reduced-motion -- the panel simply shows the finished state.
+ */
+const years = [ORIGIN.year, ORIGIN.romania, ORIGIN.online, TIMELINE.first.date.slice(0, 4), TIMELINE.second.date.slice(0, 4)];
+---
+
+<section class="seam" aria-hidden="true">
+  <div class="seam__pin">
+    <p class="seam__kicker">{years[0]} — {years[years.length - 1]}</p>
+    <p class="seam__word">Povestea</p>
+
+    <div class="seam__rail">
+      <span class="seam__base"></span>
+      <span class="seam__fill"></span>
+      <ol class="seam__years">
+        {years.map((y, i) => (
+          <li class="seam__year tnum" style={`--y: ${i}`}>
+            <span class="seam__dot"></span>
+            {y}
+          </li>
+        ))}
+      </ol>
+    </div>
+
+    <p class="seam__cue">continuă să derulezi</p>
+  </div>
+</section>
+
+<style>
+  .seam {
+    position: relative;
+    height: 240vh;
+    background-color: var(--ink);
+    color: var(--fg-inv);
+  }
+
+  /* the panel that holds still while the page scrolls past it */
+  .seam__pin {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(1rem, 2.5vh, 1.75rem);
+    padding-inline: var(--gutter);
+    overflow: hidden;
+  }
+
+  /* the light that opens behind the word as the panel takes over */
+  .seam__pin::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: radial-gradient(46% 38% at 50% 46%, rgba(19, 180, 198, 0.28), transparent 72%);
+  }
+
+  .seam__kicker,
+  .seam__word,
+  .seam__rail,
+  .seam__cue {
+    position: relative;
+    z-index: 1;
+  }
+
+  .seam__kicker {
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    color: var(--t-glow);
+  }
+
+  .seam__word {
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 1rem + 7vw, 7rem);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1;
+  }
+
+  /* ---- the rail --------------------------------------------------------- */
+  .seam__rail {
+    position: relative;
+    width: min(760px, 100%);
+    margin-top: clamp(1rem, 3vh, 2rem);
+  }
+
+  .seam__base,
+  .seam__fill {
+    position: absolute;
+    top: 5px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    border-radius: 2px;
+  }
+
+  .seam__base {
+    background-color: var(--line-dark-strong);
+  }
+
+  .seam__fill {
+    background-image: linear-gradient(90deg, var(--t-deep), var(--t) 40%, var(--t-glow));
+    transform-origin: left center;
+    box-shadow: 0 0 18px rgba(75, 216, 232, 0.5);
+  }
+
+  .seam__years {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .seam__year {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.875rem;
+    font-family: var(--font-display);
+    font-size: clamp(0.8125rem, 0.7rem + 0.4vw, 1.0625rem);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    /* never dimmer than this: it is still text on a dark ground */
+    color: var(--fg-inv-2);
+  }
+
+  .seam__dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: var(--ink);
+    border: 2px solid var(--line-dark-strong);
+  }
+
+  .seam__cue {
+    margin-top: clamp(1rem, 3vh, 2rem);
+    font-size: 0.75rem;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--fg-inv-2);
+  }
+
+  /* ---- the scroll drives all of it -------------------------------------- */
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .seam {
+        view-timeline-name: --seam;
+      }
+
+      /* each rule keeps its timeline apart from the shorthand, and above it:
+         a minifier folds it into `animation:` otherwise, and the shorthand's
+         own reset would win the cascade */
+      .seam__fill {
+        transform: scaleX(0);
+        animation: seam-fill linear both;
+      }
+
+      .seam__fill.seam__fill {
+        animation-timeline: --seam;
+        animation-range: cover 26% cover 74%;
+      }
+
+      .seam__year {
+        animation: seam-year linear both;
+      }
+
+      .seam__year.seam__year {
+        animation-timeline: --seam;
+        animation-range: cover calc(28% + var(--y) * 9%) cover calc(36% + var(--y) * 9%);
+      }
+
+      .seam__word,
+      .seam__kicker {
+        animation: seam-in linear both;
+      }
+
+      .seam__word.seam__word,
+      .seam__kicker.seam__kicker {
+        animation-timeline: --seam;
+        animation-range: cover 8% cover 34%;
+      }
+
+      .seam__cue {
+        animation: seam-out linear both;
+      }
+
+      .seam__cue.seam__cue {
+        animation-timeline: --seam;
+        animation-range: cover 62% cover 82%;
+      }
+    }
+  }
+
+  @keyframes seam-fill {
+    to {
+      transform: scaleX(1);
+    }
+  }
+
+  @keyframes seam-year {
+    to {
+      color: var(--fg-inv);
+    }
+  }
+
+  /* the dot is a child, so it gets its own keyframes on the same range */
+  @keyframes seam-in {
+    from {
+      transform: translate3d(0, 26px, 0);
+      opacity: 0;
+    }
+    to {
+      transform: none;
+      opacity: 1;
+    }
+  }
+
+  @keyframes seam-out {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+
+  /* the marks themselves: lit through the same range as their year */
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .seam__dot {
+        animation: seam-dot linear both;
+      }
+
+      .seam__dot.seam__dot {
+        animation-timeline: --seam;
+        animation-range: cover calc(28% + var(--y) * 9%) cover calc(36% + var(--y) * 9%);
+      }
+    }
+  }
+
+  @keyframes seam-dot {
+    to {
+      background-color: var(--t-glow);
+      border-color: var(--t-glow);
+      box-shadow: 0 0 14px rgba(75, 216, 232, 0.8);
+    }
+  }
+
+  @media (max-width: 899px) {
+    .seam {
+      height: 180vh;
+    }
+
+    .seam__years {
+      font-size: 0.75rem;
+    }
+  }
+
+  /* Without scroll-driven animations, and for anyone who asked for less
+     motion, the panel shows its finished state: the rail full, the years lit. */
+  @media (prefers-reduced-motion: reduce) {
+    .seam {
+      height: auto;
+    }
+
+    .seam__pin {
+      position: static;
+      height: auto;
+      padding-block: clamp(4rem, 10vh, 7rem);
+    }
+  }
+</style>
