@@ -42,6 +42,10 @@ const CHIP: Record<string, ImageMetadata> = {
           </summary>
 
           <div class="bx__body">
+            <figure class="bx__shot">
+              <Image src={CHIP[unit.token]} alt="" widths={[420, 720]} sizes="(max-width: 899px) 92vw, 360px" loading="lazy" />
+            </figure>
+
             <div class="bx__col">
               {unit.slogan && <p class="bx__slogan">{unit.slogan}</p>}
               <p class="bx__summaryText">{unit.summary}</p>
@@ -229,6 +233,33 @@ const CHIP: Record<string, ImageMetadata> = {
     grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) auto;
     gap: 2.5rem;
     padding-bottom: clamp(1.75rem, 4vh, 2.75rem);
+  }
+
+  /* The floating chip is a pointer trick: on a phone, and for anyone who
+     asked for less motion, nobody ever sees the photograph. So the open row
+     carries it too -- and only where the chip cannot do the job, so a mouse
+     user never gets the same picture twice. */
+  .bx__shot {
+    grid-column: 1 / -1;
+    margin: 0 0 0.5rem;
+    max-width: 34rem;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: var(--lift-1);
+  }
+
+  .bx__shot img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+  }
+
+  @media (hover: hover) and (pointer: fine) and (min-width: 900px) and (prefers-reduced-motion: no-preference) {
+    .bx__shot {
+      display: none;
+    }
   }
 
   .bx__slogan {

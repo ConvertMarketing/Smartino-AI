@@ -19,9 +19,11 @@ import { COMPANY } from '../lib/data';
           ))}
       </span>
     </p>
-    <p class="stmt__values" data-reveal style="--i: 2">
-      {COMPANY.values.join(' · ')}
-    </p>
+    <ul class="stmt__values" data-reveal style="--i: 2" aria-label="Valorile grupului">
+      {COMPANY.values.map((v, i) => (
+        <li class="stmt__value" style={`--vi: ${i}`}>{v}</li>
+      ))}
+    </ul>
   </div>
 </section>
 
@@ -77,11 +79,55 @@ import { COMPANY } from '../lib/data';
     letter-spacing: -0.015em;
   }
 
+  /* The four values were set at 11px grey and read as the fine print at the
+     bottom of a contract. They are what the group says it stands for, so they
+     get a rule of their own, ink instead of grey, and a turquoise mark each. */
   .stmt__values {
-    margin-top: 2rem;
-    font-size: 0.875rem;
-    letter-spacing: 0.06em;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.875rem clamp(1.75rem, 3.4vw, 3.25rem);
+    margin-top: clamp(2.5rem, 5vh, 3.5rem);
+    padding-top: clamp(1.25rem, 3vh, 1.75rem);
+    border-top: 1px solid var(--line);
+    list-style: none;
+  }
+
+  .stmt__value {
+    position: relative;
+    padding-left: 1.3rem;
+    font-family: var(--font-display);
+    font-size: clamp(0.9375rem, 0.85rem + 0.35vw, 1.125rem);
+    font-weight: 700;
+    letter-spacing: 0.07em;
     text-transform: uppercase;
-    color: var(--fg-2);
+    color: var(--fg);
+  }
+
+  /* a small turquoise lozenge, the same mark the page uses for a bullet */
+  .stmt__value::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.52em;
+    width: 7px;
+    height: 7px;
+    background-color: var(--t-deep);
+    transform: rotate(45deg);
+  }
+
+  /* they arrive one after another once the block is in view */
+  @media (prefers-reduced-motion: no-preference) {
+    :global([data-js]) .stmt__values .stmt__value {
+      opacity: 0;
+      transform: translate3d(0, 10px, 0);
+      transition:
+        opacity 520ms var(--ease-out) calc(var(--vi) * 90ms + 260ms),
+        transform 520ms var(--ease-out) calc(var(--vi) * 90ms + 260ms);
+    }
+
+    :global([data-js]) .stmt__values[data-in] .stmt__value {
+      opacity: 1;
+      transform: none;
+    }
   }
 </style>
