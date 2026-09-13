@@ -336,21 +336,24 @@ function ground(): void {
  * without WebGL -- the section is its pre-rendered poster and two links.
  * ------------------------------------------------------------------------ */
 function maquette(): void {
-  const section = document.querySelector<HTMLElement>('[data-maquette]');
-  if (!section || !('IntersectionObserver' in window)) return;
-  const io = new IntersectionObserver(
-    (entries) => {
-      if (!entries.some((e) => e.isIntersecting)) return;
-      io.disconnect();
-      import('./maquette')
-        .then((m) => m.mount(section))
-        .catch(() => {
-          /* the poster stays */
-        });
-    },
-    { rootMargin: '100% 0px' }
-  );
-  io.observe(section);
+  if (!('IntersectionObserver' in window)) return;
+  // one observer per section: the page carries two scenes now, and each has to
+  // wait for its own approach rather than for the first one's
+  for (const section of document.querySelectorAll<HTMLElement>('[data-maquette]')) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((e) => e.isIntersecting)) return;
+        io.disconnect();
+        import('./maquette')
+          .then((m) => m.mount(section))
+          .catch(() => {
+            /* the poster stays */
+          });
+      },
+      { rootMargin: '100% 0px' }
+    );
+    io.observe(section);
+  }
 }
 
 /* ---------------------------------------------------------------------------

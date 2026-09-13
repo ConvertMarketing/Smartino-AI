@@ -9,6 +9,16 @@ import Brands from '../components/Brands.astro';
 import Story from '../components/Story.astro';
 import SnagovPlaza from '../components/SnagovPlaza.astro';
 import SiteFooter from '../components/SiteFooter.astro';
+import snagovPoster from '../assets/photos/snagov-plaza-macheta.png';
+import otopeniPoster from '../assets/photos/otopeni-macheta.png';
+import spots from '../data/maquette-pins.json';
+import { COMPANY, UNITS, TIMELINE, SUPERMARKET_HOURS, HOME_HOURS, HOME_AREA } from '../lib/data';
+
+/* The two maquettes. Everything specific to a scene lives here; the component
+ * and the 3D runtime know none of it. */
+const [, home] = UNITS;
+const superHours = SUPERMARKET_HOURS.map((h) => `${h.open}–${h.close}`).join(' · ');
+const homeHours = HOME_HOURS.map((h) => `${h.open}–${h.close}`).join(' · ');
 
 const title = 'Smartino International — zeci de branduri, un singur grup';
 const description =
@@ -19,7 +29,37 @@ const description =
 <Base title={title} description={description}>
   <main>
     <Hero />
-    <Maquette />
+    <Maquette
+      id="macheta"
+      model="snagov-plaza"
+      poster={snagovPoster}
+      posterAlt="Macheta ilustrativă a ansamblului Smartino Snagov: inelul Smartino Home și hala Smartino Supermarket"
+      kicker={COMPANY.address.oneLine}
+      title="Două magazine, un singur loc."
+      lead={`Smartino Supermarket, deschis din ${TIMELINE.first.label}. Smartino Home, peste ${HOME_AREA}, din ${TIMELINE.second.label}. Vizavi unul de celălalt, la DN-1.`}
+      spots={spots['snagov-plaza']}
+      pins={[
+        {
+          key: 'supermarket',
+          plaque: 'pin_placa_supermarket',
+          match: 'supermarket',
+          name: 'Supermarket',
+          meta: superHours,
+          href: '#snagov-plaza',
+          label: 'Smartino Supermarket — vezi adresa și programul',
+        },
+        {
+          key: 'home',
+          plaque: 'pin_placa_home',
+          match: 'mall_',
+          name: 'Home',
+          meta: `${homeHours} · ${HOME_AREA}`,
+          href: home.href!,
+          external: true,
+          label: `Smartino Home — deschis zilnic ${HOME_HOURS[0].open}–${HOME_HOURS[0].close}, deschide ${home.domain}`,
+        },
+      ]}
+    />
     <Statement />
     <BrandIndex />
     <Marquee />
@@ -33,6 +73,42 @@ const description =
       <span class="zone__lamp--low" aria-hidden="true"></span>
       <Brands />
       <Story />
+      <Maquette
+        id="otopeni"
+        model="otopeni"
+        poster={otopeniPoster}
+        posterAlt="Macheta ilustrativă a platformei din Otopeni: hala de depozitare Smartino și clădirea de birouri Smartino International"
+        kicker="Otopeni, Ilfov"
+        title="De aici pleacă marfa."
+        lead="Depozitul grupului și birourile Smartino International, în parcul industrial de la Otopeni. Aici ajung brandurile importate și de aici pleacă spre magazine și spre comenzile online."
+        spots={spots.otopeni}
+        dissolve
+        keys={[
+          { yaw: -0.62, pitch: 0.72, dist: 2.6, ty: 0 },
+          { yaw: -0.1, pitch: 0.34, dist: 1.55, ty: 6 },
+          { yaw: 0.95, pitch: 0.52, dist: 1.9, ty: 0 },
+        ]}
+        pins={[
+          {
+            key: 'depozit',
+            plaque: 'pin_placa_hala_4000',
+            match: 'smartino_4000',
+            name: 'Depozit',
+            meta: 'marfa pentru toate magazinele',
+            href: '#snagov-plaza',
+            label: 'Depozitul Smartino din Otopeni — vezi datele de contact',
+          },
+          {
+            key: 'birouri',
+            plaque: 'pin_placa_smartino',
+            match: 'smartino_international,smartino_birouri',
+            name: 'Birouri',
+            meta: 'Smartino International',
+            href: '#snagov-plaza',
+            label: 'Birourile Smartino International — vezi datele de contact',
+          },
+        ]}
+      />
       <SnagovPlaza />
     </div>
   </main>
@@ -76,6 +152,11 @@ const description =
     background-image:
       radial-gradient(48% 40% at 16% 40%, rgba(19, 180, 198, 0.2), transparent 74%),
       radial-gradient(42% 34% at 90% 62%, rgba(75, 216, 232, 0.15), transparent 76%);
+  }
+
+  /* the address block rises into the maquette's tail while the model dissolves */
+  .zone > :global(#snagov-plaza) {
+    margin-top: clamp(-14rem, -28vh, -7rem);
   }
 
   /* both sections sit in the same light: transparent grounds, content above */

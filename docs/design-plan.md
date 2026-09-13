@@ -401,3 +401,34 @@ Ce lipsește, pentru client: dacă „zeci de branduri" din hero trebuie susțin
 literal, mai sunt necesare logo-uri — pe perete se văd 18. Și rămâne
 neconfirmat dacă toate cele 18 sunt importate direct de grup sau doar
 distribuite; kicker-ul spune „Import direct" pe baza formulării clientului.
+
+
+## A doua machetă: Otopeni
+
+Clientul a trimis modelul platformei de la Otopeni — depozitul grupului și
+clădirea de birouri Smartino International, în parcul industrial. A cerut o
+secțiune identică în comportament cu cea de la Snagov, așa că singura variantă
+corectă era să nu o copiez, ci să o generalizez pe prima.
+
+Ce s-a mutat în parametri: `scripts/model.mjs` primește scena ca argument
+(sursă, ieșire, numele de noduri care merită păstrate); `Maquette.astro` a
+devenit o componentă cu props, iar textele și etichetele stau acum în
+`index.astro`; runtime-ul 3D nu mai știe ce scenă arată — secțiunea spune ce
+model să încarce, iar fiecare etichetă spune ce plăcuță din model o ancorează
+(`data-plaque`) și ce nume de noduri se aprind odată cu ea (`data-match`, o
+listă, fiindcă birourile sunt două volume cu nume diferite). `scripts/poster.mjs`
+parcurge acum toate secțiunile și scrie un poster și un set de poziții pentru
+fiecare.
+
+Traseul camerei e per scenă (`data-mq-keys`). Cel de la Snagov încadrează două
+clădiri față în față; parcul de la Otopeni se întinde pe câteva sute de metri
+est-vest, iar pe traseul vechi eticheta depozitului cădea exact peste text.
+
+Modelul procesat: 207 KB, ~74.000 de triunghiuri, 64 de noduri, din care 32 cu
+nume — cele trei volume Smartino și cei doi pini. Restul parcului (halele
+vecinilor, camioanele, copacii) e decor și intră în loturi anonime.
+
+Ce lipsește, pentru client: adresa exactă a platformei (acum scrie doar
+„Otopeni, Ilfov"), suprafața halei și, dacă există, numărul de rampe — nodul
+din model se cheamă `smartino_4000`, dar nu am confirmarea că 4000 e o
+suprafață, deci cifra nu apare nicăieri în pagină.

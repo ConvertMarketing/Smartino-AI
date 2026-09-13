@@ -36,28 +36,45 @@ function findChromium() {
 const browser = await chromium.launch({ executablePath: findChromium(), args: ['--no-sandbox'] });
 const page = await browser.newPage({ viewport: { width: 1600, height: 1000 }, reducedMotion: 'reduce' });
 await page.goto(URL, { waitUntil: 'networkidle' });
-await page.evaluate(() => document.querySelector('[data-maquette]').scrollIntoView({ block: 'start' }));
-await page.waitForSelector('[data-maquette][data-ready]', { timeout: 60000 });
+
+
 // a few frames for the shadow map and the labels to settle, and the poster to fade
 await page.waitForTimeout(1500);
 
-const pins = await page.evaluate(() => {
-  const host = document.querySelector('[data-mq-canvas]');
-  const out = {};
-  for (const el of document.querySelectorAll('[data-pin]')) {
-    out[el.dataset.pin] = {
-      x: +((parseFloat(el.style.left) / host.clientWidth) * 100).toFixed(2),
-      y: +((parseFloat(el.style.top) / host.clientHeight) * 100).toFixed(2),
-    };
-  }
-  return out;
-});
+const spots = {};
+const sections = await page.evaluate(() =>
+  [...document.querySelectorAll('[data-maquette]')].map((s) => s.dataset.mqModel)
+);
 
-// Only the model goes into the poster: the words, labels and hint are real
-// DOM layered on top of it, and would otherwise appear twice.
-await page.addStyleTag({ content: '.mq__copy, .mq__pin, .mq__hint { visibility: hidden !important; }' });
-await page.waitForTimeout(200);
-await page.locator('[data-mq-canvas]').screenshot({ path: 'src/assets/photos/snagov-plaza-macheta.png' });
-fs.writeFileSync('src/data/maquette-pins.json', JSON.stringify(pins, null, 2) + '\n');
+for (const model of sections) {
+  await page.evaluate((m) => {
+    document.querySelector(`[data-mq-model="${m}"]`).scrollIntoView({ block: 'start' });
+  }, model);
+  await page.waitForSelector(`[data-mq-model="${model}"][data-ready]`, { timeout: 60000 });
+  // a few frames for the shadow map and the labels to settle, and the poster to fade
+  await page.waitForTimeout(1500);
+
+  spots[model] = await page.evaluate((m) => {
+    const section = document.querySelector(`[data-mq-model="${m}"]`);
+    const host = section.querySelector('[data-mq-canvas]');
+    const out = {};
+    for (const el of section.querySelectorAll('[data-pin]')) {
+      out[el.dataset.pin] = {
+        x: +((parseFloat(el.style.left) / host.clientWidth) * 100).toFixed(2),
+        y: +((parseFloat(el.style.top) / host.clientHeight) * 100).toFixed(2),
+      };
+    }
+    return out;
+  }, model);
+
+  // Only the model goes into the poster: the words, labels and hint are real
+  // DOM layered on top of it, and would otherwise appear twice.
+  await page.addStyleTag({ content: '.mq__copy, .mq__pin, .mq__hint { visibility: hidden !important; }' });
+  await page.waitForTimeout(200);
+  const file = model === 'snagov-plaza' ? 'snagov-plaza-macheta.png' : `${model}-macheta.png`;
+  await page.locator(`[data-mq-model="${model}"] [data-mq-canvas]`).screenshot({ path: `src/assets/photos/${file}` });
+  console.log(`${file} scris; etichete:`, JSON.stringify(spots[model]));
+}
+
+fs.writeFileSync('src/data/maquette-pins.json', JSON.stringify(spots, null, 2) + '\n');
 await browser.close();
-console.log('poster scris; etichete:', JSON.stringify(pins));

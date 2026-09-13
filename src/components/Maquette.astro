@@ -1,83 +1,131 @@
 ---
 import { Image } from 'astro:assets';
-import poster from '../assets/photos/snagov-plaza-macheta.png';
-import pins from '../data/maquette-pins.json';
-import { COMPANY, UNITS, TIMELINE, SUPERMARKET_HOURS, HOME_HOURS, HOME_AREA } from '../lib/data';
 
 /**
- * The maquette: Smartino Snagov as a living 3D model, one fold under the hero.
+ * A maquette section: a 3D model of one of the group's places, pinned to the
+ * screen while the camera flies through it.
  *
- * The scene itself lives in src/scripts/maquette.ts and arrives lazily. This
- * file ships everything that must work before -- or without -- it: the
- * pre-rendered poster (scripts/poster.mjs writes it from the very same
- * scene), the two labels as real links at their poster positions, and the
- * words. When the model is live the labels are re-projected every frame and
- * the poster fades under the canvas.
+ * Two of these ship now -- the shops at Snagov and the warehouse at Otopeni --
+ * so everything specific arrives as props and this file holds only what they
+ * share. The scene itself lives in src/scripts/maquette.ts and arrives lazily.
  *
- * The model is an illustration of the plot, drawn by the client in Claude
- * Design. It is labelled as such on the page and must not be read as a site
- * plan. TODO(client): confirm the maquette's footprints and road layout
- * against the real plot before launch.
+ * This file ships everything that must work before -- or without -- it: the
+ * pre-rendered poster (scripts/poster.mjs writes it from the very same scene),
+ * the labels as real links at their poster positions, and the words. When the
+ * model is live the labels are re-projected every frame and the poster fades
+ * under the canvas.
+ *
+ * The models are illustrations of the plots, drawn by the client in Claude
+ * Design. Each section says so, and they must not be read as site plans.
+ * TODO(client): confirm the footprints against the real plots before launch.
  */
-const [, home] = UNITS;
-const hours = SUPERMARKET_HOURS.map((h) => `${h.open}–${h.close}`).join(' · ');
-const homeHours = HOME_HOURS.map((h) => `${h.open}–${h.close}`).join(' · ');
-const area = HOME_AREA;
+export type MaquettePin = {
+  /** the key the runtime uses, also the data-pin attribute */
+  key: string;
+  /** the baked plaque node in the GLB; its position anchors the HTML label */
+  plaque: string;
+  /** node-name prefix of the meshes that light up with this label */
+  match: string;
+  name: string;
+  meta: string;
+  href: string;
+  label: string;
+  external?: boolean;
+};
+
+interface Props {
+  id: string;
+  /** file name under public/models, without the extension */
+  model: string;
+  poster: ImageMetadata;
+  posterAlt: string;
+  kicker: string;
+  title: string;
+  lead: string;
+  pins: MaquettePin[];
+  /** optional three-key camera path, when the default does not suit the plot */
+  keys?: { yaw: number; pitch: number; dist: number; ty: number }[];
+  /** when the section below is dark too: the model dissolves into it instead
+   *  of scrolling away with an edge */
+  dissolve?: boolean;
+  /** the projected label positions written by scripts/poster.mjs */
+  spots: Record<string, { x: number; y: number }>;
+}
+
+const { id, model, poster, posterAlt, kicker, title, lead, pins, spots, keys, dissolve } = Astro.props;
 ---
 
-<section class="mq" id="macheta" aria-labelledby="mq-title" data-maquette>
+<section class:list={['mq', dissolve && 'mq--dissolve']} id={id} aria-labelledby={`mq-title-${id}`} data-maquette data-mq-model={model} data-mq-keys={keys ? JSON.stringify(keys) : undefined}>
   <div class="mq__stage" data-mq-stage>
     <div class="mq__canvas" data-mq-canvas aria-hidden="true"></div>
     <Image
       class="mq__poster"
       src={poster}
-      alt="Macheta ilustrativă a ansamblului Smartino Snagov: inelul Smartino Home și hala Smartino Supermarket"
+      alt={posterAlt}
       widths={[720, 1200, 1600]}
       sizes="100vw"
       loading="lazy"
     />
 
     <div class="mq__copy">
-      <p class="mq__kicker" data-reveal>{COMPANY.address.oneLine}</p>
-      <h2 class="mq__title" id="mq-title" data-reveal>Două magazine, un singur loc.</h2>
-      <p class="mq__lead" data-reveal>
-        Smartino Supermarket, deschis din {TIMELINE.first.label}. Smartino Home, peste {area}, din{' '}
-        {TIMELINE.second.label}. Vizavi unul de celălalt, la DN-1.
-      </p>
+      <p class="mq__kicker" data-reveal>{kicker}</p>
+      <h2 class="mq__title" id={`mq-title-${id}`} data-reveal>{title}</h2>
+      <p class="mq__lead" data-reveal>{lead}</p>
       <p class="mq__note">Machetă ilustrativă a ansamblului — nu un plan tehnic.</p>
     </div>
 
-    <a
-      class="mq__pin"
-      data-pin="supermarket"
-      href="#snagov-plaza"
-      style={`left: ${pins.supermarket.x}%; top: ${pins.supermarket.y}%`}
-      aria-label="Smartino Supermarket — vezi adresa și programul"
-    >
-      <span class="mq__tag">
-        <span class="mq__tagName">Supermarket</span>
-        <span class="mq__tagMeta tnum">{hours}</span>
-      </span>
-    </a>
-    <a
-      class="mq__pin"
-      data-pin="home"
-      href={home.href}
-      rel="noopener"
-      style={`left: ${pins.home.x}%; top: ${pins.home.y}%`}
-      aria-label={`Smartino Home — deschis zilnic ${HOME_HOURS[0].open}–${HOME_HOURS[0].close}, deschide ${home.domain}`}
-    >
-      <span class="mq__tag">
-        <span class="mq__tagName">Home</span>
-        <span class="mq__tagMeta tnum">{homeHours} · {area}</span>
-      </span>
-    </a>
+    {
+      pins.map((pin) => (
+        <a
+          class="mq__pin"
+          data-pin={pin.key}
+          data-plaque={pin.plaque}
+          data-match={pin.match}
+          href={pin.href}
+          rel={pin.external ? 'noopener' : undefined}
+          style={`left: ${(spots[pin.key] ?? { x: 50 }).x}%; top: ${(spots[pin.key] ?? { y: 50 }).y}%`}
+          aria-label={pin.label}
+        >
+          <span class="mq__tag">
+            <span class="mq__tagName">{pin.name}</span>
+            <span class="mq__tagMeta tnum">{pin.meta}</span>
+          </span>
+        </a>
+      ))
+    }
 
     <p class="mq__hint" data-mq-hint>Trage ca să rotești · derulează ca să zbori</p>
   </div>
 </section>
 
 <style>
+  /* The handover, when what follows is dark as well: the model sinks back into
+     the black while the next section is already rising over it, the same way
+     the brand wall gives way to the story. Without it the plot simply scrolls
+     off and leaves a straight edge across the screen. */
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .mq--dissolve .mq__stage {
+        animation: mq-sink linear both;
+      }
+
+      /* own rule, higher specificity: apart from the shorthand so a minifier
+         cannot fold the timeline into it, and above it so its reset loses */
+      .mq--dissolve .mq__stage.mq__stage {
+        animation-timeline: view();
+        animation-range: exit 12% exit 86%;
+      }
+    }
+  }
+
+  @keyframes mq-sink {
+    to {
+      opacity: 0;
+      transform: scale(0.94);
+      filter: blur(7px);
+    }
+  }
+
   .mq {
     position: relative;
     height: 260vh;

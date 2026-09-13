@@ -33,11 +33,35 @@ import draco3d from 'draco3dgltf';
 import { MeshoptEncoder } from 'meshoptimizer';
 import fs from 'node:fs';
 
-const SRC = 'src/assets/models/snagov-plaza.source.glb';
-const OUT = 'public/models/snagov-plaza.glb';
+/**
+ * Two scenes go through this now, so the source, the output and the names
+ * worth keeping are arguments:
+ *
+ *   node scripts/model.mjs            -> both scenes
+ *   node scripts/model.mjs otopeni    -> just that one
+ */
+const SCENES = {
+  'snagov-plaza': {
+    src: 'src/assets/models/snagov-plaza.source.glb',
+    out: 'public/models/snagov-plaza.glb',
+    /** Nodes the runtime finds by name: the buildings, the baked pins, the base. */
+    keep: /^(supermarket|mall_|pin_|soclu$|teren_gazon$)/,
+  },
+  otopeni: {
+    src: 'src/assets/models/otopeni.source.glb',
+    out: 'public/models/otopeni.glb',
+    /* The group's own volumes plus the pins. The rest of the park -- the
+     * neighbours' halls, the trucks, the trees -- is scenery and gets joined
+     * into anonymous batches. */
+    keep: /^(smartino_4000|smartino_international|smartino_birouri|pin_|soclu|teren$)/,
+  },
+};
 
-/** Nodes the runtime finds by name: the buildings, the baked pins, the base. */
-const KEEP = /^(supermarket|mall_|pin_|soclu$|teren_gazon$)/;
+const only = process.argv[2];
+if (only && !SCENES[only]) {
+  console.error(`scena necunoscuta: ${only}. disponibile: ${Object.keys(SCENES).join(', ')}`);
+  process.exit(1);
+}
 
 /** #13b4c6 as linear-light RGB, the form glTF stores. */
 const srgbToLinear = (c) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
@@ -49,6 +73,11 @@ const io = new NodeIO().registerExtensions(ALL_EXTENSIONS).registerDependencies(
   'meshopt.encoder': MeshoptEncoder,
 });
 
+for (const [name, scene] of Object.entries(SCENES)) {
+  if (!only || name === only) await build(scene);
+}
+
+async function build({ src: SRC, out: OUT, keep: KEEP }) {
 const doc = await io.read(SRC);
 const root = doc.getRoot();
 
@@ -128,3 +157,4 @@ console.log(`triunghiuri randate: ${Math.round(tris)}, noduri instantiate: ${ins
 const named = root.listNodes().filter((n) => n.getName()).map((n) => n.getName());
 console.log(`${OUT}: ${(bytes / 1024).toFixed(0)} KB, ${root.listNodes().length} noduri, ${root.listMeshes().length} mesh-uri`);
 console.log('noduri cu nume:', named.join(' '));
+}

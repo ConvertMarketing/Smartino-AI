@@ -1,5 +1,5 @@
 /**
- * The maquette: the Smartino Snagov model, live, one fold below the hero.
+ * The maquette: a live 3D model of one of the group's places.
  *
  * This is the one place the site ships a 3D engine. three.js and the model
  * come in as a separate chunk, only once the section is within a screen of the
@@ -9,9 +9,13 @@
  *
  * What it does: the camera flies a three-key path driven by scroll through
  * the pinned section, the hand can turn the model at any point, the whole
- * thing drifts slowly by itself when left alone, and the two buildings answer
- * hover -- in the scene and on their HTML labels, which are real links
+ * thing drifts slowly by itself when left alone, and the labelled buildings
+ * answer hover -- in the scene and on their HTML labels, which are real links
  * projected from real 3D anchors every frame.
+ *
+ * Nothing here knows which scene it is showing. The section says which model
+ * to load, and each label says which baked plaque anchors it and which node
+ * names light up with it, so a second place needs no second copy of this.
  *
  * What it refuses to do: move on its own under reduced motion (the drag still
  * works, since that is the person moving it), or hijack the scroll wheel. If
@@ -45,8 +49,11 @@ import { withBase } from '../lib/paths';
 type Key = { yaw: number; pitch: number; dist: number; ty: number };
 type Pin = { key: string; el: HTMLElement; anchor: Vector3; meshes: Mesh[] };
 
-/** The flight: an establishing shot, a low pass by the supermarket, arrival over the ring. */
-const KEYS: Key[] = [
+/** The flight: an establishing shot, a low pass, an arrival. A scene may carry
+ *  its own three keys in data-mq-keys -- the plots are shaped differently, and
+ *  a path that frames two buildings facing each other does not frame a park
+ *  that runs half a kilometre east to west. */
+const DEFAULT_KEYS: Key[] = [
   { yaw: 0.58, pitch: 0.68, dist: 2.7, ty: 0 },
   { yaw: -0.2, pitch: 0.3, dist: 1.5, ty: 6 },
   { yaw: -1.25, pitch: 0.55, dist: 1.85, ty: 0 },
@@ -61,12 +68,22 @@ const lerpKey = (a: Key, b: Key, t: number): Key => ({
   dist: MathUtils.lerp(a.dist, b.dist, t),
   ty: MathUtils.lerp(a.ty, b.ty, t),
 });
-const flight = (p: number): Key =>
-  p < 0.5 ? lerpKey(KEYS[0], KEYS[1], smooth(p / 0.5)) : lerpKey(KEYS[1], KEYS[2], smooth((p - 0.5) / 0.5));
+const flight = (keys: Key[], p: number): Key =>
+  p < 0.5 ? lerpKey(keys[0], keys[1], smooth(p / 0.5)) : lerpKey(keys[1], keys[2], smooth((p - 0.5) / 0.5));
 
 export function mount(section: HTMLElement): void {
   const host = section.querySelector<HTMLElement>('[data-mq-canvas]');
   if (!host) return;
+
+  let keys = DEFAULT_KEYS;
+  if (section.dataset.mqKeys) {
+    try {
+      const parsed = JSON.parse(section.dataset.mqKeys) as Key[];
+      if (parsed.length === 3) keys = parsed;
+    } catch {
+      /* the default path is a fine fallback */
+    }
+  }
 
   const reduced = prefersReducedMotion();
   const coarse = matchMedia('(pointer: coarse)').matches;
@@ -128,10 +145,11 @@ export function mount(section: HTMLElement): void {
   const v = new Vector3();
 
   // ---- the model -----------------------------------------------------------
+  const labels = [...section.querySelectorAll<HTMLElement>('[data-pin]')];
   const loader = new GLTFLoader();
   loader.setMeshoptDecoder(MeshoptDecoder);
   loader.load(
-    withBase('/models/snagov-plaza.glb'),
+    withBase(`/models/${section.dataset.mqModel ?? 'snagov-plaza'}.glb`),
     (gltf) => {
       const model = gltf.scene;
       const box = new Box3().setFromObject(model);
@@ -141,7 +159,9 @@ export function mount(section: HTMLElement): void {
       model.position.sub(centre);
       model.updateMatrixWorld(true);
 
-      const groups: Record<string, Mesh[]> = { supermarket: [], home: [] };
+      const groups: Record<string, Mesh[]> = {};
+      for (const el of labels) groups[el.dataset.pin!] = [];
+
       model.traverse((o: Object3D) => {
         if (o instanceof Mesh || o instanceof InstancedMesh) {
           o.castShadow = true;
@@ -151,7 +171,9 @@ export function mount(section: HTMLElement): void {
         // the baked label plaques give way to the HTML labels; poles and tips stay
         if (n.startsWith('pin_placa')) o.visible = false;
         if (o instanceof Mesh && !(o instanceof InstancedMesh)) {
-          const g = n.startsWith('supermarket') ? 'supermarket' : n.startsWith('mall_') ? 'home' : null;
+          // a label may claim several name prefixes, comma-separated: the
+          // offices at Otopeni are two volumes with different names
+          const g = labels.find((el) => el.dataset.match!.split(',').some((pre) => n.startsWith(pre)))?.dataset.pin;
           if (g) {
             // a private material, so the glow never leaks to the other building
             o.material = (o.material as MeshStandardMaterial).clone();
@@ -162,9 +184,9 @@ export function mount(section: HTMLElement): void {
         }
       });
 
-      for (const el of section.querySelectorAll<HTMLElement>('[data-pin]')) {
+      for (const el of labels) {
         const k = el.dataset.pin!;
-        const plaque = model.getObjectByName(k === 'home' ? 'pin_placa_home' : 'pin_placa_supermarket');
+        const plaque = model.getObjectByName(el.dataset.plaque!);
         if (!plaque) continue;
         const anchor = plaque.getWorldPosition(new Vector3());
         pins.push({ key: k, el, anchor, meshes: groups[k] });
@@ -293,7 +315,7 @@ export function mount(section: HTMLElement): void {
     uYaw += (uYawT - uYaw) * 0.12;
     uPitch += (uPitchT - uPitch) * 0.12;
 
-    const k = flight(p);
+    const k = flight(keys, p);
     const yaw = k.yaw + uYaw + driftYaw;
     const pitch = MathUtils.clamp(k.pitch + uPitch, 0.14, 1.25);
     const dist = k.dist * radius * fit * (1.3 - 0.3 * ease);
