@@ -63,6 +63,7 @@ import {
   Sprite,
   SpriteMaterial,
   SRGBColorSpace,
+  Texture,
   TubeGeometry,
   Vector2,
   Vector3,
@@ -104,8 +105,19 @@ const CONFIG = {
   pixelRatioMax: 2,
   /** r128 had no physical light units; these are the old values times PI */
   lightScale: Math.PI,
-  /** re-derived, not converted: inverse-square falloff replaced a linear ramp */
-  arcLight: 0.38,
+  /** The light that rides an arc. r128 fell off along a straight ramp to
+   *  `distance`; r185 has no such curve, so this is decay 0.5 with the
+   *  intensity fitted to the old ramp across the radius that actually shows on
+   *  the plate. Matching only the peak, as the first port did, left a hot dot
+   *  and no pool -- which is exactly what the eye reads as a reflection. */
+  arcLight: 3.2,
+  arcLightDecay: 0.5,
+  /** Measured against a render of the original page on r128, not derived.
+   *  r185 draws about a seventh as much light out of the same PMREM studio at
+   *  the same envMapIntensity; the direct lights match to within 4%, the
+   *  environment does not. Without this the anthracite loses the light that
+   *  models it and the plate reads flat. */
+  envScale: 7.3,
   /** air around the silhouette, where the arcs and the names go */
   fitMargin: 1.1,
 } as const;
@@ -205,9 +217,14 @@ export function mount(section: HTMLElement): void {
     camera.updateMatrixWorld(true);
   }
 
-  // a procedural studio: three softboxes, so the anthracite has something to
+  // A procedural studio: three softboxes, so the anthracite has something to
   // reflect. Without it the plates read as flat grey paper.
-  {
+  //
+  // The texture is also hung on each material by hand. Through scene.environment
+  // alone, r185 runs the environment at scene.environmentIntensity and ignores
+  // each material's envMapIntensity -- so the top face and the extruded edge,
+  // which must not catch the same amount of it, would be lit identically.
+  const envTex = ((): Texture => {
     const pmrem = new PMREMGenerator(renderer);
     const s = new Scene();
     s.background = new Color(0x101114);
@@ -222,9 +239,11 @@ export function mount(section: HTMLElement): void {
     panel(0xffffff, 1.6, 8, 4, new Vector3(0, -3, 9));
     panel(0xd6dde8, 0.8, 10, 1.6, new Vector3(2, 8, 5));
     panel(0xffe7c9, 0.45, 3, 6, new Vector3(-9, 0, 3));
-    scene.environment = pmrem.fromScene(s, 0).texture;
+    const tex = pmrem.fromScene(s, 0).texture;
     pmrem.dispose();
-  }
+    return tex;
+  })();
+  scene.environment = envTex;
 
   scene.add(new HemisphereLight(col(0xe4e6ea), col(0x0a0a0b), 0.5 * CONFIG.lightScale));
   const key = new DirectionalLight(col(0xffffff), 0.95 * CONFIG.lightScale);
@@ -276,7 +295,8 @@ export function mount(section: HTMLElement): void {
     color: col(CONFIG.mapSide),
     roughness: 0.78,
     metalness: 0.25,
-    envMapIntensity: 0.5,
+    envMap: envTex,
+    envMapIntensity: 0.5 * CONFIG.envScale,
   });
   const origins = RO.origins.map((o) => ({
     v: new Vector3(o.p[0], o.p[1], CONFIG.depth),
@@ -289,7 +309,8 @@ export function mount(section: HTMLElement): void {
       color: col(CONFIG.mapTop),
       roughness: 0.5,
       metalness: 0.3,
-      envMapIntensity: 0.85,
+      envMap: envTex,
+      envMapIntensity: 0.85 * CONFIG.envScale,
       emissive: col(CONFIG.accent),
       emissiveIntensity: 0,
     });
@@ -499,7 +520,7 @@ export function mount(section: HTMLElement): void {
   // means the shader is compiled once and never again
   const lightPool: PointLight[] = [];
   for (let i = 0; i < CONFIG.maxArcs; i++) {
-    const L = new PointLight(col(CONFIG.accent), 0, 4, 2);
+    const L = new PointLight(col(CONFIG.accent), 0, 4, CONFIG.arcLightDecay);
     L.position.set(0, 0, 1);
     mapGroup.add(L);
     lightPool.push(L);
