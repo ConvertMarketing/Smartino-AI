@@ -258,6 +258,34 @@ const { id, model, poster, posterAlt, kicker, title, lead, pins, spots, keys, di
     text-decoration: none;
   }
 
+  /* Until the scene mounts, the labels sit at the percentages the desktop
+     render projected them to. On a narrower screen those land wherever the
+     camera happened to put the building at 1600x1000 -- which for Otopeni is
+     on top of the words. While the poster is showing they park low instead;
+     the runtime takes the positions back the moment the model starts, and on
+     a wide screen the projected spots are already right, so nothing moves
+     there. */
+  @media (max-width: 1199px) {
+    .mq:not([data-ready]) .mq__pin {
+      top: auto !important;
+      bottom: clamp(5rem, 12vh, 7rem);
+    }
+
+    .mq:not([data-ready]) .mq__pin:nth-of-type(1) {
+      left: 28% !important;
+    }
+
+    .mq:not([data-ready]) .mq__pin:nth-of-type(2) {
+      left: 72% !important;
+    }
+  }
+
+  /* set by the scene when this tag would sit on the opening words */
+  .mq__pin[data-shy] .mq__tag {
+    opacity: 0;
+    visibility: hidden;
+  }
+
   .mq__tag {
     --tx: -50%;
     --stem: 50%;

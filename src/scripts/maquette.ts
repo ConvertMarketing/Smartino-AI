@@ -146,6 +146,7 @@ export function mount(section: HTMLElement): void {
 
   // ---- the model -----------------------------------------------------------
   const labels = [...section.querySelectorAll<HTMLElement>('[data-pin]')];
+  const copy = section.querySelector<HTMLElement>('.mq__copy');
   const loader = new GLTFLoader();
   loader.setMeshoptDecoder(MeshoptDecoder);
   loader.load(
@@ -332,12 +333,26 @@ export function mount(section: HTMLElement): void {
 
     const w = host.clientWidth;
     const h = host.clientHeight;
+    // The words fade out by p = 0.3 (the CSS says so); while they are still
+    // there, a label that lands on them hides its tag and leaves only the dot
+    // on the building. Which building is which stays readable, the sentence
+    // stays readable, and neither has to move.
+    const copyBox = copy && p < 0.3 ? copy.getBoundingClientRect() : null;
     for (const pin of pins) {
       v.copy(pin.anchor).project(camera);
       const x = ((v.x + 1) / 2) * w;
       pin.el.style.left = `${x}px`;
       pin.el.style.top = `${((1 - v.y) / 2) * h}px`;
       pin.el.toggleAttribute('data-behind', v.z > 1);
+      if (copyBox) {
+        const t = pin.el.firstElementChild!.getBoundingClientRect();
+        pin.el.toggleAttribute(
+          'data-shy',
+          t.right > copyBox.left && t.left < copyBox.right && t.bottom > copyBox.top && t.top < copyBox.bottom
+        );
+      } else {
+        pin.el.removeAttribute('data-shy');
+      }
       // near an edge the tag swings inward while the dot stays on the building
       const edge = x < w * 0.22 ? 'l' : x > w * 0.78 ? 'r' : '';
       if (edge) pin.el.dataset.edge = edge;
