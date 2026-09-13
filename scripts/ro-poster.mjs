@@ -50,7 +50,9 @@ await page.addStyleTag({
   content: `
     html, body, .zone { background: transparent !important; }
     .romap__glow, .romap__labels, .romap__poster { visibility: hidden !important; }
-    .romap__stage { height: 800px !important; aspect-ratio: auto !important; }
+    /* exactly the shape the stage has in the page, so object-fit lines the
+       poster up with the live camera instead of scaling it by a few percent */
+    .romap__stage { width: 1600px !important; max-width: none !important; height: 800px !important; aspect-ratio: auto !important; }
   `,
 });
 await page.evaluate(() => document.querySelector('[data-romap-stage]').scrollIntoView({ block: 'center' }));
