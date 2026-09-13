@@ -320,7 +320,14 @@ export function mount(section: HTMLElement): void {
     const yaw = k.yaw + uYaw + driftYaw;
     const pitch = MathUtils.clamp(k.pitch + uPitch, 0.14, 1.25);
     const dist = k.dist * radius * fit * (1.3 - 0.3 * ease);
-    const ty = k.ty + (portrait ? 78 : 0);
+    /* Portrait: while the words are on screen the camera aims well above the
+     * plot, so the model sits low and clear of them. It climbs on exactly the
+     * range over which they fade -- 0.14 to 0.30 of --mqp, the same numbers
+     * .mq__copy uses -- so the model rises into the space they leave instead
+     * of letting the top third of a phone screen stay empty for the rest of
+     * the flight. Under reduced motion p is 0, so it simply stays low, with
+     * the words. */
+    const ty = k.ty + (portrait ? 78 * (1 - MathUtils.clamp((p - 0.14) / 0.16, 0, 1)) : 0);
     camera.position.set(Math.sin(yaw) * Math.cos(pitch) * dist, Math.sin(pitch) * dist, Math.cos(yaw) * Math.cos(pitch) * dist);
     camera.lookAt(0, ty, 0);
 
@@ -343,7 +350,10 @@ export function mount(section: HTMLElement): void {
       const x = ((v.x + 1) / 2) * w;
       pin.el.style.left = `${x}px`;
       pin.el.style.top = `${((1 - v.y) / 2) * h}px`;
-      pin.el.toggleAttribute('data-behind', v.z > 1);
+      // behind the camera, or the building itself has left the frame: either
+      // way the dot has nothing to sit on, and the tag would hang half off the
+      // screen edge pointing at something nobody can see
+      pin.el.toggleAttribute('data-behind', v.z > 1 || x < 0 || x > w);
       if (copyBox) {
         const t = pin.el.firstElementChild!.getBoundingClientRect();
         pin.el.toggleAttribute(
