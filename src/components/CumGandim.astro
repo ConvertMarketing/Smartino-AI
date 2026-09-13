@@ -1,0 +1,136 @@
+---
+/**
+ * The turn from what the company does to why it does it this way.
+ *
+ * The client asked for no mission-vision-values block and no adjectives --
+ * "inovator", "dinamic", "excelență" and the rest are banned by name. One idea,
+ * very little text, a lot of room. So this section is mostly air: the light
+ * arrives here, and the sentence is the only thing in it.
+ *
+ * The white does not arrive as an edge either. The dawn sheet floods up over
+ * the map above while that is still on screen, the same way the page used to
+ * open into the light over the first model.
+ */
+const LINE = 'Să alegi mai bine, nu doar mai ieftin.';
+---
+
+<section class="think" aria-labelledby="think-title">
+  <span class="think__dawn" aria-hidden="true"></span>
+  <span class="think__glow" aria-hidden="true"></span>
+
+  <div class="think__inner">
+    <p class="think__kicker" data-reveal>Cum gândim</p>
+    <h2 class="think__title" id="think-title" data-animate="words" aria-label={LINE}>
+      <span aria-hidden="true">
+        {LINE.split(' ').map((w, i) => (
+          <span class="w"><span class="w__in" style={`--wi: ${i * 0.5}`}>{w}</span></span>
+        ))}
+      </span>
+    </h2>
+    <p class="think__body" data-reveal style="--i: 2">
+      Viața de zi cu zi înseamnă multe alegeri, de multe ori făcute din reflex. Smartino le aduce
+      într-un singur loc: aproape, accesibil și bine ales, pentru casă, familie și nevoile de zi cu
+      zi.
+    </p>
+    <p class="think__close" data-reveal style="--i: 3">
+      Mai puțin pilot automat. Mai multe alegeri făcute cu cap.
+    </p>
+  </div>
+</section>
+
+<style>
+  .think {
+    position: relative;
+    z-index: 1;
+    /* clipped sideways, open upwards: the drifting glow must not widen the
+       page, but the dawn sheet above this box has to stay visible */
+    overflow: clip visible;
+    background-color: var(--paper);
+    color: var(--fg);
+    padding-block: clamp(6rem, 16vh, 11rem) clamp(4rem, 10vh, 7rem);
+  }
+
+  /* the long soft front the white arrives on */
+  .think__dawn {
+    position: absolute;
+    inset: auto 0 100% 0;
+    z-index: 0;
+    /* shorter than the runway the map leaves above it, so the front rises
+       through empty dark and never washes over the footnote up there */
+    height: clamp(14rem, 34vh, 22rem);
+    pointer-events: none;
+    background-image: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.08) 34%,
+      rgba(255, 255, 255, 0.3) 58%,
+      rgba(255, 255, 255, 0.72) 80%,
+      rgba(255, 255, 255, 0.95) 93%,
+      #fff 100%
+    );
+  }
+
+  .think__glow {
+    position: absolute;
+    inset: -25% -10%;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      radial-gradient(32% 30% at 78% 18%, rgba(19, 180, 198, 0.1), transparent 70%),
+      radial-gradient(28% 26% at 8% 82%, rgba(19, 180, 198, 0.07), transparent 72%);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .think__glow {
+      animation: drift-b 30s var(--ease-in-out) infinite alternate;
+    }
+  }
+
+  .think__inner {
+    position: relative;
+    z-index: 1;
+    max-width: var(--content);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  .think__kicker {
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--t-deep);
+  }
+
+  .think__title {
+    margin-top: clamp(1.5rem, 4vh, 2.5rem);
+    max-width: 16ch;
+    font-family: var(--font-display);
+    font-size: clamp(2.25rem, 1.3rem + 4.2vw, 5rem);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 1.02;
+  }
+
+  .think__body {
+    margin-top: clamp(2rem, 5vh, 3rem);
+    max-width: 46ch;
+    font-size: clamp(1rem, 0.95rem + 0.3vw, 1.1875rem);
+    line-height: 1.6;
+    color: var(--fg-2);
+  }
+
+  .think__close {
+    margin-top: clamp(2rem, 5vh, 3rem);
+    padding-top: clamp(1.25rem, 3vh, 2rem);
+    border-top: 1px solid var(--line);
+    max-width: 34ch;
+    font-family: var(--font-display);
+    font-size: clamp(1.0625rem, 0.95rem + 0.6vw, 1.5rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+    color: var(--fg);
+  }
+</style>

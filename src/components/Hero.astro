@@ -30,13 +30,17 @@ import { UNITS, SUPERMARKET_HOURS } from '../lib/data';
 const hoursShort = SUPERMARKET_HOURS.map((h) => `${h.open}–${h.close}`).join(' · ');
 const [u1, u2, u3, u4] = UNITS;
 
+/* The line and the call to action on each card are the client's own words from
+ * the brief. The domain is no longer printed on the card -- it moved into the
+ * link's accessible name, where it still tells a screen reader exactly where
+ * the link goes, without repeating four addresses on the opening screen. */
 const cards = [
-  { unit: u1, art: supermarket, pattern: null, fit: null, href: '#snagov-plaza', exit: hoursShort, line: 'Nevoile zilnice ale familiei, din 2025.' },
-  { unit: u2, art: homeCladire, pattern: null, fit: null, href: u2.href!, exit: u2.domain!, line: 'Peste 1.200 m² de acasă, vizavi.' },
+  { unit: u1, art: supermarket, pattern: null, fit: null, href: '#snagov-plaza', cta: 'Intră', dest: `adresa și programul, ${hoursShort}`, line: 'Pentru nevoile de zi cu zi.' },
+  { unit: u2, art: homeCladire, pattern: null, fit: null, href: u2.href!, cta: 'Descoperă', dest: u2.domain!, line: 'Mobilier, design și soluții pentru casă.' },
   // the two shops show their own storefront, so the crop holds the top of the
   // page -- the logo and the banner -- rather than drifting into the products
-  { unit: u3, art: shopSite, pattern: null, fit: 'top', href: u3.href!, exit: u3.domain!, line: 'Îngrijire și curățenie, livrate în toată țara.' },
-  { unit: u4, art: mdSite, pattern: null, fit: 'top', href: u4.href!, exit: u4.domain!, line: 'Partenerul din Republica Moldova.' },
+  { unit: u3, art: shopSite, pattern: null, fit: 'top', href: u3.href!, cta: 'Cumpără online', dest: u3.domain!, line: 'Produsele Smartino, oriunde în România.' },
+  { unit: u4, art: mdSite, pattern: null, fit: 'top', href: u4.href!, cta: 'Vizitează', dest: u4.domain!, line: 'Partenerul Smartino din Republica Moldova.' },
 ];
 ---
 
@@ -56,8 +60,9 @@ const cards = [
   <div class="hero__head">
     <p class="hero__over" data-reveal>Smartino International</p>
     <h1 class="hero__title" data-animate="lines">
-      <span class="line"><span class="line__in">Zeci de branduri,</span></span>
-      <span class="line"><span class="line__in line__in--t">un singur grup.</span></span>
+      <span class="line"><span class="line__in">Smartino.</span></span>
+      <span class="line"><span class="line__in">Mai multe feluri</span></span>
+      <span class="line"><span class="line__in line__in--t">de a-l descoperi.</span></span>
     </h1>
   </div>
 
@@ -72,8 +77,8 @@ const cards = [
             {...c.href.startsWith('http') ? { rel: 'noopener' } : {}}
             aria-label={
               c.href.startsWith('http')
-                ? `${c.unit.name} — deschide ${c.exit}`
-                : `${c.unit.name} — vezi adresa și programul`
+                ? `${c.unit.name} — ${c.cta.toLowerCase()}, deschide ${c.dest}`
+                : `${c.unit.name} — vezi ${c.dest}`
             }
           >
             <span class="uc__media" data-pattern={c.pattern} data-fit={c.fit}>
@@ -85,7 +90,7 @@ const cards = [
             <span class="uc__caption">
               <span class="uc__name">{c.unit.name.replace('Smartino ', '')}</span>
               <span class="uc__line">{c.line}</span>
-              <span class="uc__exit tnum">{c.exit}<span class="uc__arrow" aria-hidden="true">→</span></span>
+              <span class="uc__exit">{c.cta}<span class="uc__arrow" aria-hidden="true">→</span></span>
             </span>
           </a>
         </li>
@@ -93,9 +98,9 @@ const cards = [
     }
   </ul>
 
-  <a class="hero__cue" href="#povestea" aria-label="Derulează la poveste">
+  <a class="hero__cue" href="#macheta" aria-label="Derulează la retailul fizic">
     <span class="hero__cueLine" aria-hidden="true"></span>
-    <span class="hero__cueText">povestea</span>
+    <span class="hero__cueText">retailul</span>
   </a>
 </section>
 
@@ -417,6 +422,10 @@ const cards = [
 
   :global([data-js]) .line:nth-child(2) .line__in {
     transition-delay: 340ms;
+  }
+
+  :global([data-js]) .line:nth-child(3) .line__in {
+    transition-delay: 480ms;
   }
 
   :global([data-js]) [data-animate='lines'][data-in] .line__in {

@@ -249,25 +249,6 @@ function magnetics(): void {
 }
 
 /* ---------------------------------------------------------------------------
- * The story stepper: each chapter, as it crosses mid-viewport, tells the
- * pinned visual which plate answers it.
- * ------------------------------------------------------------------------ */
-function story(): void {
-  const section = document.querySelector<HTMLElement>('[data-story]');
-  if (!section || !('IntersectionObserver' in window)) return;
-  const io = new IntersectionObserver(
-    (entries) => {
-      for (const e of entries) {
-        if (!e.isIntersecting) continue;
-        section.dataset.step = (e.target as HTMLElement).dataset.step;
-      }
-    },
-    { rootMargin: '-45% 0px -45% 0px' }
-  );
-  section.querySelectorAll<HTMLElement>('.story__step').forEach((el) => io.observe(el));
-}
-
-/* ---------------------------------------------------------------------------
  * The tilt: each hero card leans toward the pointer while the hand is on it.
  * Two custom properties, read by the card's own transform. Pointer-only --
  * touch and reduced motion never see it, and without it the card is simply a
@@ -426,32 +407,11 @@ function tellHours(el: HTMLElement): void {
   el.hidden = false;
 }
 
-/* ---------------------------------------------------------------------------
- * The index chips: a floating image follows the pointer along the giant list.
- * Pointer-only -- touch and reduced motion never see it.
- * ------------------------------------------------------------------------ */
-function chips(): void {
-  if (reduced || !matchMedia('(hover: hover)').matches) return;
-  const list = document.querySelector<HTMLElement>('[data-chips]');
-  if (!list) return;
-  let raf = 0;
-  list.addEventListener('pointermove', (e) => {
-    if (raf) return;
-    raf = requestAnimationFrame(() => {
-      raf = 0;
-      list.style.setProperty('--cx', `${e.clientX}px`);
-      list.style.setProperty('--cy', `${e.clientY}px`);
-    });
-  });
-}
-
 document.documentElement.setAttribute('data-ready', '');
-story();
 tilt();
 ground();
 maquette();
 roMap();
-chips();
 openNow();
 reveals();
 countUps();

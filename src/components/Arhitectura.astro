@@ -1,0 +1,293 @@
+---
+import { TIMELINE, MOLDOVA_OPERATOR } from '../lib/data';
+
+/**
+ * The group, drawn.
+ *
+ * This replaces the old index of the four units. They are already introduced in
+ * the hero as four doors; repeating them a second time as four cards said
+ * nothing new. What was missing is the shape of the business -- one company,
+ * four pillars, and the units hanging off the two that have them.
+ *
+ * The diagram is CSS, not SVG: a root, a bus, and four branches, which reflows
+ * into a left spine on a narrow screen. An SVG would have had to be redrawn at
+ * every breakpoint to keep its line weights honest.
+ *
+ * The Moldovan shop appears under e-commerce because the client's brief puts it
+ * there, and it is labelled as a partner's, because that is what it is. The
+ * footnote under the diagram says who operates it. That line is not decoration
+ * and must not be removed.
+ */
+const PILLARS = [
+  {
+    name: 'Import & distribuție',
+    line: 'Importul ne dă acces la produse și branduri. Distribuția construiește piața.',
+    children: [],
+  },
+  {
+    name: 'Retail',
+    line: 'Ne pune direct în contact cu consumatorul.',
+    children: [
+      { name: 'Smartino Supermarket', note: `deschis din ${TIMELINE.first.label}` },
+      { name: 'Smartino Home', note: `deschis din ${TIMELINE.second.label}` },
+    ],
+  },
+  {
+    name: 'E-commerce',
+    line: 'Extinde accesul la nivel național.',
+    children: [
+      { name: 'Smartino Shop', note: 'smartinoshop.ro' },
+      { name: 'Smartino Home Online', note: 'smartinohome.ro' },
+      { name: 'Smartino Eshop Moldova', note: 'al partenerului din Chișinău' },
+    ],
+  },
+  {
+    name: 'Dezvoltare de branduri',
+    line: 'Ce învățăm din contactul direct cu consumatorul se întoarce în brandurile pe care le reprezentăm.',
+    children: [],
+  },
+];
+---
+
+<section class="arh" aria-labelledby="arh-title">
+  <div class="arh__inner">
+    <p class="arh__kicker" data-reveal>Arhitectura Smartino</p>
+    <h2 class="arh__title" id="arh-title" data-reveal style="--i: 1">
+      Smartino nu face patru lucruri independente.
+    </h2>
+    <p class="arh__lead" data-reveal style="--i: 2">Componentele se alimentează reciproc.</p>
+
+    <div class="arh__tree">
+      <p class="arh__root" data-reveal style="--i: 2">SMARTINO INTERNATIONAL</p>
+      <span class="arh__drop" aria-hidden="true"></span>
+      <span class="arh__bus" aria-hidden="true"></span>
+
+      <ol class="arh__branches">
+        {
+          PILLARS.map((p, i) => (
+            <li class="pil" data-reveal style={`--i: ${i + 1}`}>
+              <p class="pil__name">{p.name}</p>
+              <p class="pil__line">{p.line}</p>
+              {p.children.length > 0 && (
+                <ul class="pil__kids">
+                  {p.children.map((c) => (
+                    <li class="kid">
+                      <span class="kid__name">{c.name}</span>
+                      <span class="kid__note">{c.note}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+
+    <p class="arh__note">{MOLDOVA_OPERATOR}</p>
+  </div>
+</section>
+
+<style>
+  .arh {
+    position: relative;
+    overflow: clip; /* clip, not hidden: hidden would make this a scroll
+                       container and stop every scroll-driven animation in it */
+    color: var(--fg-inv);
+    padding-block: clamp(3rem, 8vh, 5.5rem) clamp(2rem, 5vh, 3.5rem);
+  }
+
+  .arh__inner {
+    position: relative;
+    z-index: 1;
+    max-width: var(--content);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  .arh__kicker {
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--t-glow);
+  }
+
+  .arh__title {
+    margin-top: 0.875rem;
+    font-family: var(--font-display);
+    font-size: clamp(1.75rem, 1.25rem + 2vw, 2.875rem);
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    line-height: 1.06;
+    max-width: 20ch;
+  }
+
+  .arh__lead {
+    margin-top: 0.75rem;
+    color: var(--fg-inv-2);
+  }
+
+  /* ---- the diagram ------------------------------------------------------- */
+  .arh__tree {
+    /* one gap value for the grid and for the bus above it: the bus has to end
+       on the centre of the first and last branch, and that centre depends on
+       the gap. Eyeballed percentages missed it by a few pixels. */
+    --gap: clamp(10px, 1.2vw, 18px);
+    margin-top: clamp(2.5rem, 6vh, 4rem);
+  }
+
+  .arh__root {
+    max-width: max-content;
+    margin-inline: auto;
+    padding: 0.75rem 1.5rem;
+    border: 1px solid rgba(75, 216, 232, 0.45);
+    border-radius: 999px;
+    background-color: rgba(19, 180, 198, 0.08);
+    font-family: var(--font-display);
+    font-size: clamp(0.75rem, 0.7rem + 0.2vw, 0.875rem);
+    font-weight: 800;
+    letter-spacing: 0.22em;
+    text-align: center;
+    color: var(--fg-inv);
+  }
+
+  .arh__drop {
+    display: block;
+    width: 1px;
+    height: 26px;
+    margin-inline: auto;
+    background-image: linear-gradient(180deg, rgba(75, 216, 232, 0.6), var(--line-dark-strong));
+  }
+
+  /* the bus: one line across the four branches, from the first stub to the
+     last, so the tree reads as one split rather than four loose cards */
+  .arh__bus {
+    display: block;
+    height: 1px;
+    /* half a column: (100% - 3 gaps) / 4 / 2 */
+    margin-inline: calc((100% - 3 * var(--gap)) / 8);
+    background-color: var(--line-dark-strong);
+  }
+
+  .arh__branches {
+    position: relative;
+    margin: 22px 0 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--gap);
+  }
+
+  .pil {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding: clamp(1rem, 1.8vw, 1.5rem);
+    border: 1px solid var(--line-dark);
+    border-radius: 16px;
+    background-color: rgba(20, 25, 27, 0.6);
+  }
+
+  /* the stub up to the bus */
+  .pil::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: -22px;
+    width: 1px;
+    height: 22px;
+    background-color: var(--line-dark-strong);
+  }
+
+  .pil__name {
+    font-family: var(--font-display);
+    font-size: clamp(0.9375rem, 0.85rem + 0.4vw, 1.1875rem);
+    font-weight: 800;
+    letter-spacing: -0.015em;
+    line-height: 1.15;
+  }
+
+  .pil__line {
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--fg-inv-2);
+  }
+
+  .pil__kids {
+    margin: 0.25rem 0 0;
+    padding: 0.75rem 0 0;
+    border-top: 1px solid var(--line-dark);
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+  }
+
+  .kid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+  }
+
+  .kid__name {
+    font-family: var(--font-display);
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--fg-inv);
+  }
+
+  .kid__note {
+    font-size: 0.75rem;
+    color: var(--fg-inv-2);
+  }
+
+  .arh__note {
+    margin-top: clamp(1.5rem, 4vh, 2.25rem);
+    font-size: 0.8125rem;
+    color: var(--fg-inv-2);
+  }
+
+  /* ---- narrow: the tree turns on its side -------------------------------- */
+  @media (max-width: 899px) {
+    .arh__bus {
+      display: none;
+    }
+
+    .arh__branches {
+      grid-template-columns: 1fr;
+      margin-top: 0;
+      padding-left: 26px;
+    }
+
+    /* one spine down the left, stubs across to each branch */
+    .arh__branches::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: -26px;
+      bottom: 50%;
+      width: 1px;
+      background-color: var(--line-dark-strong);
+    }
+
+    .pil::before {
+      left: -26px;
+      top: 28px;
+      width: 26px;
+      height: 1px;
+    }
+
+    .arh__drop {
+      margin-inline: 0 auto;
+      margin-left: 0;
+    }
+
+    .arh__root {
+      margin-inline: 0;
+    }
+  }
+</style>

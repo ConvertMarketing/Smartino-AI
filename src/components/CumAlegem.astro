@@ -1,0 +1,123 @@
+---
+/**
+ * Curation: what "Ales de Smartino" has to mean before it can be printed on
+ * anything.
+ *
+ * The client's point, in their own words: a supplier getting into Smartino
+ * passes a selection, not a listing. So the six criteria are set as a row of
+ * equals -- none of them ranked, none of them explained away -- and the phrase
+ * itself closes the section at full size.
+ */
+const CRITERIA = ['Calitate', 'Valoare', 'Design', 'Utilitate', 'Relevanță', 'Diferențiere'];
+---
+
+<section class="pick" aria-labelledby="pick-title">
+  <div class="pick__inner">
+    <p class="pick__kicker" data-reveal>Cum alegem</p>
+    <h2 class="pick__title" id="pick-title" data-reveal style="--i: 1">
+      Nu orice produs trebuie să ajungă la Smartino.
+    </h2>
+    <p class="pick__body" data-reveal style="--i: 2">
+      Oamenii nu au nevoie doar de mai multe opțiuni. Au nevoie de motive să aleagă altfel. De
+      aceea Smartino caută, selectează și aduce produse și branduri care merită descoperite. Le
+      oferim contextul necesar pentru ca oamenii să le poată înțelege, compara și alege cu
+      încredere.
+    </p>
+
+    <ul class="pick__crit" aria-label="Criteriile după care selectăm">
+      {
+        CRITERIA.map((c, i) => (
+          <li class="crit" data-reveal style={`--i: ${i + 1}`}>
+            {c}
+          </li>
+        ))
+      }
+    </ul>
+
+    <p class="pick__seal" data-reveal style="--i: 3">Ales de Smartino.</p>
+  </div>
+</section>
+
+<style>
+  .pick {
+    position: relative;
+    overflow: clip;
+    background-color: var(--paper);
+    color: var(--fg);
+    padding-block: clamp(3rem, 8vh, 5rem) clamp(5rem, 13vh, 8rem);
+  }
+
+  .pick__inner {
+    position: relative;
+    z-index: 1;
+    max-width: var(--content);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  .pick__kicker {
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--t-deep);
+  }
+
+  .pick__title {
+    margin-top: 0.875rem;
+    max-width: 20ch;
+    font-family: var(--font-display);
+    font-size: clamp(1.75rem, 1.25rem + 2.1vw, 3rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+  }
+
+  .pick__body {
+    margin-top: clamp(1.25rem, 3vh, 2rem);
+    max-width: 52ch;
+    line-height: 1.6;
+    color: var(--fg-2);
+  }
+
+  /* six equals, not a ranked list */
+  .pick__crit {
+    margin: clamp(2rem, 5vh, 3rem) 0 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(8px, 1vw, 14px);
+  }
+
+  .crit {
+    padding: 0.5rem 0.9375rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--fg);
+    transition:
+      border-color var(--d-micro) var(--ease-out),
+      color var(--d-micro) var(--ease-out);
+  }
+
+  .crit:hover {
+    border-color: var(--t-deep);
+    color: var(--t-deep);
+  }
+
+  .pick__seal {
+    margin-top: clamp(2.5rem, 7vh, 4.5rem);
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 1.2rem + 3.6vw, 4.25rem);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 1;
+    color: var(--fg);
+  }
+</style>

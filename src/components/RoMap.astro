@@ -63,9 +63,10 @@ import { ORIGIN, MOLDOVA_OPERATOR } from '../lib/data';
        scroll-driven animation inside the dark room would stop measuring */
     overflow: clip;
     color: var(--fg-inv);
-    /* rises into the tail of the warehouse model while that one dissolves */
-    margin-top: clamp(-14rem, -28vh, -7rem);
-    padding-block: clamp(3rem, 7vh, 5rem) clamp(2rem, 5vh, 3.5rem);
+    /* The bottom padding is a runway, not a margin: the light band below sends
+       a long white front up over this section, and the footnote has to stand
+       clear of it or it is read through a sheet of white. */
+    padding-block: clamp(3rem, 7vh, 5rem) clamp(17rem, 40vh, 26rem);
   }
 
   .romap__inner {
@@ -209,16 +210,6 @@ import { ORIGIN, MOLDOVA_OPERATOR } from '../lib/data';
     font-size: 0.8125rem;
     line-height: 1.5;
     color: var(--fg-inv-2);
-  }
-
-  /* The model above only gives way because it dissolves, and it only dissolves
-     where motion is allowed. Without it, nothing may rise into it: two solid
-     sections one over the other means the warehouse and its hint sit on top of
-     these words. So here the sections simply follow one another. */
-  @media (prefers-reduced-motion: reduce) {
-    .romap {
-      margin-top: 0;
-    }
   }
 
   @media (max-width: 699px) {

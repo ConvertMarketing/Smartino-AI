@@ -2,85 +2,89 @@
 import Base from '../layouts/Base.astro';
 import Hero from '../components/Hero.astro';
 import Maquette from '../components/Maquette.astro';
-import Statement from '../components/Statement.astro';
-import BrandIndex from '../components/BrandIndex.astro';
-import Marquee from '../components/Marquee.astro';
-import Brands from '../components/Brands.astro';
-import Story from '../components/Story.astro';
+import Tranzitie from '../components/Tranzitie.astro';
+import Infrastructura from '../components/Infrastructura.astro';
+import Arhitectura from '../components/Arhitectura.astro';
 import RoMap from '../components/RoMap.astro';
+import CumGandim from '../components/CumGandim.astro';
+import CumAlegem from '../components/CumAlegem.astro';
+import Brands from '../components/Brands.astro';
+import Parteneriate from '../components/Parteneriate.astro';
 import SnagovPlaza from '../components/SnagovPlaza.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import snagovPoster from '../assets/photos/snagov-plaza-macheta.png';
 import otopeniPoster from '../assets/photos/otopeni-macheta.png';
 import spots from '../data/maquette-pins.json';
-import { COMPANY, UNITS, TIMELINE, SUPERMARKET_HOURS, HOME_HOURS, HOME_AREA } from '../lib/data';
+import { COMPANY, UNITS, TIMELINE, HOME_HOURS, HOME_AREA } from '../lib/data';
 
 /* The two maquettes. Everything specific to a scene lives here; the component
- * and the 3D runtime know none of it. */
+ * and the 3D runtime know none of it.
+ *
+ * The pins carry the opening dates now. The chapter-by-chapter history is gone
+ * at the client's request -- what it was there to say is said where each store
+ * is actually shown, which is here, in the diagram, and in the address block. */
 const [, home] = UNITS;
-const superHours = SUPERMARKET_HOURS.map((h) => `${h.open}–${h.close}`).join(' · ');
-const homeHours = HOME_HOURS.map((h) => `${h.open}–${h.close}`).join(' · ');
 
-const title = 'Smartino International — zeci de branduri, un singur grup';
+const title = 'Smartino International — import, distribuție, retail și e-commerce';
 const description =
-  'Smartino International SRL reunește Smartino Supermarket și Smartino Home în Smartino Snagov, ' +
-  'plus magazinele online Smartino Shop și Smartino Moldova.';
+  'Grupul Smartino: import direct și distribuție, magazinele Smartino Supermarket și Smartino Home ' +
+  'la Snagov, magazinele online Smartino Shop și Smartino Home, plus partenerul din Republica Moldova.';
 ---
 
 <Base title={title} description={description}>
   <main>
     <Hero />
-    <Maquette
-      id="macheta"
-      model="snagov-plaza"
-      poster={snagovPoster}
-      posterAlt="Macheta ilustrativă a ansamblului Smartino Snagov: inelul Smartino Home și hala Smartino Supermarket"
-      kicker={COMPANY.address.oneLine}
-      title="Două magazine, un singur loc."
-      lead={`Smartino Supermarket, deschis din ${TIMELINE.first.label}. Smartino Home, peste ${HOME_AREA}, din ${TIMELINE.second.label}. Vizavi unul de celălalt, la DN-1.`}
-      spots={spots['snagov-plaza']}
-      pins={[
-        {
-          key: 'supermarket',
-          plaque: 'pin_placa_supermarket',
-          match: 'supermarket',
-          name: 'Supermarket',
-          meta: superHours,
-          href: '#snagov-plaza',
-          label: 'Smartino Supermarket — vezi adresa și programul',
-        },
-        {
-          key: 'home',
-          plaque: 'pin_placa_home',
-          match: 'mall_',
-          name: 'Home',
-          meta: `${homeHours} · ${HOME_AREA}`,
-          href: home.href!,
-          external: true,
-          label: `Smartino Home — deschis zilnic ${HOME_HOURS[0].open}–${HOME_HOURS[0].close}, deschide ${home.domain}`,
-        },
-      ]}
-    />
-    <Statement />
-    <BrandIndex />
-    <Marquee />
-    {/* One dark room, not two sections that happen to be the same colour.
-        The lamp lives here, above the wall and below the story's first
-        chapter, so the light crosses the join because nothing cuts it -- there
-        is no second light to match. The ground is solid on this wrapper, which
-        is what the sections' text is measured against. */}
+
+    {/* One dark room, not a stack of sections that happen to be the same
+        colour. The lamps live on the wrapper, above and below, so the light
+        crosses every join because nothing cuts it. The ground is solid here,
+        which is what the sections' text is measured against. */}
     <div class="zone">
       <span class="zone__lamp" aria-hidden="true"></span>
       <span class="zone__lamp--low" aria-hidden="true"></span>
-      <Brands />
-      <Story />
+
+      <Maquette
+        id="macheta"
+        model="snagov-plaza"
+        poster={snagovPoster}
+        posterAlt="Macheta ilustrativă a ansamblului Smartino Snagov: inelul Smartino Home și hala Smartino Supermarket"
+        kicker={COMPANY.address.oneLine}
+        title="Laboratorul nostru fizic de retail."
+        lead="Locul în care construim, testăm și perfecționăm felul în care produsele, spațiul și experiența se întâlnesc cu oamenii."
+        spots={spots['snagov-plaza']}
+        dissolve
+        pins={[
+          {
+            key: 'supermarket',
+            plaque: 'pin_placa_supermarket',
+            match: 'supermarket',
+            name: 'Supermarket',
+            meta: `deschis din ${TIMELINE.first.label}`,
+            href: '#snagov-plaza',
+            label: `Smartino Supermarket, deschis din ${TIMELINE.first.label} — vezi adresa și programul`,
+          },
+          {
+            key: 'home',
+            plaque: 'pin_placa_home',
+            match: 'mall_',
+            name: 'Home',
+            meta: `deschis din ${TIMELINE.second.label}`,
+            href: home.href!,
+            external: true,
+            label: `Smartino Home, ${HOME_AREA}, deschis din ${TIMELINE.second.label}, zilnic ${HOME_HOURS[0].open}–${HOME_HOURS[0].close} — deschide ${home.domain}`,
+          },
+        ]}
+      />
+
+      <Tranzitie />
+
       <Maquette
         id="otopeni"
         model="otopeni"
         poster={otopeniPoster}
         posterAlt="Macheta ilustrativă a platformei din Otopeni: hala de depozitare Smartino și clădirea de birouri Smartino International"
-        kicker="Otopeni, Ilfov"
-        title="De aici pleacă marfa."
+        kicker="Distribuție & logistică"
+        title="Infrastructura din spatele Smartino."
         lead="Depozitul grupului și birourile Smartino International, în parcul industrial de la Otopeni. Aici ajung brandurile importate și de aici pleacă spre magazine și spre comenzile online."
         spots={spots.otopeni}
         dissolve
@@ -110,7 +114,22 @@ const description =
           },
         ]}
       />
+
+      <Infrastructura />
+      <Arhitectura />
       <RoMap />
+    </div>
+
+    {/* The light band: one idea, and the selection behind it. */}
+    <CumGandim />
+    <CumAlegem />
+
+    {/* Back into the dark for the proof: the brands, the terms, the address. */}
+    <div class="zone">
+      <span class="zone__lamp" aria-hidden="true"></span>
+      <span class="zone__lamp--low" aria-hidden="true"></span>
+      <Brands />
+      <Parteneriate />
       <SnagovPlaza />
     </div>
   </main>
@@ -129,22 +148,15 @@ const description =
     z-index: 0;
     height: clamp(58rem, 160vh, 100rem);
     pointer-events: none;
-    /* Geometry, not taste: in this box the wall stands between 22% and 55%,
-       the story starts at 57%, and the light has to be dead by ~92%. So the
-       main ellipse is centred at 45% with a 45% vertical radius -- it peaks
-       behind the wall and still carries a third of its strength across the
-       join, then dies on its own. */
     background-image:
       radial-gradient(46% 45% at 50% 45%, rgba(19, 180, 198, 0.24), transparent 78%),
       radial-gradient(26% 14% at 12% 14%, rgba(75, 216, 232, 0.14), transparent 74%),
       radial-gradient(26% 14% at 88% 16%, rgba(75, 216, 232, 0.12), transparent 74%);
   }
 
-  /* The second lamp of the room, at the far end. Same idea as the first: it is
-     one light hung across the story's last chapter and the address block, not
-     two lights meeting at a section edge. It dies before the room does, so the
-     footer below starts from plain dark and there is nothing to match there
-     either. */
+  /* The lamp at the far end of the room. Same idea as the first: one light hung
+     across the last sections, not two lights meeting at a section edge. It dies
+     before the room does, so what follows starts from plain dark. */
   .zone__lamp--low {
     position: absolute;
     inset: auto 0 0 0;
@@ -156,7 +168,8 @@ const description =
       radial-gradient(42% 34% at 90% 62%, rgba(75, 216, 232, 0.15), transparent 76%);
   }
 
-  /* both sections sit in the same light: transparent grounds, content above */
+  /* every section in the room sits in the same light: transparent grounds,
+     content above */
   .zone > :global(section) {
     position: relative;
     z-index: 1;

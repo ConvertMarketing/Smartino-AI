@@ -502,3 +502,51 @@ e legată de mișcare.
 **Ce e ilustrativ, și scrie sub hartă.** Contururile sunt simplificate, iar
 traseele sunt simbolice, nu rute de livrare. Nota repetă cine operează
 smartino.md.
+
+## Rescrierea după brieful clientului (13 septembrie 2026)
+
+Clientul a văzut site-ul și a trimis un brief de opt secțiuni. Pagina a fost
+reconstruită după el. Punctul de restaurare a tot ce era înainte:
+ramura `backup/site-inainte-de-brief` (și tagul local
+`backup-inainte-de-brief-2026-09-13`), la commitul `38b11b0`.
+
+**Ordinea nouă.** Hero → Snagov (machetă) → tranziție 02→03 → Otopeni (machetă)
+→ Infrastructura → Arhitectura → harta → Cum gândim → Cum alegem → Branduri &
+parteneri → Parteneriate → Contact.
+
+**Ce a dispărut, și de ce.** Povestea în cinci capitole (clientul a cerut-o
+scoasă, cu datele mutate ca etichete acolo unde se vede fiecare magazin: pe
+pinii machetei, în diagramă și în blocul de adresă). Indexul „Grupul /
+Direcțiile" (înlocuit de diagrama de arhitectură — cele patru platforme sunt
+deja în hero, nu are rost să fie prezentate a doua oară aproape identic).
+Declarația „Un grup, zeci de branduri, un raft…" și banda derulantă
+SUPERMARKET · HOME · SHOP · MOLDOVA: nu mai apar în brief, iar ideea lor e
+acum secțiunea 05, care o spune mai bine și cu mai puține cuvinte.
+
+**Ce e nou.** `Tranzitie.astro` (balamaua dintre cele două machete: „02 — Aici
+întâlnim clientul ↓ 03 — Aici începe sistemul care face posibil retailul"),
+`Infrastructura.astro` (cele șase capabilități), `Arhitectura.astro` (diagrama
+grupului, în CSS, nu SVG — un SVG ar fi trebuit redesenat la fiecare prag ca
+să-și țină grosimile de linie), `CumGandim.astro` (banda de lumină: o singură
+idee, mult spațiu), `CumAlegem.astro` („Ales de Smartino"), `Parteneriate.astro`
+(ecuația partener × Smartino).
+
+**Ritmul de lumină.** Întuneric până la hartă, o bandă albă pentru cele două
+secțiuni de gândire, întuneric până la subsol. Albul nu mai vine ca o muchie:
+harta lasă sub ea o pistă goală de 40vh prin care urcă frontul alb al secțiunii
+următoare. Prima versiune nu avea pista și nota hărții se citea printr-o foaie
+de alb — gate-ul a prins-o ca suprapunere de text.
+
+**Ce lipsește, pentru client.**
+
+- **Cifrele cerute sub hartă** („X județe, X parteneri B2B"). Nu există nicăieri
+  în datele confirmate, deci nu apar deloc: o hartă cu săgeți în toate județele
+  și un număr inventat sub ea ar fi exact afirmația pe care acest site nu o
+  face. Trimite cifrele și intră într-o linie sub hartă.
+- **Descrieri pentru cele șase capabilități.** Brieful le-a dat ca listă de
+  șase cuvinte. Orice frază sub fiecare ar fi o afirmație despre cum operează
+  grupul, care nu e a mea de făcut.
+- **Formularea juridică pentru Moldova.** În diagramă, magazinul moldovenesc
+  apare sub e-commerce, unde îl pune brieful, dar etichetat „al partenerului din
+  Chișinău", iar nota de sub diagramă spune cine îl operează. Regula nu s-a
+  schimbat: se poate spune de unde vine brandul, nu se poate afirma posesia.

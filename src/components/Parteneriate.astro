@@ -1,0 +1,208 @@
+---
+/**
+ * What a partner gets, and what they are expected to bring.
+ *
+ * The client wrote this section as an equation and asked for the last line to
+ * be very large, so that is exactly what it is: two columns, a multiplication
+ * sign between them, and the result set at the size of a headline.
+ *
+ * Everything here is the client's own statement of how they work with brands.
+ * Nothing is a measured claim, so nothing here needs a number.
+ */
+const BRINGS = {
+  partner: ['Produs', 'Know-how', 'Identitate', 'Continuitate', 'Suport'],
+  smartino: [
+    'Cunoașterea pieței',
+    'Import & distribuție',
+    'Infrastructură',
+    'Retail propriu',
+    'Merchandising',
+    'Comunicare',
+    'Acces direct la consumator',
+  ],
+};
+---
+
+<section class="part" id="parteneriate" aria-labelledby="part-title">
+  <div class="part__inner">
+    <p class="part__kicker" data-reveal>Parteneriate</p>
+    <h2 class="part__title" id="part-title" data-reveal style="--i: 1">
+      Nu căutăm doar furnizori. Căutăm parteneri cu care putem construi o piață.
+    </h2>
+
+    <div class="part__body">
+      <p data-reveal style="--i: 2">
+        Lucrăm cu producători și branduri internaționale pe care le introducem, distribuim sau
+        dezvoltăm în propriul ecosistem de retail. Fiecare relație este diferită. Principiul rămâne
+        același: produsul potrivit, piața potrivită și o construcție gândită pe termen lung.
+      </p>
+      <p data-reveal style="--i: 3">
+        Investim în poziționare, prezentare, retail, comunicare și înțelegerea consumatorului
+        local. Căutăm parteneri care privesc piața în același mod: cu răbdare, transparență și
+        disponibilitatea de a investi într-o relație care poate crește.
+      </p>
+    </div>
+
+    <div class="part__eq">
+      <div class="col" data-reveal style="--i: 1">
+        <p class="col__head">Partenerul aduce</p>
+        <ul class="col__list">
+          {BRINGS.partner.map((x) => <li>{x}</li>)}
+        </ul>
+      </div>
+
+      <span class="part__x" data-reveal style="--i: 2" aria-hidden="true">×</span>
+
+      <div class="col" data-reveal style="--i: 3">
+        <p class="col__head">Smartino aduce</p>
+        <ul class="col__list">
+          {BRINGS.smartino.map((x) => <li>{x}</li>)}
+        </ul>
+      </div>
+    </div>
+
+    <p class="part__sum" data-reveal style="--i: 4">
+      <span class="part__eqs" aria-hidden="true">=</span>
+      Construim piața împreună.
+    </p>
+  </div>
+</section>
+
+<style>
+  .part {
+    position: relative;
+    overflow: clip;
+    color: var(--fg-inv);
+    padding-block: clamp(3rem, 8vh, 5.5rem) clamp(3rem, 8vh, 5rem);
+  }
+
+  .part__inner {
+    position: relative;
+    z-index: 1;
+    max-width: var(--content);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  .part__kicker {
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--t-glow);
+  }
+
+  .part__title {
+    margin-top: 0.875rem;
+    max-width: 22ch;
+    font-family: var(--font-display);
+    font-size: clamp(1.75rem, 1.25rem + 2.1vw, 3rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+  }
+
+  .part__body {
+    margin-top: clamp(1.5rem, 4vh, 2.5rem);
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(16px, 2.5vw, 40px);
+    max-width: 92ch;
+    line-height: 1.6;
+    color: var(--fg-inv-2);
+  }
+
+  /* ---- the equation ------------------------------------------------------ */
+  .part__eq {
+    margin-top: clamp(2.5rem, 6vh, 4rem);
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: start;
+    gap: clamp(12px, 2vw, 28px);
+  }
+
+  .col {
+    padding: clamp(1.25rem, 2.2vw, 1.75rem);
+    border: 1px solid var(--line-dark);
+    border-radius: 18px;
+    background-color: rgba(20, 25, 27, 0.6);
+  }
+
+  .col__head {
+    font-family: var(--font-display);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--fg-inv-2);
+  }
+
+  .col__list {
+    margin: 1rem 0 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+  }
+
+  .col__list li {
+    position: relative;
+    padding-left: 1.125rem;
+    font-family: var(--font-display);
+    font-size: clamp(0.9375rem, 0.88rem + 0.3vw, 1.125rem);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .col__list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.5em;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--t);
+  }
+
+  .part__x {
+    align-self: center;
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2.5rem);
+    font-weight: 300;
+    color: var(--t-glow);
+  }
+
+  .part__sum {
+    margin-top: clamp(2rem, 5vh, 3rem);
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 1.1rem + 4vw, 4.5rem);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 1;
+  }
+
+  .part__eqs {
+    display: block;
+    margin-bottom: 0.25em;
+    font-size: 0.4em;
+    font-weight: 300;
+    color: var(--t-glow);
+  }
+
+  @media (max-width: 899px) {
+    .part__body {
+      grid-template-columns: 1fr;
+    }
+
+    .part__eq {
+      grid-template-columns: 1fr;
+    }
+
+    .part__x {
+      justify-self: center;
+    }
+  }
+</style>
