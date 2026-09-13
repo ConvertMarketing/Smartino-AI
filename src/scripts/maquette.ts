@@ -318,7 +318,14 @@ export function mount(section: HTMLElement): void {
 
     const k = flight(keys, p);
     const yaw = k.yaw + uYaw + driftYaw;
-    const pitch = MathUtils.clamp(k.pitch + uPitch, 0.14, 1.25);
+    /* Portrait sees the plot from higher up. The flight is drawn for a wide
+     * frame, where a low pass at 19 degrees reads as a pass along the buildings;
+     * on a phone the same angle turns the plot into a wall and the plate itself
+     * disappears. So on a narrow screen the camera keeps a floor under it --
+     * the establishing shot gains a few degrees, the low pass gains the most,
+     * and the hand can still pull it back down. */
+    const kp = portrait ? Math.max(k.pitch + 0.12, 0.58) : k.pitch;
+    const pitch = MathUtils.clamp(kp + uPitch, 0.14, 1.25);
     const dist = k.dist * radius * fit * (1.3 - 0.3 * ease);
     /* Portrait: while the words are on screen the camera aims well above the
      * plot, so the model sits low and clear of them. It climbs on exactly the
