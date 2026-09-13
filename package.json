@@ -14,7 +14,8 @@
     "astro": "astro",
     "verify": "node scripts/verify.mjs",
     "model": "node scripts/model.mjs",
-    "poster": "node scripts/poster.mjs"
+    "poster": "node scripts/poster.mjs",
+    "ro-poster": "node scripts/ro-poster.mjs"
   },
   "dependencies": {
     "@fontsource-variable/archivo": "^5.3.0",

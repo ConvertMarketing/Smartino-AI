@@ -1,0 +1,244 @@
+---
+import { Image } from 'astro:assets';
+import poster from '../assets/photos/harta-smartino.png';
+import { ORIGIN, MOLDOVA_OPERATOR } from '../lib/data';
+
+/**
+ * The map: both countries as one lit plate.
+ *
+ * It follows the warehouse on purpose. That section ends with "de aici pleacă
+ * marfa"; this one is where it goes -- Romania and the Republic of Moldova,
+ * drawn county by county and raion by raion, with light leaving the two points
+ * the brand starts from.
+ *
+ * The scene was built by the client in Claude Code as a standalone page and is
+ * ported in src/scripts/romap.ts. Everything before it -- and instead of it,
+ * under reduced motion or without WebGL -- is the poster below, rendered from
+ * that same scene by scripts/ro-poster.mjs.
+ *
+ * The map is an illustration: the outlines are simplified and no border,
+ * distance or coverage on it should be read as a statement of fact. The note
+ * under it says so, and repeats who operates smartino.md -- the Moldovan shop
+ * is the brand's, not this company's.
+ */
+---
+
+<section class="romap" id="harta" aria-labelledby="romap-title" data-romap>
+  <div class="romap__inner">
+    <p class="romap__kicker" data-reveal>România și Republica Moldova</p>
+    <h2 class="romap__title" id="romap-title" data-reveal>Două țări, pe aceeași hartă.</h2>
+    <p class="romap__lead" data-reveal>
+      Numele Smartino a pornit în {ORIGIN.year} în Republica Moldova și a ajuns în România în {
+        ORIGIN.romania
+      }. Astăzi e prezent în amândouă: magazinele de la Snagov, depozitul de la Otopeni și cele
+      două magazine online.
+    </p>
+  </div>
+
+  <div class="romap__stage" data-romap-stage>
+    <span class="romap__glow" aria-hidden="true"></span>
+    <div class="romap__canvas" data-romap-canvas aria-hidden="true"></div>
+    <Image
+      class="romap__poster"
+      src={poster}
+      alt="Harta României și a Republicii Moldova, pe județe și raioane, ca plăci ridicate dintr-o masă întunecată, cu trasee de lumină turcoaz care pleacă din București și din Chișinău."
+      widths={[800, 1200, 1600]}
+      sizes="100vw"
+      loading="lazy"
+    />
+    <div class="romap__labels" data-romap-labels aria-hidden="true"></div>
+  </div>
+
+  <p class="romap__note">
+    Hartă ilustrativă: contururi simplificate, trasee simbolice — nu rute de livrare. {
+      MOLDOVA_OPERATOR
+    }
+  </p>
+</section>
+
+<style>
+  .romap {
+    position: relative;
+    /* clip, not hidden: hidden would make this a scroll container and every
+       scroll-driven animation inside the dark room would stop measuring */
+    overflow: clip;
+    color: var(--fg-inv);
+    /* rises into the tail of the warehouse model while that one dissolves */
+    margin-top: clamp(-14rem, -28vh, -7rem);
+    padding-block: clamp(3rem, 7vh, 5rem) clamp(2rem, 5vh, 3.5rem);
+  }
+
+  .romap__inner {
+    position: relative;
+    z-index: 1;
+    max-width: var(--content);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  .romap__kicker {
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--t-glow);
+  }
+
+  .romap__title {
+    margin-top: 0.875rem;
+    font-family: var(--font-display);
+    font-size: clamp(1.75rem, 1.3rem + 1.8vw, 2.75rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  .romap__lead {
+    margin-top: 0.625rem;
+    max-width: 46ch;
+    color: var(--fg-inv-2);
+  }
+
+  /* ---- the stage --------------------------------------------------------- */
+  .romap__stage {
+    position: relative;
+    /* The plate is about twice as wide as it is tall once the camera looks down
+       at it, so the stage is cut to that shape: any other ratio makes the
+       framing search back the camera off and leaves the map small in the middle
+       of an empty box. The 160vh cap is what keeps a 2:1 box off the bottom of
+       a short laptop, by narrowing it rather than by changing its shape --
+       which would cost the poster its exact fit. */
+    width: min(100%, 1520px, 160vh);
+    aspect-ratio: 2 / 1;
+    margin-inline: auto;
+    margin-top: clamp(0.5rem, 2vh, 1.5rem);
+  }
+
+  .romap__canvas {
+    position: absolute;
+    inset: 0;
+  }
+
+  .romap__canvas :global(canvas) {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  /* The light the plate stands in. It belongs to the room, so it reaches past
+     the stage on every side and is cut only by the section itself -- the
+     standalone page darkened the corners of its own box instead, which here
+     would draw a rectangle across a room that has no rectangles in it. */
+  .romap__glow {
+    position: absolute;
+    inset: -14% -6%;
+    pointer-events: none;
+    background-image:
+      radial-gradient(46% 44% at 50% 54%, rgba(19, 180, 198, 0.17), transparent 74%),
+      radial-gradient(30% 22% at 14% 30%, rgba(75, 216, 232, 0.1), transparent 76%);
+  }
+
+  /* The poster is the section until the scene has painted a frame: no
+     JavaScript, no WebGL, or reduced motion, and it is all there ever is. It
+     is rendered on transparency, so it drops onto the same ground and the same
+     light as the live canvas and the join never shows. */
+  .romap__poster {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: opacity 700ms var(--ease-out);
+  }
+
+  .romap[data-ready] .romap__poster {
+    opacity: 0;
+  }
+
+  /* ---- the names, written in the air -------------------------------------- */
+  .romap__labels {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .romap__labels :global(.romap__name) {
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    white-space: nowrap;
+    will-change: transform, opacity;
+    font-family: var(--font-display);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--fg-inv);
+    text-shadow: 0 0 14px rgba(19, 180, 198, 0.55);
+  }
+
+  .romap__labels :global(.romap__name)::before {
+    content: '';
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    margin: 0 9px 1px 0;
+    border-radius: 50%;
+    vertical-align: middle;
+    background-color: var(--t-glow);
+    box-shadow: 0 0 10px var(--t-glow), 0 0 2px #fff;
+  }
+
+  .romap__labels :global(.romap__name--origin) {
+    letter-spacing: 0.3em;
+    font-weight: 700;
+  }
+
+  .romap__note {
+    position: relative;
+    z-index: 1;
+    max-width: var(--content);
+    margin-inline: auto;
+    margin-top: clamp(1rem, 3vh, 1.75rem);
+    padding-inline: var(--gutter);
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    color: var(--fg-inv-2);
+  }
+
+  /* The model above only gives way because it dissolves, and it only dissolves
+     where motion is allowed. Without it, nothing may rise into it: two solid
+     sections one over the other means the warehouse and its hint sit on top of
+     these words. So here the sections simply follow one another. */
+  @media (prefers-reduced-motion: reduce) {
+    .romap {
+      margin-top: 0;
+    }
+  }
+
+  @media (max-width: 699px) {
+    /* a 2:1 band is too thin to read as a room on a phone: the map ends up the
+       same size either way, so the extra height is air around it, not waste */
+    .romap__stage {
+      aspect-ratio: 3 / 2;
+    }
+
+    /* the plate is a third of the size here; the names have to follow it down
+       or they stop being captions and start being the picture */
+    .romap__labels :global(.romap__name) {
+      font-size: 0.625rem;
+      letter-spacing: 0.14em;
+    }
+
+    .romap__labels :global(.romap__name)::before {
+      width: 4px;
+      height: 4px;
+      margin-right: 6px;
+    }
+  }
+</style>

@@ -432,3 +432,73 @@ Ce lipsește, pentru client: adresa exactă a platformei (acum scrie doar
 „Otopeni, Ilfov"), suprafața halei și, dacă există, numărul de rampe — nodul
 din model se cheamă `smartino_4000`, dar nu am confirmarea că 4000 e o
 suprafață, deci cifra nu apare nicăieri în pagină.
+
+## Harta celor două țări
+
+Clientul a construit în Claude Code o pagină de sine stătătoare — România și
+Republica Moldova ca plăci extrudate, cu săgeți de lumină plecând din București
+și din Chișinău — și a cerut-o integrată: „vizual să arate la fel", dar „ceva
+wow și integrată superb".
+
+Stă după Otopeni și înaintea adresei. Secțiunea de dinainte se termină cu „de
+aici pleacă marfa"; asta e unde ajunge.
+
+**Ce s-a portat.** `RoMap.astro` + `src/scripts/romap.ts` + `src/data/ro-map.json`:
+79 de plăci extrudate (42 de unități în România, 37 în Republica Moldova), linii
+deduplicate pe muchii (o muchie folosită de două unități e linie interioară, una
+singură e contur de țară), două faruri cu inele, 220 de particule aditive, săgeți
+pe tuburi cu shader propriu (cap, coadă, miez fierbinte) și lumini punctuale
+dintr-un pool fix, ca shaderul să se compileze o dată.
+
+**Ce s-a schimbat, și de ce.**
+
+1. **three.js r128 → r185.** Originalul convertea fiecare culoare manual în
+   spațiu liniar și purta un factor implicit de π în intensitatea luminilor;
+   r185 face ambele singur. Conversiile au dispărut — altfel totul s-ar fi
+   întunecat de două ori — iar intensitățile sunt cele vechi înmulțite cu π.
+   Singura valoare care nu se putea converti: luminile care însoțesc săgețile.
+   Atenuarea e acum invers-pătratică, nu o rampă liniară, deci numărul e
+   recalculat din geometrie, nu scalat (2,2 → 0,38).
+2. **Încadrarea.** Căutarea distanței camerei testa colțurile bounding box-ului.
+   Trei din patru sunt mare deschisă, iar cele două de jos — cele mai apropiate
+   de o cameră care privește în jos la 39° — se împrăștie cel mai tare în
+   perspectivă, așa că harta rămânea pe mai puțin de jumătate din cadru. Acum se
+   testează înfășurătoarea convexă a conturului, ceea ce e exact (o transformare
+   proiectivă duce înfășurătoarea unei mulțimi în înfășurătoarea imaginii ei),
+   plus 10% marjă pentru săgețile care zboară deasupra plăcii.
+3. **Vigneta.** Originalul își întuneca colțurile propriei cutii — corect pe o
+   pagină care e doar hartă, greșit într-o cameră fără dreptunghiuri: desena o
+   muchie vizibilă pe toate cele patru laturi ale scenei. A fost scoasă. Lumina
+   vine acum din aceeași familie de gradiente ca restul zonei întunecate și
+   trece pe lângă marginile scenei, nu se oprește la ele.
+4. **Forma cutiei.** Placa e de aproximativ 2:1 văzută de sus, deci scena e 2:1
+   la orice lățime (3:2 pe telefon, unde o bandă de 2:1 e prea subțire ca să
+   citească a cameră). Orice alt raport face căutarea de încadrare să dea camera
+   înapoi și lasă harta mică în mijlocul unei cutii goale.
+5. **Turcoazul** 0x0bbeca devine turcoazul de brand, iar etichetele folosesc
+   fontul display al site-ului în locul lui IBM Plex Mono de la Google Fonts —
+   zero terți în plus.
+6. **Numele care nu mai ies din cadru.** Fiecare etichetă își măsoară lățimea o
+   dată, la creare, și e ținută în scenă la proiecție; înainte, un nume de lângă
+   margine era tăiat în două.
+
+**Bugetul, măsurat.** Chunk separat de 37 KB gzip (din care contururile: 92 KB
+de JSON, importate ca text și parsate — un literal de 92 KB ar fi intrat în
+type-checker la fiecare build), plus ~7 KB gzip adăugați chunk-ului three.js
+comun (ExtrudeGeometry, PMREM, TubeGeometry), pe care îl foloseau deja cele două
+machete. Cerut abia când secțiunea e la un ecran de viewport.
+
+**Degradări.** Fără WebGL sau la eșec rămâne posterul; `scripts/ro-poster.mjs`
+îl randează din aceeași scenă, pe transparență, la 2,8 s — placa e ridicată,
+farurile sunt aprinse, prima săgeată n-a plecat încă, fiindcă o săgeată
+înghețată e mișcare pironită în pagină. Fundalul nu e în poză: solul și lumina
+sunt CSS și se pictează viu în spatele lui, deci imaginea cade pe aceeași
+cameră la orice lățime. **Sub reduced-motion chunk-ul nu se cere deloc** —
+harta se leagănă, se ridică și trage lumină peste o țară, și nu există versiune
+a ei care stă pe loc. Tot sub reduced-motion, secțiunea nu mai urcă peste
+machetă: modelul de deasupra face loc doar fiindcă se dizolvă, iar dizolvarea
+e legată de mișcare.
+
+**Ce e ilustrativ, și scrie sub hartă.** Contururile sunt simplificate, iar
+traseele sunt simbolice, nu rute de livrare. Nota repetă cine operează
+smartino.md.

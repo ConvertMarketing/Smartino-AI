@@ -357,6 +357,32 @@ function maquette(): void {
 }
 
 /* ---------------------------------------------------------------------------
+ * The map of the two countries: the same deal as the maquette -- three.js and
+ * 92 KB of outlines are a separate chunk, fetched only once the section is
+ * within a screen. Under reduced motion it is never fetched at all: the whole
+ * section is a lit plate that rocks, rises and fires light across a country,
+ * and there is no version of that which stands still. The poster stays, and it
+ * is a frame of the very same scene.
+ * ------------------------------------------------------------------------ */
+function roMap(): void {
+  const section = document.querySelector<HTMLElement>('[data-romap]');
+  if (!section || reduced || !('IntersectionObserver' in window)) return;
+  const io = new IntersectionObserver(
+    (entries) => {
+      if (!entries.some((e) => e.isIntersecting)) return;
+      io.disconnect();
+      import('./romap')
+        .then((m) => m.mount(section))
+        .catch(() => {
+          /* the poster stays */
+        });
+    },
+    { rootMargin: '100% 0px' }
+  );
+  io.observe(section);
+}
+
+/* ---------------------------------------------------------------------------
  * "Deschis acum"
  *
  * The one line on the page that answers a question about this minute. It is
@@ -424,6 +450,7 @@ story();
 tilt();
 ground();
 maquette();
+roMap();
 chips();
 openNow();
 reveals();
