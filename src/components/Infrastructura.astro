@@ -33,30 +33,28 @@ const STEPS = [
 <section class="rail" data-rail aria-labelledby="rail-title">
   <div class="rail__stage">
     <div class="rail__inner">
-      <div class="rail__head">
-        <p class="rail__kicker" data-reveal>Ce e în spate</p>
-        <h2 class="rail__title" id="rail-title" data-reveal style="--i: 1">
-          Retailul nu a apărut din nimic în 2025.
-        </h2>
-        <p class="rail__lead" data-reveal style="--i: 2">
-          În spatele magazinelor stă experiența de import și distribuție adunată înainte de primul
-          raft. Aceeași infrastructură ține astăzi și magazinele fizice, și comenzile online.
-        </p>
-      </div>
+      <p class="rail__kicker" data-reveal>Ce e în spate</p>
+      <h2 class="rail__title" id="rail-title" data-reveal style="--i: 1">
+        Retailul nu a apărut din nimic în 2025.
+      </h2>
+      <p class="rail__lead" data-reveal style="--i: 2">
+        În spatele magazinelor stă experiența de import și distribuție adunată înainte de primul
+        raft. Aceeași infrastructură ține astăzi și magazinele fizice, și comenzile online.
+      </p>
+    </div>
 
-      <div class="rail__deck">
-        <span class="rail__meter" aria-hidden="true"></span>
-        <ol class="rail__list">
-          {
-            STEPS.map((name, i) => (
-              <li class="step" data-rail-step data-reveal style={`--i: ${i + 1}`}>
-                <span class="step__n tnum" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
-                <span class="step__name">{name}</span>
-              </li>
-            ))
-          }
-        </ol>
-      </div>
+    <div class="rail__belt">
+      <ol class="rail__list">
+        {
+          STEPS.map((name, i) => (
+            <li class="card" data-rail-step data-reveal style={`--s: ${i}; --i: ${i + 1}`}>
+              <span class="card__n tnum" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+              <span class="card__name">{name}</span>
+            </li>
+          ))
+        }
+      </ol>
+      <span class="rail__meter" aria-hidden="true"></span>
     </div>
   </div>
 </section>
@@ -95,18 +93,22 @@ const STEPS = [
     font-weight: 800;
     letter-spacing: -0.025em;
     line-height: 1.08;
-    max-width: 18ch;
+    max-width: 22ch;
   }
 
   .rail__lead {
     margin-top: 0.75rem;
-    max-width: 46ch;
+    max-width: 52ch;
     color: var(--fg-inv-2);
   }
 
-  .rail__deck {
+  .rail__belt {
     position: relative;
+    z-index: 1;
+    max-width: var(--content);
+    margin-inline: auto;
     margin-top: clamp(2rem, 5vh, 3rem);
+    padding-inline: var(--gutter);
   }
 
   .rail__meter {
@@ -122,25 +124,34 @@ const STEPS = [
     gap: clamp(10px, 1.2vw, 18px);
   }
 
-  .step {
+  .card {
+    position: relative;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    justify-content: flex-end;
+    min-height: clamp(7rem, 16vh, 10rem);
     padding: clamp(1rem, 2vw, 1.5rem);
     border: 1px solid var(--line-dark);
-    border-radius: 16px;
+    border-radius: 18px;
     background-color: rgba(20, 25, 27, 0.6);
   }
 
-  .step__n {
+  /* the number is the card's own watermark, not a label */
+  .card__n {
+    position: absolute;
+    top: clamp(-0.5rem, -0.4vw, 0rem);
+    right: clamp(0.5rem, 1.4vw, 1.25rem);
     font-family: var(--font-display);
-    font-size: 0.6875rem;
-    font-weight: 700;
-    letter-spacing: 0.22em;
-    color: var(--t-glow);
+    font-size: clamp(3.5rem, 7vw, 6.5rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    color: rgba(255, 255, 255, 0.07);
   }
 
-  .step__name {
+  .card__name {
+    position: relative;
     font-family: var(--font-display);
     font-size: clamp(1rem, 0.9rem + 0.5vw, 1.375rem);
     font-weight: 700;
@@ -154,14 +165,23 @@ const STEPS = [
     }
   }
 
-  /* ---- the pinned walk: only once the script has run --------------------- *
+  /* ---- the belt: only once the script has run --------------------------- *
    * data-live is written by site.ts, which does not write it under reduced
    * motion. So this whole block is unreachable without JavaScript and
-   * unreachable for anyone who asked the machine to stop moving. */
+   * unreachable for anyone who asked the machine to stop moving.
+   *
+   * The six move past the screen like goods on a line, which is what they
+   * describe. One number drives all of it: --p, how far through the pin the
+   * scroll has got. Each card works out its own distance from the middle from
+   * that and its index, and leans, lifts and lights by it. */
   .rail[data-live] {
-    /* the stage holds the screen for one viewport plus a run per step */
+    --travel: 40vh;
+    --card-w: clamp(230px, 24vw, 340px);
+    --card-h: clamp(15.5rem, 35vh, 21rem);
+    --card-gap: clamp(12px, 1.4vw, 24px);
+    /* the belt advances one card per step, five steps for six cards */
+    --span: calc(5 * (var(--card-w) + var(--card-gap)));
     height: calc(100dvh + 6 * var(--travel));
-    --travel: 42vh;
     padding-block: 0;
   }
 
@@ -170,30 +190,100 @@ const STEPS = [
     top: 0;
     height: 100dvh;
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    gap: clamp(1.5rem, 4vh, 3rem);
   }
 
+  /* a flex item with auto side margins shrinks to its content and centres;
+     the head has to keep the page's left edge, like every other head */
   .rail[data-live] .rail__inner {
     width: 100%;
-    display: grid;
-    grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
-    align-items: center;
-    gap: clamp(24px, 5vw, 72px);
   }
 
-  .rail[data-live] .rail__deck {
-    margin-top: 0;
-    padding-left: clamp(18px, 2.4vw, 34px);
+  .rail[data-live] .rail__belt {
+    max-width: none;
+    margin: 0;
+    padding-inline: 0;
+    padding-bottom: clamp(1.75rem, 4vh, 2.75rem);
   }
 
-  /* the walk, drawn: a hairline down the list with the travelled part lit */
+  .rail[data-live] .rail__list {
+    display: flex;
+    gap: var(--card-gap);
+    /* the first and the last card can both reach the middle of the screen */
+    padding-inline: calc(50% - var(--card-w) / 2);
+    perspective: 1400px;
+    transform: translate3d(calc(var(--p, 0) * var(--span) * -1), 0, 0);
+    will-change: transform;
+  }
+
+  .rail[data-live] .card {
+    /* distance from the middle, in cards: 0 is dead centre */
+    --d: calc(var(--p, 0) * 5 - var(--s));
+    /* the same, without a sign. abs() is too new to rely on. */
+    --ad: max(var(--d), calc(var(--d) * -1));
+    /* 1 in the middle, 0 by the time a card is a card and a bit away */
+    --near: clamp(0, calc(1.25 - var(--ad) * 0.9), 1);
+    flex: none;
+    width: var(--card-w);
+    height: var(--card-h);
+    min-height: 0;
+    justify-content: flex-end;
+    padding: clamp(1.25rem, 2vw, 1.75rem);
+    border-radius: 22px;
+    border-color: rgba(38, 48, 51, calc(0.5 + 0.5 * var(--near)));
+    background-color: rgba(20, 25, 27, calc(0.45 + 0.35 * var(--near)));
+    opacity: calc(0.3 + 0.7 * var(--near));
+    background-image: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.05) 0%,
+      transparent 42%,
+      rgba(19, 180, 198, calc(0.16 * var(--near))) 100%
+    );
+    transform: rotateY(calc(var(--d) * -9deg)) translateZ(calc(var(--near) * 34px))
+      translateY(calc(var(--near) * -10px));
+    transform-origin: 50% 60%;
+  }
+
+  /* the light only lands on the card that is in front of you */
+  .rail[data-live] .card::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: var(--near);
+    border: 1px solid rgba(75, 216, 232, 0.7);
+    box-shadow:
+      0 26px 70px rgba(0, 0, 0, 0.5),
+      0 0 60px rgba(19, 180, 198, 0.22) inset;
+  }
+
+  /* the number is the face of the card, not a corner mark: it fills it, and
+     it drifts against the belt so the card has a depth of its own */
+  .rail[data-live] .card__n {
+    top: calc(var(--card-h) * -0.06);
+    right: auto;
+    left: 0.25rem;
+    font-size: calc(var(--card-h) * 0.62);
+    color: rgba(255, 255, 255, calc(0.06 + 0.14 * var(--near)));
+    transform: translateX(calc(var(--d) * 14px));
+  }
+
+  .rail[data-live] .card__name {
+    font-size: clamp(1.25rem, 1rem + 0.9vw, 1.875rem);
+    text-shadow: 0 0 30px rgba(19, 180, 198, calc(0.5 * var(--near)));
+  }
+
+  /* how far along the line you are */
   .rail[data-live] .rail__meter {
     display: block;
     position: absolute;
-    left: 0;
-    top: 0;
+    left: var(--gutter);
+    right: var(--gutter);
     bottom: 0;
-    width: 1px;
+    height: 1px;
     background-color: var(--line-dark);
   }
 
@@ -201,97 +291,21 @@ const STEPS = [
     content: '';
     position: absolute;
     inset: 0;
-    transform: scaleY(var(--p, 0));
-    transform-origin: top;
-    background-image: linear-gradient(180deg, var(--t-glow), var(--t));
+    transform: scaleX(var(--p, 0));
+    transform-origin: left;
+    background-image: linear-gradient(90deg, var(--t-glow), var(--t));
     box-shadow: 0 0 12px rgba(75, 216, 232, 0.55);
-  }
-
-  .rail[data-live] .rail__list {
-    display: block;
-  }
-
-  /* Each row keeps its height whatever size its word is, so the one that grows
-     does not push the others around. */
-  .rail[data-live] .step {
-    display: flex;
-    flex-direction: row;
-    align-items: baseline;
-    gap: clamp(10px, 1.4vw, 20px);
-    min-height: clamp(3.25rem, 8.2vh, 5rem);
-    padding: 0;
-    border: 0;
-    border-radius: 0;
-    background-color: transparent;
-    opacity: 0.3;
-    transition:
-      opacity 450ms var(--ease-out),
-      transform 450ms var(--ease-out);
-  }
-
-  .rail[data-live] .step__n {
-    width: 2.25ch;
-    flex: none;
-    transition: color 450ms var(--ease-out);
-    color: var(--fg-inv-2);
-  }
-
-  .rail[data-live] .step__name {
-    font-size: clamp(1.0625rem, 0.95rem + 0.5vw, 1.4375rem);
-    transition:
-      font-size 450ms var(--ease-out),
-      color 450ms var(--ease-out),
-      text-shadow 450ms var(--ease-out);
-  }
-
-  /* the one you have scrolled to takes the size and the light */
-  .rail[data-live][data-step='0'] .step:nth-child(1),
-  .rail[data-live][data-step='1'] .step:nth-child(2),
-  .rail[data-live][data-step='2'] .step:nth-child(3),
-  .rail[data-live][data-step='3'] .step:nth-child(4),
-  .rail[data-live][data-step='4'] .step:nth-child(5),
-  .rail[data-live][data-step='5'] .step:nth-child(6) {
-    opacity: 1;
-    transform: translateX(clamp(4px, 0.8vw, 12px));
-  }
-
-  .rail[data-live][data-step='0'] .step:nth-child(1) .step__name,
-  .rail[data-live][data-step='1'] .step:nth-child(2) .step__name,
-  .rail[data-live][data-step='2'] .step:nth-child(3) .step__name,
-  .rail[data-live][data-step='3'] .step:nth-child(4) .step__name,
-  .rail[data-live][data-step='4'] .step:nth-child(5) .step__name,
-  .rail[data-live][data-step='5'] .step:nth-child(6) .step__name {
-    /* capped so the longest of the six -- "Operațiuni comerciale" -- still
-       holds one line in this column at every width. Two lines and the column
-       grows, and a centred column that grows moves all six rows. */
-    font-size: clamp(1.5rem, 1rem + 2.15vw, 2.75rem);
-    text-shadow: 0 0 34px rgba(19, 180, 198, 0.45);
-  }
-
-  .rail[data-live][data-step='0'] .step:nth-child(1) .step__n,
-  .rail[data-live][data-step='1'] .step:nth-child(2) .step__n,
-  .rail[data-live][data-step='2'] .step:nth-child(3) .step__n,
-  .rail[data-live][data-step='3'] .step:nth-child(4) .step__n,
-  .rail[data-live][data-step='4'] .step:nth-child(5) .step__n,
-  .rail[data-live][data-step='5'] .step:nth-child(6) .step__n {
-    color: var(--t-glow);
   }
 
   @media (max-width: 899px) {
     .rail[data-live] {
       --travel: 34vh;
+      --card-w: clamp(210px, 62vw, 280px);
+      --card-h: clamp(15rem, 34vh, 20rem);
     }
 
-    .rail[data-live] .rail__inner {
-      display: block;
-    }
-
-    .rail[data-live] .rail__deck {
-      margin-top: clamp(1.5rem, 4vh, 2.5rem);
-    }
-
-    .rail[data-live] .step {
-      min-height: clamp(2.75rem, 6.6vh, 4rem);
+    .rail[data-live] .rail__stage {
+      gap: clamp(1.25rem, 3vh, 2rem);
     }
   }
 </style>
