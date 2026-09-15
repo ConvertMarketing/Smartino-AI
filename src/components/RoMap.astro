@@ -78,7 +78,7 @@ import { ORIGIN } from '../lib/data';
 
     /* how much scroll the section holds the screen for while the light comes up
        over the plate */
-    --wash: 72vh;
+    --wash: 45vh;
     /* and how tall the same front is when it cannot hold the screen: without
        JavaScript, or where someone asked the machine to stop moving */
     --dawn-h: clamp(15rem, 38vh, 25rem);
@@ -213,9 +213,16 @@ import { ORIGIN } from '../lib/data';
    * The ramp is the same shape in both states, and the shape is the point. A
    * white front over a dark ground that goes from nothing to solid in a couple
    * of hundred pixels reads as a bar someone laid across the screen. This one
-   * is eased -- slow to start, slow to finish -- and it is given about two
-   * thirds of a screen: enough that it has no edge to start or stop on, not so
-   * much that the white is over everything at once.
+   * is eased -- slow to start, slow to finish -- and it is given half a
+   * screen: enough that it has no edge to start or stop on, short enough that
+   * it is never spread over the whole of what you are looking at.
+   *
+   * And it laps, it does not swallow. The hold ends with the top half of the
+   * screen untouched -- the plate still the plate -- the front across the
+   * quarter below it and solid white only in the last tenth; then the two walk
+   * off together on ordinary scroll while the band below arrives. A front that
+   * goes all the way leaves a page with nothing on it: the plate a ghost under
+   * milk, then white, for a whole screen. That is worse than any edge.
    * -------------------------------------------------------------------- */
   .romap__dawn {
     position: absolute;
@@ -244,29 +251,31 @@ import { ORIGIN } from '../lib/data';
     );
   }
 
-  /* Pinned, the front is a sheet three screens tall and the screen is a window
-     one screen high on to it, moved by --p. The eased part of the sheet is
-     exactly one window long, so at any moment the whole of the soft edge is on
-     screen and nothing else: at --p 0 the window is entirely above it and the
-     plate is untouched, at --p 1 entirely below it and the screen is white. */
+  /* Pinned, the front is a sheet one and a half screens tall and the screen
+     is a window one screen high on to it, moved by --p. The sheet's height is
+     what sets the travel: at 150% the window crosses exactly half a screen
+     over the whole hold. So the front sits on the bottom edge at the first
+     pixel of scroll, and by the last it has risen half a screen -- clear at
+     the middle of the screen, solid white by nine tenths down. No held scroll
+     with nothing on it at either end, and the top half never touched. */
   .romap__hold[data-pinned] .romap__dawn {
     inset: 0;
     height: auto;
-    background-size: 100% 300%;
+    background-size: 100% 150%;
     background-position: 0 calc(var(--p, 0) * 100%);
     background-image: linear-gradient(
       180deg,
-      rgba(255, 255, 255, 0) 0 38.3%,
-      rgba(255, 255, 255, 0.064) 40.63%,
-      rgba(255, 255, 255, 0.152) 42.96%,
-      rgba(255, 255, 255, 0.258) 45.29%,
-      rgba(255, 255, 255, 0.376) 47.62%,
-      rgba(255, 255, 255, 0.5) 50%,
-      rgba(255, 255, 255, 0.624) 52.38%,
-      rgba(255, 255, 255, 0.742) 54.71%,
-      rgba(255, 255, 255, 0.848) 57.04%,
-      rgba(255, 255, 255, 0.936) 59.37%,
-      #fff 61.7% 100%
+      rgba(255, 255, 255, 0) 0 66.67%,
+      rgba(255, 255, 255, 0.064) 69.2%,
+      rgba(255, 255, 255, 0.152) 71.74%,
+      rgba(255, 255, 255, 0.258) 74.27%,
+      rgba(255, 255, 255, 0.376) 76.8%,
+      rgba(255, 255, 255, 0.5) 79.34%,
+      rgba(255, 255, 255, 0.624) 81.87%,
+      rgba(255, 255, 255, 0.742) 84.4%,
+      rgba(255, 255, 255, 0.848) 86.94%,
+      rgba(255, 255, 255, 0.936) 89.47%,
+      #fff 92% 100%
     );
   }
 
