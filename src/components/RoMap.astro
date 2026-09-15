@@ -35,8 +35,8 @@ import { ORIGIN } from '../lib/data';
     </p>
   </div>
 
-  <span class="romap__glow" aria-hidden="true"></span>
-  <span class="romap__grain" aria-hidden="true"></span>
+  <span class="romap__light" aria-hidden="true"></span>
+  <span class="romap__dither" aria-hidden="true"></span>
 
   <div class="romap__stage" data-romap-stage>
     <div class="romap__canvas" data-romap-canvas aria-hidden="true"></div>
@@ -104,25 +104,49 @@ import { ORIGIN } from '../lib/data';
   }
 
   /* ---- the stage --------------------------------------------------------- */
-  /* The dither.
+  /* ---- the background, and nothing else in it ---------------------------
    *
-   * A gradient this soft, this dark and this large runs out of 8-bit room: the
-   * measured ramp had 42 distinct values over 800 px, which is a band every
-   * 19 px, and bands on a dark ground read as lines. A little noise breaks the
-   * boundary between one value and the next and the eye stops finding them.
+   * Rebuilt from nothing after three attempts that each left a line. What was
+   * wrong was never an edge -- every edge check came back clean -- it was
+   * banding: a soft, dark, screen-sized gradient runs out of 8-bit room and
+   * quantises into rings, and a ring on a dark ground reads as a line. Row and
+   * column scans could not find them precisely because the rings are curved.
    *
-   * It is masked with the same shape as the light, so the grain is strongest
-   * where the banding is and fades out with it -- a grain that filled its own
-   * box would trade the bands for a visible rectangle. */
-  .romap__grain {
+   * So: one flat ground, one gradient, one dither. Nothing else. Fewer
+   * overlapping gradients also means fewer families of rings crossing each
+   * other, which is what made the old version look like weather.
+   * ------------------------------------------------------------------- */
+
+  /* One light, centred on the plate, running the full width of the page and
+     dying well inside its own box on every side, so it has no edge anywhere. */
+  .romap__light {
     position: absolute;
-    inset: -18% 0 -24% 0;
+    inset: -20% 0 -26% 0;
     pointer-events: none;
-    opacity: 0.028;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23g)'/%3E%3C/svg%3E");
-    background-size: 180px 180px;
-    -webkit-mask-image: radial-gradient(84% 66% at 50% 52%, #000 0%, #000 44%, transparent 94%);
-    mask-image: radial-gradient(84% 66% at 50% 52%, #000 0%, #000 44%, transparent 94%);
+    background-image: radial-gradient(
+      58% 46% at 50% 52%,
+      rgba(19, 180, 198, 0.22),
+      rgba(19, 180, 198, 0.07) 44%,
+      transparent 78%
+    );
+  }
+
+  /* The dither, over everything the section draws -- the gradient above and the
+     3D scene alike, since both quantise the same way.
+     Overlay, not opacity: mid-grey through overlay leaves a pixel exactly where
+     it was, so this noise has no average brightness of its own and therefore no
+     edge of its own, and it can cover the whole section unmasked. It also
+     scales with what is under it, which is what we want: strongest where the
+     light is and therefore where the rings are, nothing at all on black. Text
+     is near white, where overlay is likewise almost a no-op. */
+  .romap__dither {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    mix-blend-mode: overlay;
+    opacity: 0.14;
+    background-image: var(--grain);
+    background-size: 200px 200px;
   }
 
   .romap__stage {
@@ -150,31 +174,6 @@ import { ORIGIN } from '../lib/data';
     display: block;
     width: 100% !important;
     height: 100% !important;
-  }
-
-  /* The light the plate stands in.
-   *
-   * It belongs to the section, not to the stage. Tied to the stage it was a
-   * 1520 px box of light in the middle of a wider screen, with two visible
-   * vertical edges where it stopped -- a patch, not a ground. Now it runs the
-   * full width, is centred on the plate, and fades out well inside its own box
-   * on every side, so there is no edge to find. Top and bottom it reaches past
-   * the section, which is what makes this section share a room with the ones
-   * above and below rather than sit in its own frame. */
-  .romap__glow {
-    position: absolute;
-    inset: -18% 0 -24% 0;
-    pointer-events: none;
-    background-image:
-      radial-gradient(54% 42% at 50% 52%, rgba(19, 180, 198, 0.2), transparent 76%),
-      radial-gradient(86% 62% at 50% 54%, rgba(19, 180, 198, 0.07), transparent 78%),
-      linear-gradient(
-        180deg,
-        transparent 0%,
-        rgba(19, 180, 198, 0.05) 32%,
-        rgba(19, 180, 198, 0.05) 64%,
-        transparent 100%
-      );
   }
 
   .romap__poster {

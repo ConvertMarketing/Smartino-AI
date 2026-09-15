@@ -73,6 +73,18 @@
   --stagger: 70ms;
 }
 
+/* Dither.
+ *
+ * A soft, screen-sized gradient runs out of 8-bit room and quantises into
+ * bands; on a dark ground a band reads as a line. This is the noise that breaks
+ * them. Used with mix-blend-mode: overlay, where mid-grey is a no-op, so it has
+ * no brightness of its own -- no lift, no edge of its own -- and it scales with
+ * whatever is under it: strongest in the lit middle where the bands are,
+ * nothing on black, nothing on white text. */
+:root {
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
 /* The empty band is the spine of the page. Its width is the one measurement
  * every zone is built around, so it lives as a global custom property. */
 :root {
