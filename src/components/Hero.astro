@@ -733,11 +733,15 @@ const cards = [
     border-top: 1px solid rgba(11, 15, 16, 0.08);
   }
 
+  /* Set in capitals by CSS, not in the text: a screen reader still gets
+     "Supermarket" and not a spelled-out acronym. The tracking turns positive,
+     because caps at this weight close up without it. */
   .uc__name {
     font-family: var(--font-display);
     font-size: clamp(1.25rem, 1rem + 0.5vw, 1.625rem);
     font-weight: 800;
-    letter-spacing: -0.015em;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
     color: var(--fg);
   }
 
@@ -760,18 +764,16 @@ const cards = [
     color: var(--t-deep);
   }
 
+  /* The arrow belongs to the call to action, not to the hover state: it is what
+     tells you the card is a door, and on a phone there is no hover to reveal
+     it. It stays, and the hand only nudges it forward. */
   .uc__arrow {
     display: inline-block;
-    opacity: 0;
-    transform: translateX(-6px);
-    transition:
-      opacity var(--d-micro) var(--ease-out),
-      transform var(--d-micro) var(--ease-out);
+    transition: transform var(--d-micro) var(--ease-out);
   }
 
   .uc:hover .uc__arrow {
-    opacity: 1;
-    transform: none;
+    transform: translateX(3px);
   }
 
   /* ---- cue -------------------------------------------------------------- */
