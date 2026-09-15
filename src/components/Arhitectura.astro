@@ -140,17 +140,13 @@ const STAGES = [
     overflow: clip; /* clip, not hidden: hidden would make this a scroll
                        container and stop every scroll-driven animation in it */
     color: var(--fg-inv);
-    /* rises into the tail of the warehouse model while that one dissolves */
-    margin-top: clamp(-14rem, -28vh, -7rem);
+    /* This used to be pulled up into the tail of the warehouse model, on the
+       idea that the model has dissolved by the time it gets there. It has not:
+       measured at the join, the kicker and the heading sat over the model with
+       the model still at full opacity, a hundred pixels of text on top of a
+       picture. The section starts where the model's box ends now, and the
+       measurement says the text is never over a model that is still drawn. */
     padding-block: clamp(3rem, 8vh, 5.5rem) clamp(2rem, 5vh, 3.5rem);
-  }
-
-  /* the model above gives way only because it dissolves, and it dissolves only
-     where motion is allowed */
-  @media (prefers-reduced-motion: reduce) {
-    .arh {
-      margin-top: 0;
-    }
   }
 
   .arh__inner {
