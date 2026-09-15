@@ -525,11 +525,47 @@ function tellHours(el: HTMLElement): void {
   el.hidden = false;
 }
 
+/* ---------------------------------------------------------------------------
+ * Pins
+ *
+ * A section that holds the screen still while its own stretch of scroll runs
+ * past. One number comes out of here -- --p, how far through the hold we are --
+ * and the stylesheet does everything with it, the same way the belt works.
+ *
+ * The attribute is written from here on purpose: without JavaScript, and for
+ * anyone who asked the machine to stop moving, nothing is ever pinned, and the
+ * section has to be a plain one that reads the same. So the CSS that pins keys
+ * off data-pinned and there is no other way to get it.
+ * ------------------------------------------------------------------------ */
+function pins(): void {
+  if (reduced) return;
+  const holds = [...document.querySelectorAll<HTMLElement>('[data-pin]')];
+  if (!holds.length) return;
+  for (const h of holds) h.setAttribute('data-pinned', '');
+
+  let raf = 0;
+  const update = (): void => {
+    raf = 0;
+    for (const h of holds) {
+      const r = h.getBoundingClientRect();
+      const travel = Math.max(1, r.height - window.innerHeight);
+      h.style.setProperty('--p', Math.min(1, Math.max(0, -r.top / travel)).toFixed(4));
+    }
+  };
+  const onScroll = (): void => {
+    if (!raf) raf = requestAnimationFrame(update);
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+  update();
+}
+
 document.documentElement.setAttribute('data-ready', '');
 tilt();
 ground();
 maquette();
 roMap();
+pins();
 rails();
 openNow();
 reveals();

@@ -35,24 +35,28 @@ import { ORIGIN } from '../lib/data';
     </p>
   </div>
 
-  <span class="romap__light" aria-hidden="true"></span>
+  <div class="romap__hold" data-pin>
+    <div class="romap__pin">
+      <span class="romap__light" aria-hidden="true"></span>
 
-  <div class="romap__stage" data-romap-stage>
-    <span class="romap__bed" aria-hidden="true"></span>
-    <div class="romap__canvas" data-romap-canvas aria-hidden="true"></div>
-    <Image
-      class="romap__poster"
-      src={poster}
-      alt="Harta României și a Republicii Moldova, pe județe și raioane, ca plăci ridicate dintr-o masă întunecată, cu trasee de lumină turcoaz care pleacă din București și din Chișinău."
-      widths={[800, 1200, 1600]}
-      sizes="100vw"
-      loading="lazy"
-    />
-    <div class="romap__labels" data-romap-labels aria-hidden="true"></div>
+      <div class="romap__stage" data-romap-stage>
+        <span class="romap__bed" aria-hidden="true"></span>
+        <div class="romap__canvas" data-romap-canvas aria-hidden="true"></div>
+        <Image
+          class="romap__poster"
+          src={poster}
+          alt="Harta României și a Republicii Moldova, pe județe și raioane, ca plăci ridicate dintr-o masă întunecată, cu trasee de lumină turcoaz care pleacă din București și din Chișinău."
+          widths={[800, 1200, 1600]}
+          sizes="100vw"
+          loading="lazy"
+        />
+        <div class="romap__labels" data-romap-labels aria-hidden="true"></div>
+      </div>
+
+      <span class="romap__dawn" aria-hidden="true"></span>
+      <span class="romap__dither" aria-hidden="true"></span>
+    </div>
   </div>
-
-  <span class="romap__dawn" aria-hidden="true"></span>
-  <span class="romap__dither" aria-hidden="true"></span>
 </section>
 
 <style>
@@ -68,10 +72,44 @@ import { ORIGIN } from '../lib/data';
        ink, so nothing shows at the join */
     background-color: var(--ink);
     color: var(--fg-inv);
-    /* The bottom padding is a runway, not a margin: the light band below sends
-       a long white front up over this section, and it has to rise through dark
-       rather than over the plate. */
-    padding-block: clamp(3rem, 7vh, 5rem) clamp(15rem, 36vh, 24rem);
+    padding-block: clamp(3rem, 7vh, 5rem) 0;
+
+    /* how much scroll the section holds the screen for while the light comes up
+       over the plate */
+    --wash: 72vh;
+    /* and how tall the same front is when it cannot hold the screen: without
+       JavaScript, or where someone asked the machine to stop moving */
+    --dawn-h: clamp(20rem, 52vh, 34rem);
+  }
+
+  /* ---- the hold ---------------------------------------------------------- *
+   *
+   * The plate stops and the page keeps scrolling, and what that scroll buys is
+   * the light coming up over it. data-pinned is written by site.ts, so there is
+   * no pin without JavaScript and none under reduced motion -- in both cases
+   * this is a plain block, the plate scrolls past like anything else, and the
+   * white arrives in the runway underneath it instead.
+   * ---------------------------------------------------------------------- */
+  .romap__hold {
+    position: relative;
+    padding-bottom: var(--dawn-h);
+  }
+
+  .romap__hold[data-pinned] {
+    height: calc(100dvh + var(--wash));
+    padding-bottom: 0;
+  }
+
+  .romap__pin {
+    position: relative;
+  }
+
+  .romap__hold[data-pinned] .romap__pin {
+    position: sticky;
+    top: 0;
+    height: 100dvh;
+    display: grid;
+    place-items: center;
   }
 
   .romap__inner {
@@ -152,29 +190,70 @@ import { ORIGIN } from '../lib/data';
     );
   }
 
-  /* The white arrives here, not in the section below.
-     It used to be drawn by the light band as a sheet hung above its own box,
-     and that was the line: an element that paints outside its section's
-     background has no backdrop there, so the dither hung with it stopped
-     blending and turned into flat grey -- ten luminance levels of it, straight
-     across the page, exactly where the sheet began. Drawn here it lies on this
-     section's own ground, inside this section's own dither, and there is
-     nothing left to draw an edge with. */
+  /* ---- the white front ---------------------------------------------------
+   *
+   * It is drawn in this section, on this section's own ground and under this
+   * section's own dither. It used to be hung above the light band's box
+   * instead, and that was the line: an element that paints outside its
+   * section's background has no backdrop there, so the dither hung with it
+   * stopped blending and turned into flat grey, straight across the page.
+   *
+   * The ramp is the same shape in both states, and the shape is the point. A
+   * white front over a dark ground that goes from nothing to solid in a couple
+   * of hundred pixels reads as a bar someone laid across the screen. This one
+   * is eased -- slow to start, slow to finish -- and it is given room: a whole
+   * screen of it when the section is pinned, half a screen when it is not.
+   * -------------------------------------------------------------------- */
   .romap__dawn {
     position: absolute;
-    inset: auto 0 0 0;
-    /* always shorter than the runway above it, so the front rises through
-       empty dark and never reaches the plate */
-    height: clamp(14rem, 34vh, 22rem);
+    left: 0;
+    right: 0;
+    top: 100%;
+    height: var(--dawn-h);
     pointer-events: none;
+    /* eleven stops off one curve, half linear and half smoothstep: eased at
+       both ends so the front has no edge to start or stop on, and no steeper
+       than a quarter of a luminance level per pixel in the middle, which is
+       where a white front over a dark ground gives itself away as a bar. */
     background-image: linear-gradient(
       180deg,
       rgba(255, 255, 255, 0) 0%,
-      rgba(255, 255, 255, 0.08) 34%,
-      rgba(255, 255, 255, 0.3) 58%,
-      rgba(255, 255, 255, 0.72) 80%,
-      rgba(255, 255, 255, 0.95) 93%,
+      rgba(255, 255, 255, 0.064) 10%,
+      rgba(255, 255, 255, 0.152) 20%,
+      rgba(255, 255, 255, 0.258) 30%,
+      rgba(255, 255, 255, 0.376) 40%,
+      rgba(255, 255, 255, 0.5) 50%,
+      rgba(255, 255, 255, 0.624) 60%,
+      rgba(255, 255, 255, 0.742) 70%,
+      rgba(255, 255, 255, 0.848) 80%,
+      rgba(255, 255, 255, 0.936) 90%,
       #fff 100%
+    );
+  }
+
+  /* Pinned, the front is a sheet three screens tall and the screen is a window
+     one screen high on to it, moved by --p. The eased part of the sheet is
+     exactly one window long, so at any moment the whole of the soft edge is on
+     screen and nothing else: at --p 0 the window is entirely above it and the
+     plate is untouched, at --p 1 entirely below it and the screen is white. */
+  .romap__hold[data-pinned] .romap__dawn {
+    inset: 0;
+    height: auto;
+    background-size: 100% 300%;
+    background-position: 0 calc(var(--p, 0) * 100%);
+    background-image: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0) 0 33.4%,
+      rgba(255, 255, 255, 0.064) 36.72%,
+      rgba(255, 255, 255, 0.152) 40.04%,
+      rgba(255, 255, 255, 0.258) 43.36%,
+      rgba(255, 255, 255, 0.376) 46.68%,
+      rgba(255, 255, 255, 0.5) 50%,
+      rgba(255, 255, 255, 0.624) 53.32%,
+      rgba(255, 255, 255, 0.742) 56.64%,
+      rgba(255, 255, 255, 0.848) 59.96%,
+      rgba(255, 255, 255, 0.936) 63.28%,
+      #fff 66.6% 100%
     );
   }
 
@@ -212,6 +291,10 @@ import { ORIGIN } from '../lib/data';
     aspect-ratio: 2 / 1;
     margin-inline: auto;
     margin-top: clamp(0.5rem, 2vh, 1.5rem);
+  }
+
+  .romap__hold[data-pinned] .romap__stage {
+    margin-top: 0;
   }
 
   .romap__canvas {
