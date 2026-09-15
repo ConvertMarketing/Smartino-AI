@@ -1,4 +1,5 @@
 import { prefersReducedMotion } from '../lib/motion';
+import { INFRA_ICONS, morphD } from '../lib/infra-icons';
 
 const reduced = prefersReducedMotion();
 
@@ -366,20 +367,91 @@ function roMap(): void {
 /* ---------------------------------------------------------------------------
  * The pinned rail
  *
- * A section that holds the screen while a short list is walked through. This
- * writes two things on it and nothing else: --p, how far through the pin the
- * scroll has got, and data-step, which item is in focus. The CSS does the rest.
+ * A section that holds the screen while a short list is walked past. Two things
+ * are written on the section and nothing else: --p, how far through the pin the
+ * scroll has got, and data-step, which card is in front. The CSS does the belt.
+ *
+ * The one thing CSS cannot do here is the mark. It is a single object that
+ * rides in the card it belongs to, lifts when the belt hands over, flies to the
+ * next card and BENDS on the way -- every one of the six is drawn on the same
+ * skeleton, so one shape can be interpolated into the next point by point
+ * rather than swapped for it.
  *
  * It also writes data-live, which is what switches the section out of its
  * static layout -- so a page with no JavaScript, a failed chunk, or a reader
- * who asked for no motion gets the plain list, never a half-built pin.
+ * who asked for no motion gets the plain grid, never a half-built pin.
  * ------------------------------------------------------------------------ */
 function rails(): void {
   if (reduced) return;
   for (const rail of document.querySelectorAll<HTMLElement>('[data-rail]')) {
-    const n = rail.querySelectorAll('[data-rail-step]').length;
+    const cards = [...rail.querySelectorAll<HTMLElement>('[data-rail-step]')];
+    const n = cards.length;
     if (!n) continue;
     rail.setAttribute('data-live', '');
+
+    const ico = rail.querySelector<SVGSVGElement>('[data-rail-ico]');
+    const paths = ico ? [...ico.querySelectorAll('path')] : [];
+    const track = cards[0].parentElement;
+
+    /* The same three constants the CSS uses for the belt. If one of them moves
+     * there, it has to move here, or the mark lands beside its ghost. */
+    const PERSPECTIVE = 1400;
+    const Z_NEAR = 34;
+    const LIFT_NEAR = 10;
+
+    /* Resting places, in track coordinates. Read from layout -- offsetLeft
+     * ignores transforms, which is the whole reason it is used and not a rect:
+     * the cards lean and lift, and a rect would carry that with it. */
+    type Geo = { x: number; y: number; size: number };
+    let geo: Geo[] = [];
+    let span = 0;
+    let ox = 0;
+    let oy = 0;
+    const measure = (): void => {
+      geo = cards.map((c) => {
+        const g = c.querySelector<HTMLElement>('[data-rail-ghost]');
+        const size = g?.offsetWidth ?? 0;
+        return {
+          x: c.offsetLeft + (g?.offsetLeft ?? 0) + size / 2,
+          y: c.offsetTop + (g?.offsetTop ?? 0) + size / 2,
+          size,
+        };
+      });
+      // the belt advances one card per step, n-1 steps for n cards
+      span = n > 1 ? (cards[1].offsetLeft - cards[0].offsetLeft) * (n - 1) : 0;
+      // the point the perspective is looked from: the middle of the track
+      ox = (track?.offsetWidth ?? 0) / 2;
+      oy = (track?.offsetHeight ?? 0) / 2;
+    };
+
+    /** The same curve the CSS uses for --near, so both agree on what "in front
+     *  of you" means. */
+    const nearOf = (j: number, t: number): number =>
+      Math.min(1, Math.max(0, 1.25 - Math.abs(t - j) * 0.9));
+
+    /* Held, thrown, held: the mark stands still for the first third of a
+     * hand-over and the last fifth of it, and crosses in between. */
+    const ease = (x: number): number => x * x * (3 - 2 * x);
+    const flight = (f: number): number =>
+      f <= 0.3 ? 0 : f >= 0.78 ? 1 : ease((f - 0.3) / 0.48);
+
+    /** Where card j's ghost actually appears.
+     *
+     *  A card pushed toward the viewer does not simply grow: it also slides
+     *  away from the point the perspective is looked from, and that point is
+     *  the middle of the track, not the middle of the card. Projecting about
+     *  the card's own origin -- the obvious thing -- puts the mark ten pixels
+     *  off its ghost on every card except the middle one. */
+    const place = (j: number, t: number): { x: number; y: number; s: number } => {
+      const c = geo[j];
+      const near = nearOf(j, t);
+      const s = PERSPECTIVE / (PERSPECTIVE - Z_NEAR * near);
+      return {
+        x: ox + (c.x - ox) * s,
+        y: oy + (c.y - LIFT_NEAR * near - oy) * s,
+        s,
+      };
+    };
 
     let raf = 0;
     const update = (): void => {
@@ -388,15 +460,38 @@ function rails(): void {
       const travel = Math.max(1, r.height - window.innerHeight);
       const p = Math.min(1, Math.max(0, -r.top / travel));
       rail.style.setProperty('--p', p.toFixed(4));
-      // 0.999 so the last step gets its own slice instead of a single frame
-      rail.dataset.step = String(Math.min(n - 1, Math.floor(p * n * 0.999)));
+      rail.dataset.step = String(Math.min(n - 1, Math.round(p * (n - 1))));
+
+      if (!ico || geo.length !== n || n < 2) return;
+      const t = p * (n - 1);
+      const i = Math.min(n - 2, Math.floor(t));
+      const e = flight(Math.min(1, Math.max(0, t - i)));
+      const lift = Math.sin(e * Math.PI);
+      const a = place(i, t);
+      const b = place(i + 1, t);
+      const half = geo[i].size / 2;
+      const x = a.x + (b.x - a.x) * e - p * span - half;
+      const y = a.y + (b.y - a.y) * e - lift * 52 - half;
+      const s = (a.s + (b.s - a.s) * e) * (1 + lift * 0.14);
+      ico.style.transform =
+        `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)` +
+        ` rotate(${(lift * 18).toFixed(1)}deg) scale(${s.toFixed(4)})`;
+      // the shape bends across the same crossing, so it lands already changed
+      for (let k = 0; k < paths.length; k++) {
+        paths[k].setAttribute('d', morphD(INFRA_ICONS[i][k], INFRA_ICONS[i + 1][k], e));
+      }
     };
+
     const onScroll = (): void => {
       if (!raf) raf = requestAnimationFrame(update);
     };
+    const onResize = (): void => {
+      measure();
+      onScroll();
+    };
     window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll);
-    update();
+    window.addEventListener('resize', onResize);
+    onResize();
   }
 }
 

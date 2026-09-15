@@ -1,18 +1,25 @@
 ---
+import { INFRA_ICONS, strokeD } from '../lib/infra-icons';
+
 /**
- * What happens before the shelf, walked through one step at a time.
+ * What happens before the shelf, walked through one card at a time.
  *
  * The client's point: the retail did not appear out of nothing in 2025 -- the
  * import and distribution work came first, and it is what makes the shelves
  * possible. This section names that work, and it holds the screen while it
- * does: the stage pins, the six steps stay in sight as a system, and the one
- * you have scrolled to takes the size.
+ * does: the six move past like goods on a line, and the one in the middle turns
+ * to face you.
  *
- * Three states, not one. Without JavaScript the section never pins and the six
- * are simply a grid, all visible, all the same size. Under reduced motion the
- * same. The pinned walk only turns on when site.ts has run and motion is
- * allowed -- it is the script that sets data-live, so the static version can
- * never be left half-built by a failed chunk.
+ * The mark is a single object. It rides in the card it belongs to, and when the
+ * belt hands over it lifts, flies to the next card and MORPHS on the way --
+ * point by point, one drawing bending into the next, because all six are drawn
+ * on the same skeleton in src/lib/infra-icons.ts. What each card keeps is a
+ * ghost of its own mark, so you can see where the thing is going to land.
+ *
+ * Three states, not one. Without JavaScript the section never pins, the six are
+ * a plain grid, and each card simply has its own mark at full strength. Under
+ * reduced motion the same. The belt and the flying mark only exist once site.ts
+ * has set data-live, so a failed chunk can never leave this half-built.
  *
  * Six words, and no invented sentences under them. The brief listed the six and
  * nothing more; anything I added under each would be a claim about how the
@@ -21,38 +28,15 @@
  * handled -- would turn this from a list into an argument.
  */
 const STEPS = [
-  {
-    name: 'Import direct',
-    /* a crate with something dropping into it */
-    icon: '<path d="M3.5 13v6.5h17V13"/><path d="M12 2.5v10"/><path d="M8 9l4 4 4-4"/>',
-  },
-  {
-    name: 'Sourcing',
-    /* a lens over one picked square */
-    icon: '<circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5.5 5.5"/><rect x="8.5" y="8.5" width="4" height="4"/>',
-  },
-  {
-    name: 'Depozitare',
-    /* crates, stacked */
-    icon: '<rect x="2.5" y="13.5" width="8" height="6.5"/><rect x="13.5" y="13.5" width="8" height="6.5"/><rect x="8" y="4" width="8" height="6.5"/>',
-  },
-  {
-    name: 'Logistică',
-    /* a truck, on the move */
-    icon: '<path d="M2 6.5h11v9H2z"/><path d="M13 10h4l3.5 3.5v2H13z"/><circle cx="6.5" cy="18" r="2"/><circle cx="17" cy="18" r="2"/>',
-  },
-  {
-    name: 'Distribuție',
-    /* one point, three destinations */
-    icon: '<circle cx="4" cy="12" r="2"/><path d="M6 12h5.5"/><path d="M11.5 12L18 5.5"/><path d="M11.5 12H19"/><path d="M11.5 12L18 18.5"/><circle cx="19.5" cy="5" r="1.6"/><circle cx="20.5" cy="12" r="1.6"/><circle cx="19.5" cy="19" r="1.6"/>',
-  },
-  {
-    name: 'Operațiuni comerciale',
-    /* the numbers the shelves come back as */
-    icon: '<path d="M3 20.5h18"/><path d="M6.5 20.5v-4.5"/><path d="M12 20.5v-9"/><path d="M17.5 20.5v-13.5"/>',
-  },
+  'Import direct',
+  'Sourcing',
+  'Depozitare',
+  'Logistică',
+  'Distribuție',
+  'Operațiuni comerciale',
 ];
 ---
+
 
 <section class="rail" data-rail aria-labelledby="rail-title">
   <div class="rail__stage">
@@ -70,14 +54,21 @@ const STEPS = [
     <div class="rail__belt">
       <ol class="rail__list">
         {
-          STEPS.map(({ name, icon }, i) => (
+          STEPS.map((name, i) => (
             <li class="card" data-rail-step data-reveal style={`--s: ${i}; --i: ${i + 1}`}>
-              <svg class="card__icon" viewBox="0 0 24 24" aria-hidden="true" set:html={icon} />
+              <span class="card__slot" data-rail-ghost>
+                <svg class="card__icon" viewBox="0 0 24 24" aria-hidden="true">
+                  {INFRA_ICONS[i].map((stroke) => <path d={strokeD(stroke)} />)}
+                </svg>
+              </span>
               <span class="card__name">{name}</span>
             </li>
           ))
         }
       </ol>
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true" data-rail-ico>
+        {INFRA_ICONS[0].map((stroke) => <path d={strokeD(stroke)} />)}
+      </svg>
       <span class="rail__meter" aria-hidden="true"></span>
     </div>
   </div>
@@ -165,10 +156,20 @@ const STEPS = [
   /* Drawn here, not fetched: six line marks, no icon font and no third party.
      They are decoration -- a crate, a lens, a truck -- and say nothing the
      words under them do not. */
-  .card__icon {
+  /* The slot is a real HTML box on purpose: an <svg> has no offsetLeft, and
+     the flying mark is aimed at layout positions, not at rects -- rects carry
+     the card's own perspective transform and would land the mark off by a few
+     percent on every card. */
+  .card__slot {
+    display: block;
     width: clamp(2.25rem, 5vw, 3rem);
-    height: auto;
     flex: none;
+  }
+
+  .card__icon {
+    display: block;
+    width: 100%;
+    height: auto;
     fill: none;
     stroke: currentColor;
     stroke-width: 1.35;
@@ -287,20 +288,40 @@ const STEPS = [
       0 0 60px rgba(19, 180, 198, 0.22) inset;
   }
 
-  /* The jump. --hop is 0 when a card is parked -- in the middle or well away
-     from it -- and 1 halfway between two positions, so an icon leaves the
-     ground only while the belt is handing over, and lands straight. Two icons
-     are in the air at once, which is what makes it read as a pass rather than
-     six separate twitches. */
-  .rail[data-live] .card__icon {
-    --h1: max(calc(var(--ad) - 0.5), calc(0.5 - var(--ad)));
-    --hop: clamp(0, calc(1 - var(--h1) * 2.6), 1);
+  /* On the belt, a card keeps only a ghost of its own mark: it says where the
+     real one will land. */
+  .rail[data-live] .card__slot {
+    /* the same size as the mark that lands in it */
     width: clamp(4rem, 10.5vh, 6.75rem);
+  }
+
+  .rail[data-live] .card__icon {
+    opacity: 0.14;
+  }
+
+  /* The mark itself: one object, over the belt rather than in it, so no card's
+     own perspective can order it behind another. site.ts moves it and bends it;
+     everything here is only how it looks. */
+  .ico {
+    display: none;
+  }
+
+  .rail[data-live] .ico {
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 3;
+    width: clamp(4rem, 10.5vh, 6.75rem);
+    height: auto;
+    pointer-events: none;
+    fill: none;
+    stroke: currentColor;
     stroke-width: 1.2;
-    color: rgba(255, 255, 255, calc(0.22 + 0.58 * var(--near)));
-    transform: translateX(calc(var(--d) * 10px)) translateY(calc(var(--hop) * -30px))
-      rotate(calc(var(--d) * var(--hop) * 18deg)) scale(calc(1 + var(--hop) * 0.1));
-    filter: drop-shadow(0 0 18px rgba(19, 180, 198, calc(0.55 * var(--near))));
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    color: var(--fg-inv);
+    filter: drop-shadow(0 0 22px rgba(19, 180, 198, 0.6));
   }
 
   .rail[data-live] .card__name {
