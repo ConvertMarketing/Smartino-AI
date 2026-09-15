@@ -35,6 +35,8 @@ import { ORIGIN } from '../lib/data';
     </p>
   </div>
 
+  <span class="romap__dither" aria-hidden="true"></span>
+
   <div class="romap__hold" data-pin>
     <div class="romap__pin">
       <span class="romap__light" aria-hidden="true"></span>
@@ -54,7 +56,7 @@ import { ORIGIN } from '../lib/data';
       </div>
 
       <span class="romap__dawn" aria-hidden="true"></span>
-      <span class="romap__dither" aria-hidden="true"></span>
+      <span class="romap__grain" aria-hidden="true"></span>
     </div>
   </div>
 </section>
@@ -79,7 +81,7 @@ import { ORIGIN } from '../lib/data';
     --wash: 72vh;
     /* and how tall the same front is when it cannot hold the screen: without
        JavaScript, or where someone asked the machine to stop moving */
-    --dawn-h: clamp(20rem, 52vh, 34rem);
+    --dawn-h: clamp(15rem, 38vh, 25rem);
   }
 
   /* ---- the hold ---------------------------------------------------------- *
@@ -102,6 +104,12 @@ import { ORIGIN } from '../lib/data';
 
   .romap__pin {
     position: relative;
+    /* The same ink as the section, and it is not decoration: a sticky element
+       is a stacking context, so the dither over it has nothing of the section's
+       ground to blend with -- overlay with no backdrop falls back to its own
+       colour, which is flat grey, and the whole room came up ten luminance
+       levels and went flat. It blends with this instead. */
+    background-color: var(--ink);
   }
 
   .romap__hold[data-pinned] .romap__pin {
@@ -158,15 +166,19 @@ import { ORIGIN } from '../lib/data';
    * ------------------------------------------------------------------- */
 
   /* One light, centred on the plate, running the full width of the page and
-     dying well inside its own box on every side, so it has no edge anywhere. */
+     dying well inside its own box on every side, so it has no edge anywhere.
+     The box is the held screen now, not the whole section, and a held screen is
+     a third shorter -- so the insets carry the difference and the radius is
+     restated against the bigger box. Measured against what it was before the
+     hold existed: same reach, same fall, and still nothing at any edge. */
   .romap__light {
     position: absolute;
-    inset: -20% 0 -26% 0;
+    inset: -46% 0 -60% 0;
     pointer-events: none;
     background-image: radial-gradient(
-      58% 46% at 50% 52%,
-      rgba(19, 180, 198, 0.22),
-      rgba(19, 180, 198, 0.07) 44%,
+      58% 48% at 50% 48%,
+      rgba(19, 180, 198, 0.194),
+      rgba(19, 180, 198, 0.062) 44%,
       transparent 78%
     );
   }
@@ -201,8 +213,9 @@ import { ORIGIN } from '../lib/data';
    * The ramp is the same shape in both states, and the shape is the point. A
    * white front over a dark ground that goes from nothing to solid in a couple
    * of hundred pixels reads as a bar someone laid across the screen. This one
-   * is eased -- slow to start, slow to finish -- and it is given room: a whole
-   * screen of it when the section is pinned, half a screen when it is not.
+   * is eased -- slow to start, slow to finish -- and it is given about two
+   * thirds of a screen: enough that it has no edge to start or stop on, not so
+   * much that the white is over everything at once.
    * -------------------------------------------------------------------- */
   .romap__dawn {
     position: absolute;
@@ -243,17 +256,17 @@ import { ORIGIN } from '../lib/data';
     background-position: 0 calc(var(--p, 0) * 100%);
     background-image: linear-gradient(
       180deg,
-      rgba(255, 255, 255, 0) 0 33.4%,
-      rgba(255, 255, 255, 0.064) 36.72%,
-      rgba(255, 255, 255, 0.152) 40.04%,
-      rgba(255, 255, 255, 0.258) 43.36%,
-      rgba(255, 255, 255, 0.376) 46.68%,
+      rgba(255, 255, 255, 0) 0 38.3%,
+      rgba(255, 255, 255, 0.064) 40.63%,
+      rgba(255, 255, 255, 0.152) 42.96%,
+      rgba(255, 255, 255, 0.258) 45.29%,
+      rgba(255, 255, 255, 0.376) 47.62%,
       rgba(255, 255, 255, 0.5) 50%,
-      rgba(255, 255, 255, 0.624) 53.32%,
-      rgba(255, 255, 255, 0.742) 56.64%,
-      rgba(255, 255, 255, 0.848) 59.96%,
-      rgba(255, 255, 255, 0.936) 63.28%,
-      #fff 66.6% 100%
+      rgba(255, 255, 255, 0.624) 52.38%,
+      rgba(255, 255, 255, 0.742) 54.71%,
+      rgba(255, 255, 255, 0.848) 57.04%,
+      rgba(255, 255, 255, 0.936) 59.37%,
+      #fff 61.7% 100%
     );
   }
 
@@ -267,7 +280,8 @@ import { ORIGIN } from '../lib/data';
      scales with what is under it, which is what we want: strongest where the
      light is and therefore where the rings are, nothing at all on black. Text
      is near white, where overlay is likewise almost a no-op. */
-  .romap__dither {
+  .romap__dither,
+  .romap__grain {
     position: absolute;
     inset: 0;
     pointer-events: none;
@@ -275,6 +289,21 @@ import { ORIGIN } from '../lib/data';
     opacity: 0.14;
     background-image: var(--grain);
     background-size: 200px 200px;
+  }
+
+  /* Two of them, and never both over the same pixel. The held screen paints its
+     own ground, so it hides the section's grain exactly where its own starts:
+     the seam between them is the pin's own edge, the two sides are the same
+     noise at the same strength, and there is nothing there to see. One alone
+     could not do it -- inside the pin it has no section ground to blend with
+     (a sticky box is a stacking context), and outside it, it would crawl over a
+     plate that is standing still. */
+  .romap__grain {
+    bottom: calc(-1 * var(--dawn-h));
+  }
+
+  .romap__hold[data-pinned] .romap__grain {
+    bottom: 0;
   }
 
   .romap__stage {
