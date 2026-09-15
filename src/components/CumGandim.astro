@@ -226,27 +226,27 @@ const STEPS = [
   }
 
   @media (prefers-reduced-motion: no-preference) {
-    [data-js] .step::before {
+    :global([data-js]) .step::before {
       transform: scaleX(0);
       transition: transform 760ms var(--ease-out);
       transition-delay: calc(var(--i, 0) * var(--stagger));
     }
 
-    [data-js] .step[data-in]::before {
+    :global([data-js]) .step[data-in]::before {
       transform: scaleX(1);
     }
 
     /* the fill only where the outline can be drawn at all: without the stroke
        a transparent numeral is no numeral */
     @supports (-webkit-text-stroke: 1px currentColor) {
-      [data-js] .step__n {
+      :global([data-js]) .step__n {
         color: transparent;
         -webkit-text-stroke: 1.5px var(--t-deep);
         transition: color 520ms var(--ease-out);
         transition-delay: calc(var(--i, 0) * var(--stagger) + 300ms);
       }
 
-      [data-js] .step[data-in] .step__n {
+      :global([data-js]) .step[data-in] .step__n {
         color: var(--t-deep);
       }
     }

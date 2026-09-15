@@ -177,8 +177,18 @@ for (const [label, width, height] of VIEWPORTS) {
       const x = L(a), y = L(b), hi = Math.max(x, y), lo = Math.min(x, y);
       return (hi + 0.05) / (lo + 0.05);
     };
-    const rgba = (css) => { const n = css.match(/[\d.]+/g); if (!n) return null;
-      const [r, g, b, a] = n.map(Number); return [r, g, b, a === undefined ? 1 : a]; };
+    /* Through the canvas, like toRGB above, not through a regex over the
+       string: a computed background can come back as color(srgb 0.93 0.97 0.98)
+       -- from color-mix, from a wide-gamut value, from anything -- and pulling
+       the numbers out of that with a regex reads a near-white as near-black.
+       Which is exactly what it did, and it failed a section that was fine. */
+    const rgba = (css) => {
+      ctx.clearRect(0, 0, 1, 1);
+      ctx.fillStyle = css;
+      ctx.fillRect(0, 0, 1, 1);
+      const d = ctx.getImageData(0, 0, 1, 1).data;
+      return [d[0], d[1], d[2], d[3] / 255];
+    };
     const over = (fg, bg) => fg.map((c, i) => Math.round(c * fg[3] + bg[i] * (1 - fg[3])));
     const bgOf = (el) => {
       const layers = []; let n = el, gradient = false;
