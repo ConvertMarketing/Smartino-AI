@@ -36,6 +36,7 @@ import { ORIGIN } from '../lib/data';
   </div>
 
   <span class="romap__glow" aria-hidden="true"></span>
+  <span class="romap__grain" aria-hidden="true"></span>
 
   <div class="romap__stage" data-romap-stage>
     <div class="romap__canvas" data-romap-canvas aria-hidden="true"></div>
@@ -61,6 +62,9 @@ import { ORIGIN } from '../lib/data';
        clip, not hidden: hidden would make this a scroll container and every
        scroll-driven animation inside the dark room would stop measuring. */
     overflow: clip visible;
+    /* its own ground now that it is out of the dark room's wrapper: the same
+       ink, so nothing shows at the join */
+    background-color: var(--ink);
     color: var(--fg-inv);
     /* The bottom padding is a runway, not a margin: the light band below sends
        a long white front up over this section, and it has to rise through dark
@@ -100,6 +104,27 @@ import { ORIGIN } from '../lib/data';
   }
 
   /* ---- the stage --------------------------------------------------------- */
+  /* The dither.
+   *
+   * A gradient this soft, this dark and this large runs out of 8-bit room: the
+   * measured ramp had 42 distinct values over 800 px, which is a band every
+   * 19 px, and bands on a dark ground read as lines. A little noise breaks the
+   * boundary between one value and the next and the eye stops finding them.
+   *
+   * It is masked with the same shape as the light, so the grain is strongest
+   * where the banding is and fades out with it -- a grain that filled its own
+   * box would trade the bands for a visible rectangle. */
+  .romap__grain {
+    position: absolute;
+    inset: -18% 0 -24% 0;
+    pointer-events: none;
+    opacity: 0.028;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23g)'/%3E%3C/svg%3E");
+    background-size: 180px 180px;
+    -webkit-mask-image: radial-gradient(84% 66% at 50% 52%, #000 0%, #000 44%, transparent 94%);
+    mask-image: radial-gradient(84% 66% at 50% 52%, #000 0%, #000 44%, transparent 94%);
+  }
+
   .romap__stage {
     position: relative;
     /* The plate is about twice as wide as it is tall once the camera looks down
@@ -139,7 +164,6 @@ import { ORIGIN } from '../lib/data';
   .romap__glow {
     position: absolute;
     inset: -18% 0 -24% 0;
-    z-index: -1;
     pointer-events: none;
     background-image:
       radial-gradient(54% 42% at 50% 52%, rgba(19, 180, 198, 0.2), transparent 76%),
