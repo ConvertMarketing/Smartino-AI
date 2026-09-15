@@ -682,25 +682,10 @@ const STAGES = [
       --o: 0.88;
     }
 
-    /* Point at a stage and the turn stops, with the light on that stage and
-       nowhere else. Not paused -- paused freezes whatever happened to be lit at
-       that instant, which can be three things at once and says nothing about
-       what you are pointing at. Taken off instead: everything falls back to
-       dark, and the one under the pointer is lit. A tap lands the same state on
-       a phone. */
-    .arh__loop:has(.pil:hover) .seg,
-    .arh__loop:has(.pil:hover) .pil + .pil::before,
-    .arh__loop:has(.pil:hover) .pil::after {
-      animation: none;
-    }
-
-    .pil::after {
-      transition: opacity 240ms var(--ease-out);
-    }
-
-    .pil:hover::after {
-      opacity: 1;
-    }
+    /* Nothing here answers the pointer. The circuit is a drawing that runs, not
+       a control: a card that lights under the cursor invites a click that has
+       nowhere to go, and it stops the turn the one moment someone is actually
+       looking at it. */
   }
 
   /* the ones that run against their box's own direction */
