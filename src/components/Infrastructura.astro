@@ -1,18 +1,26 @@
 ---
 /**
- * What the warehouse model is a picture of.
+ * What happens before the shelf, walked through one step at a time.
  *
- * The client's brief: the retail did not appear out of nothing in 2025 -- the
+ * The client's point: the retail did not appear out of nothing in 2025 -- the
  * import and distribution work came first, and it is what makes the shelves
- * possible. This section names that work.
+ * possible. This section names that work, and it holds the screen while it
+ * does: the stage pins, the six steps stay in sight as a system, and the one
+ * you have scrolled to takes the size.
  *
- * Six words, and no invented sentences under them. The brief listed the six
- * capabilities and nothing more; anything I added under each would be a claim
- * about how the group actually operates, which is not mine to make.
+ * Three states, not one. Without JavaScript the section never pins and the six
+ * are simply a grid, all visible, all the same size. Under reduced motion the
+ * same. The pinned walk only turns on when site.ts has run and motion is
+ * allowed -- it is the script that sets data-live, so the static version can
+ * never be left half-built by a failed chunk.
+ *
+ * Six words, and no invented sentences under them. The brief listed the six and
+ * nothing more; anything I added under each would be a claim about how the
+ * group actually operates, which is not mine to make.
  * TODO(client): a line each -- volumes, own fleet or partners, categories
  * handled -- would turn this from a list into an argument.
  */
-const CAPABILITIES = [
+const STEPS = [
   'Import direct',
   'Sourcing',
   'Depozitare',
@@ -22,50 +30,48 @@ const CAPABILITIES = [
 ];
 ---
 
-<section class="infra" aria-labelledby="infra-title">
-  <div class="infra__inner">
-    <p class="infra__kicker" data-reveal>Ce e în spate</p>
-    <h2 class="infra__title" id="infra-title" data-reveal style="--i: 1">
-      Retailul nu a apărut din nimic în 2025.
-    </h2>
-    <p class="infra__lead" data-reveal style="--i: 2">
-      În spatele magazinelor stă experiența de import și distribuție adunată înainte de primul
-      raft. Aceeași infrastructură ține astăzi și magazinele fizice, și comenzile online.
-    </p>
+<section class="rail" data-rail aria-labelledby="rail-title">
+  <div class="rail__stage">
+    <div class="rail__inner">
+      <div class="rail__head">
+        <p class="rail__kicker" data-reveal>Ce e în spate</p>
+        <h2 class="rail__title" id="rail-title" data-reveal style="--i: 1">
+          Retailul nu a apărut din nimic în 2025.
+        </h2>
+        <p class="rail__lead" data-reveal style="--i: 2">
+          În spatele magazinelor stă experiența de import și distribuție adunată înainte de primul
+          raft. Aceeași infrastructură ține astăzi și magazinele fizice, și comenzile online.
+        </p>
+      </div>
 
-    <ol class="infra__grid" aria-label="Ce acoperă infrastructura grupului">
-      {
-        CAPABILITIES.map((name, i) => (
-          <li class="cap" data-reveal style={`--i: ${i + 1}`}>
-            <span class="cap__n tnum" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
-            <span class="cap__name">{name}</span>
-          </li>
-        ))
-      }
-    </ol>
+      <div class="rail__deck">
+        <span class="rail__meter" aria-hidden="true"></span>
+        <ol class="rail__list">
+          {
+            STEPS.map((name, i) => (
+              <li class="step" data-rail-step data-reveal style={`--i: ${i + 1}`}>
+                <span class="step__n tnum" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+                <span class="step__name">{name}</span>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </div>
   </div>
 </section>
 
 <style>
-  .infra {
+  /* ---- the static section: what it is without JavaScript ----------------- */
+  .rail {
     position: relative;
     overflow: clip; /* clip, not hidden: hidden makes this a scroll container,
                        and every scroll-driven animation inside would stop */
     color: var(--fg-inv);
-    /* rises into the tail of the warehouse model while that one dissolves */
-    margin-top: clamp(-14rem, -28vh, -7rem);
-    padding-block: clamp(2rem, 6vh, 4rem) clamp(3rem, 8vh, 5.5rem);
+    padding-block: clamp(3rem, 8vh, 5rem) clamp(3rem, 8vh, 5.5rem);
   }
 
-  /* the model above gives way only because it dissolves, and it dissolves only
-     where motion is allowed */
-  @media (prefers-reduced-motion: reduce) {
-    .infra {
-      margin-top: 0;
-    }
-  }
-
-  .infra__inner {
+  .rail__inner {
     position: relative;
     z-index: 1;
     max-width: var(--content);
@@ -73,7 +79,7 @@ const CAPABILITIES = [
     padding-inline: var(--gutter);
   }
 
-  .infra__kicker {
+  .rail__kicker {
     font-family: var(--font-display);
     font-size: 0.75rem;
     font-weight: 700;
@@ -82,23 +88,33 @@ const CAPABILITIES = [
     color: var(--t-glow);
   }
 
-  .infra__title {
+  .rail__title {
     margin-top: 0.875rem;
     font-family: var(--font-display);
     font-size: clamp(1.625rem, 1.2rem + 1.7vw, 2.5rem);
     font-weight: 800;
     letter-spacing: -0.025em;
     line-height: 1.08;
+    max-width: 18ch;
   }
 
-  .infra__lead {
+  .rail__lead {
     margin-top: 0.75rem;
-    max-width: 52ch;
+    max-width: 46ch;
     color: var(--fg-inv-2);
   }
 
-  .infra__grid {
-    margin: clamp(2rem, 5vh, 3rem) 0 0;
+  .rail__deck {
+    position: relative;
+    margin-top: clamp(2rem, 5vh, 3rem);
+  }
+
+  .rail__meter {
+    display: none;
+  }
+
+  .rail__list {
+    margin: 0;
     padding: 0;
     list-style: none;
     display: grid;
@@ -106,7 +122,7 @@ const CAPABILITIES = [
     gap: clamp(10px, 1.2vw, 18px);
   }
 
-  .cap {
+  .step {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
@@ -114,17 +130,9 @@ const CAPABILITIES = [
     border: 1px solid var(--line-dark);
     border-radius: 16px;
     background-color: rgba(20, 25, 27, 0.6);
-    transition:
-      border-color var(--d-state) var(--ease-out),
-      transform var(--d-state) var(--ease-out);
   }
 
-  .cap:hover {
-    border-color: rgba(75, 216, 232, 0.45);
-    transform: translateY(-2px);
-  }
-
-  .cap__n {
+  .step__n {
     font-family: var(--font-display);
     font-size: 0.6875rem;
     font-weight: 700;
@@ -132,7 +140,7 @@ const CAPABILITIES = [
     color: var(--t-glow);
   }
 
-  .cap__name {
+  .step__name {
     font-family: var(--font-display);
     font-size: clamp(1rem, 0.9rem + 0.5vw, 1.375rem);
     font-weight: 700;
@@ -141,8 +149,149 @@ const CAPABILITIES = [
   }
 
   @media (max-width: 899px) {
-    .infra__grid {
+    .rail__list {
       grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  /* ---- the pinned walk: only once the script has run --------------------- *
+   * data-live is written by site.ts, which does not write it under reduced
+   * motion. So this whole block is unreachable without JavaScript and
+   * unreachable for anyone who asked the machine to stop moving. */
+  .rail[data-live] {
+    /* the stage holds the screen for one viewport plus a run per step */
+    height: calc(100dvh + 6 * var(--travel));
+    --travel: 42vh;
+    padding-block: 0;
+  }
+
+  .rail[data-live] .rail__stage {
+    position: sticky;
+    top: 0;
+    height: 100dvh;
+    display: flex;
+    align-items: center;
+  }
+
+  .rail[data-live] .rail__inner {
+    width: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+    align-items: center;
+    gap: clamp(24px, 5vw, 72px);
+  }
+
+  .rail[data-live] .rail__deck {
+    margin-top: 0;
+    padding-left: clamp(18px, 2.4vw, 34px);
+  }
+
+  /* the walk, drawn: a hairline down the list with the travelled part lit */
+  .rail[data-live] .rail__meter {
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background-color: var(--line-dark);
+  }
+
+  .rail[data-live] .rail__meter::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: scaleY(var(--p, 0));
+    transform-origin: top;
+    background-image: linear-gradient(180deg, var(--t-glow), var(--t));
+    box-shadow: 0 0 12px rgba(75, 216, 232, 0.55);
+  }
+
+  .rail[data-live] .rail__list {
+    display: block;
+  }
+
+  /* Each row keeps its height whatever size its word is, so the one that grows
+     does not push the others around. */
+  .rail[data-live] .step {
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+    gap: clamp(10px, 1.4vw, 20px);
+    min-height: clamp(3.25rem, 8.2vh, 5rem);
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background-color: transparent;
+    opacity: 0.3;
+    transition:
+      opacity 450ms var(--ease-out),
+      transform 450ms var(--ease-out);
+  }
+
+  .rail[data-live] .step__n {
+    width: 2.25ch;
+    flex: none;
+    transition: color 450ms var(--ease-out);
+    color: var(--fg-inv-2);
+  }
+
+  .rail[data-live] .step__name {
+    font-size: clamp(1.0625rem, 0.95rem + 0.5vw, 1.4375rem);
+    transition:
+      font-size 450ms var(--ease-out),
+      color 450ms var(--ease-out),
+      text-shadow 450ms var(--ease-out);
+  }
+
+  /* the one you have scrolled to takes the size and the light */
+  .rail[data-live][data-step='0'] .step:nth-child(1),
+  .rail[data-live][data-step='1'] .step:nth-child(2),
+  .rail[data-live][data-step='2'] .step:nth-child(3),
+  .rail[data-live][data-step='3'] .step:nth-child(4),
+  .rail[data-live][data-step='4'] .step:nth-child(5),
+  .rail[data-live][data-step='5'] .step:nth-child(6) {
+    opacity: 1;
+    transform: translateX(clamp(4px, 0.8vw, 12px));
+  }
+
+  .rail[data-live][data-step='0'] .step:nth-child(1) .step__name,
+  .rail[data-live][data-step='1'] .step:nth-child(2) .step__name,
+  .rail[data-live][data-step='2'] .step:nth-child(3) .step__name,
+  .rail[data-live][data-step='3'] .step:nth-child(4) .step__name,
+  .rail[data-live][data-step='4'] .step:nth-child(5) .step__name,
+  .rail[data-live][data-step='5'] .step:nth-child(6) .step__name {
+    /* capped so the longest of the six -- "Operațiuni comerciale" -- still
+       holds one line in this column at every width. Two lines and the column
+       grows, and a centred column that grows moves all six rows. */
+    font-size: clamp(1.5rem, 1rem + 2.15vw, 2.75rem);
+    text-shadow: 0 0 34px rgba(19, 180, 198, 0.45);
+  }
+
+  .rail[data-live][data-step='0'] .step:nth-child(1) .step__n,
+  .rail[data-live][data-step='1'] .step:nth-child(2) .step__n,
+  .rail[data-live][data-step='2'] .step:nth-child(3) .step__n,
+  .rail[data-live][data-step='3'] .step:nth-child(4) .step__n,
+  .rail[data-live][data-step='4'] .step:nth-child(5) .step__n,
+  .rail[data-live][data-step='5'] .step:nth-child(6) .step__n {
+    color: var(--t-glow);
+  }
+
+  @media (max-width: 899px) {
+    .rail[data-live] {
+      --travel: 34vh;
+    }
+
+    .rail[data-live] .rail__inner {
+      display: block;
+    }
+
+    .rail[data-live] .rail__deck {
+      margin-top: clamp(1.5rem, 4vh, 2.5rem);
+    }
+
+    .rail[data-live] .step {
+      min-height: clamp(2.75rem, 6.6vh, 4rem);
     }
   }
 </style>

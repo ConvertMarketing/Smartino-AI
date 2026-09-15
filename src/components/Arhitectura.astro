@@ -93,7 +93,17 @@ const PILLARS = [
     overflow: clip; /* clip, not hidden: hidden would make this a scroll
                        container and stop every scroll-driven animation in it */
     color: var(--fg-inv);
+    /* rises into the tail of the warehouse model while that one dissolves */
+    margin-top: clamp(-14rem, -28vh, -7rem);
     padding-block: clamp(3rem, 8vh, 5.5rem) clamp(2rem, 5vh, 3.5rem);
+  }
+
+  /* the model above gives way only because it dissolves, and it dissolves only
+     where motion is allowed */
+  @media (prefers-reduced-motion: reduce) {
+    .arh {
+      margin-top: 0;
+    }
   }
 
   .arh__inner {

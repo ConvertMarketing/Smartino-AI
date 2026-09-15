@@ -364,6 +364,43 @@ function roMap(): void {
 }
 
 /* ---------------------------------------------------------------------------
+ * The pinned rail
+ *
+ * A section that holds the screen while a short list is walked through. This
+ * writes two things on it and nothing else: --p, how far through the pin the
+ * scroll has got, and data-step, which item is in focus. The CSS does the rest.
+ *
+ * It also writes data-live, which is what switches the section out of its
+ * static layout -- so a page with no JavaScript, a failed chunk, or a reader
+ * who asked for no motion gets the plain list, never a half-built pin.
+ * ------------------------------------------------------------------------ */
+function rails(): void {
+  if (reduced) return;
+  for (const rail of document.querySelectorAll<HTMLElement>('[data-rail]')) {
+    const n = rail.querySelectorAll('[data-rail-step]').length;
+    if (!n) continue;
+    rail.setAttribute('data-live', '');
+
+    let raf = 0;
+    const update = (): void => {
+      raf = 0;
+      const r = rail.getBoundingClientRect();
+      const travel = Math.max(1, r.height - window.innerHeight);
+      const p = Math.min(1, Math.max(0, -r.top / travel));
+      rail.style.setProperty('--p', p.toFixed(4));
+      // 0.999 so the last step gets its own slice instead of a single frame
+      rail.dataset.step = String(Math.min(n - 1, Math.floor(p * n * 0.999)));
+    };
+    const onScroll = (): void => {
+      if (!raf) raf = requestAnimationFrame(update);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    update();
+  }
+}
+
+/* ---------------------------------------------------------------------------
  * "Deschis acum"
  *
  * The one line on the page that answers a question about this minute. It is
@@ -412,6 +449,7 @@ tilt();
 ground();
 maquette();
 roMap();
+rails();
 openNow();
 reveals();
 countUps();
