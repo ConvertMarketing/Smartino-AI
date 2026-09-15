@@ -51,7 +51,11 @@ const BRINGS = {
         </ul>
       </div>
 
-      <span class="part__x" data-reveal style="--i: 2" aria-hidden="true">×</span>
+      <span class="part__x" data-reveal style="--i: 2" aria-hidden="true">
+        ×
+        <i class="pw pw--h w-inl"></i>
+        <i class="pw pw--h w-inr"></i>
+      </span>
 
       <div class="col" data-reveal style="--i: 3">
         <p class="col__head">Smartino aduce</p>
@@ -59,6 +63,9 @@ const BRINGS = {
           {BRINGS.smartino.map((x) => <li>{x}</li>)}
         </ul>
       </div>
+
+      <i class="pw pw--v w-down" aria-hidden="true"></i>
+      <i class="pw pw--h w-across" aria-hidden="true"></i>
     </div>
 
     <p class="part__sum" data-reveal style="--i: 4">
@@ -77,6 +84,14 @@ const BRINGS = {
   }
 
   .part__inner {
+    --node: clamp(34px, 4.2vw, 54px);
+    --gap: clamp(20px, 3.4vw, 52px);
+    --drop: clamp(18px, 3vh, 34px);
+    /* where the wire turns, and where the equals sign is centred: one value,
+       so the corner lands on the glyph instead of near it */
+    --eqx: clamp(13px, 1.6vw, 22px);
+    --wire: var(--line-dark-strong);
+    --turn: 8s;
     position: relative;
     z-index: 1;
     max-width: var(--content);
@@ -113,20 +128,52 @@ const BRINGS = {
     color: var(--fg-inv-2);
   }
 
-  /* ---- the equation ------------------------------------------------------ */
+  /* ---- the equation ------------------------------------------------------ *
+   *
+   * The section was written as one and now it is drawn as one. Both sides feed
+   * the sign between them, the sign feeds the line underneath, and a light runs
+   * that path on a loop: the two panels give, the multiplication takes, and the
+   * result lights last.
+   *
+   * Every measurement the wires need is a variable the grid uses too -- the
+   * middle column IS the node, so the run from a panel's edge to the node is
+   * exactly one gap, at any width, with nothing to keep in sync by hand.
+   * ---------------------------------------------------------------------- */
   .part__eq {
+    position: relative;
     margin-top: clamp(2.5rem, 6vh, 4rem);
     display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    align-items: start;
-    gap: clamp(12px, 2vw, 28px);
+    grid-template-columns: 1fr var(--node) 1fr;
+    align-items: stretch;
+    gap: var(--gap);
   }
 
+  /* Both panels take the full height of the row, so the sign between them sits
+     on a real axis instead of at the middle of whichever list is longer -- but
+     the content stays at the top of each, so the two headings are on one line
+     and the two lists start together. The shorter side simply has room under
+     it. */
   .col {
+    position: relative;
     padding: clamp(1.25rem, 2.2vw, 1.75rem);
     border: 1px solid var(--line-dark);
     border-radius: 18px;
     background-color: rgba(20, 25, 27, 0.6);
+  }
+
+  /* the light on a panel while its side of the equation is giving */
+  .col::after,
+  .part__x::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    border: 1px solid rgba(75, 216, 232, 0.8);
+    box-shadow:
+      0 0 70px rgba(19, 180, 198, 0.26) inset,
+      0 0 60px rgba(19, 180, 198, 0.24);
   }
 
   .col__head {
@@ -168,15 +215,92 @@ const BRINGS = {
   }
 
   .part__x {
+    position: relative;
     align-self: center;
+    display: grid;
+    place-items: center;
+    width: var(--node);
+    height: var(--node);
+    border: 1px solid var(--line-dark-strong);
+    border-radius: 50%;
     font-family: var(--font-display);
-    font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2.5rem);
+    font-size: clamp(1.125rem, 0.9rem + 1vw, 1.625rem);
     font-weight: 300;
+    line-height: 1;
     color: var(--t-glow);
   }
 
+  /* ---- the wires ---------------------------------------------------------
+     Two background layers on one box, the same as the circuit in the
+     architecture section: the wire itself, and a band four times its length
+     confined to the middle fifth of its own image, so the fifth a resting wire
+     shows is entirely transparent and only the wire is left. */
+  .pw {
+    position: absolute;
+    pointer-events: none;
+    background-repeat: no-repeat;
+    background-image:
+      linear-gradient(var(--dir, 90deg), transparent 0 40%, var(--t-glow) 50%, transparent 60% 100%),
+      linear-gradient(var(--wire), var(--wire));
+  }
+
+  .pw--h {
+    height: 1px;
+    background-size:
+      400% 100%,
+      100% 100%;
+    background-position:
+      100% 0,
+      0 0;
+  }
+
+  .pw--v {
+    width: 1px;
+    --dir: 180deg;
+    background-size:
+      100% 400%,
+      100% 100%;
+    background-position:
+      0 100%,
+      0 0;
+  }
+
+  /* in from each panel: the middle column is the node, so each run is one gap */
+  .w-inl {
+    top: 50%;
+    right: 100%;
+    width: var(--gap);
+  }
+
+  .w-inr {
+    top: 50%;
+    left: 100%;
+    width: var(--gap);
+    --dir: 270deg;
+    background-position:
+      0% 0,
+      0 0;
+  }
+
+  /* down out of the node, then left to the equals sign */
+  .w-down {
+    left: 50%;
+    top: calc(50% + var(--node) / 2);
+    bottom: calc(-1 * var(--drop));
+  }
+
+  .w-across {
+    left: var(--eqx);
+    right: 50%;
+    top: calc(100% + var(--drop));
+    --dir: 270deg;
+    background-position:
+      0% 0,
+      0 0;
+  }
+
   .part__sum {
-    margin-top: clamp(2rem, 5vh, 3rem);
+    margin-top: calc(var(--drop) + clamp(0.875rem, 2.5vh, 1.75rem));
     font-family: var(--font-display);
     font-size: clamp(2rem, 1.1rem + 4vw, 4.5rem);
     font-weight: 800;
@@ -186,10 +310,159 @@ const BRINGS = {
 
   .part__eqs {
     display: block;
-    margin-bottom: 0.25em;
+    /* the same value the wire turns on, so the corner lands on this glyph */
+    width: calc(var(--eqx) * 2);
+    margin-bottom: 0.2em;
     font-size: 0.4em;
     font-weight: 300;
-    color: var(--t-glow);
+    line-height: 1;
+    text-align: center;
+    color: var(--line-dark-strong);
+  }
+
+  /* ---- the run ------------------------------------------------------------
+   *
+   * One turn: both panels give, the sign takes, the result lights. --o is the
+   * point in the turn at which a thing takes the light, as a fraction of it,
+   * and the delay is positive so that the order in the source is the order of
+   * the equation.
+   * ---------------------------------------------------------------------- */
+  @media (prefers-reduced-motion: no-preference) {
+    .pw {
+      animation: var(--turn) linear infinite;
+      animation-delay: calc(var(--o, 0) * var(--turn));
+    }
+
+    .pw--h {
+      animation-name: p-run-r;
+    }
+    .pw--v {
+      animation-name: p-run-d;
+    }
+    .w-inr,
+    .w-across {
+      animation-name: p-run-l;
+    }
+
+    @keyframes p-run-r {
+      0% {
+        background-position:
+          100% 0,
+          0 0;
+      }
+      12%,
+      100% {
+        background-position:
+          0% 0,
+          0 0;
+      }
+    }
+
+    @keyframes p-run-l {
+      0% {
+        background-position:
+          0% 0,
+          0 0;
+      }
+      12%,
+      100% {
+        background-position:
+          100% 0,
+          0 0;
+      }
+    }
+
+    @keyframes p-run-d {
+      0% {
+        background-position:
+          0 100%,
+          0 0;
+      }
+      12%,
+      100% {
+        background-position:
+          0 0%,
+          0 0;
+      }
+    }
+
+    .col::after,
+    .part__x::after {
+      animation: p-lit var(--turn) linear infinite;
+      animation-delay: calc(var(--o, 0) * var(--turn));
+    }
+
+    @keyframes p-lit {
+      0% {
+        opacity: 0;
+      }
+      5% {
+        opacity: 1;
+      }
+      25% {
+        opacity: 1;
+      }
+      33%,
+      100% {
+        opacity: 0;
+      }
+    }
+
+    .part__sum {
+      animation: p-sum var(--turn) linear infinite;
+      animation-delay: calc(0.6 * var(--turn));
+    }
+
+    @keyframes p-sum {
+      0% {
+        text-shadow: none;
+      }
+      5%,
+      25% {
+        text-shadow: 0 0 46px rgba(19, 180, 198, 0.55);
+      }
+      33%,
+      100% {
+        text-shadow: none;
+      }
+    }
+
+    .part__eqs {
+      animation: p-eqs var(--turn) linear infinite;
+      animation-delay: calc(0.6 * var(--turn));
+    }
+
+    @keyframes p-eqs {
+      0% {
+        color: var(--line-dark-strong);
+      }
+      5%,
+      25% {
+        color: var(--t-glow);
+      }
+      33%,
+      100% {
+        color: var(--line-dark-strong);
+      }
+    }
+
+    /* the order of the equation */
+    .col::after {
+      --o: 0;
+    }
+    .w-inl,
+    .w-inr {
+      --o: 0.2;
+    }
+    .part__x::after {
+      --o: 0.3;
+    }
+    .w-down {
+      --o: 0.44;
+    }
+    .w-across {
+      --o: 0.56;
+    }
   }
 
   @media (max-width: 899px) {
@@ -197,12 +470,58 @@ const BRINGS = {
       grid-template-columns: 1fr;
     }
 
+    /* stacked: the two runs into the sign become one down each side of it, and
+       the drop leaves from the bottom of the stack instead of the sign */
     .part__eq {
       grid-template-columns: 1fr;
     }
 
     .part__x {
       justify-self: center;
+    }
+
+    .w-inl {
+      top: auto;
+      right: auto;
+      left: 50%;
+      bottom: 100%;
+      width: 1px;
+      height: var(--gap);
+      --dir: 180deg;
+      background-size:
+        100% 400%,
+        100% 100%;
+      background-position:
+        0 100%,
+        0 0;
+    }
+
+    .w-inr {
+      top: 100%;
+      left: 50%;
+      right: auto;
+      width: 1px;
+      height: var(--gap);
+      --dir: 180deg;
+      background-size:
+        100% 400%,
+        100% 100%;
+      background-position:
+        0 100%,
+        0 0;
+    }
+
+    .w-down {
+      top: 100%;
+      bottom: auto;
+      height: var(--drop);
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .w-inl,
+      .w-inr {
+        animation-name: p-run-d;
+      }
     }
   }
 </style>
