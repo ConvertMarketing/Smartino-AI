@@ -21,12 +21,36 @@
  * handled -- would turn this from a list into an argument.
  */
 const STEPS = [
-  'Import direct',
-  'Sourcing',
-  'Depozitare',
-  'Logistică',
-  'Distribuție',
-  'Operațiuni comerciale',
+  {
+    name: 'Import direct',
+    /* a crate with something dropping into it */
+    icon: '<path d="M3.5 13v6.5h17V13"/><path d="M12 2.5v10"/><path d="M8 9l4 4 4-4"/>',
+  },
+  {
+    name: 'Sourcing',
+    /* a lens over one picked square */
+    icon: '<circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5.5 5.5"/><rect x="8.5" y="8.5" width="4" height="4"/>',
+  },
+  {
+    name: 'Depozitare',
+    /* crates, stacked */
+    icon: '<rect x="2.5" y="13.5" width="8" height="6.5"/><rect x="13.5" y="13.5" width="8" height="6.5"/><rect x="8" y="4" width="8" height="6.5"/>',
+  },
+  {
+    name: 'Logistică',
+    /* a truck, on the move */
+    icon: '<path d="M2 6.5h11v9H2z"/><path d="M13 10h4l3.5 3.5v2H13z"/><circle cx="6.5" cy="18" r="2"/><circle cx="17" cy="18" r="2"/>',
+  },
+  {
+    name: 'Distribuție',
+    /* one point, three destinations */
+    icon: '<circle cx="4" cy="12" r="2"/><path d="M6 12h5.5"/><path d="M11.5 12L18 5.5"/><path d="M11.5 12H19"/><path d="M11.5 12L18 18.5"/><circle cx="19.5" cy="5" r="1.6"/><circle cx="20.5" cy="12" r="1.6"/><circle cx="19.5" cy="19" r="1.6"/>',
+  },
+  {
+    name: 'Operațiuni comerciale',
+    /* the numbers the shelves come back as */
+    icon: '<path d="M3 20.5h18"/><path d="M6.5 20.5v-4.5"/><path d="M12 20.5v-9"/><path d="M17.5 20.5v-13.5"/>',
+  },
 ];
 ---
 
@@ -46,9 +70,9 @@ const STEPS = [
     <div class="rail__belt">
       <ol class="rail__list">
         {
-          STEPS.map((name, i) => (
+          STEPS.map(({ name, icon }, i) => (
             <li class="card" data-rail-step data-reveal style={`--s: ${i}; --i: ${i + 1}`}>
-              <span class="card__n tnum" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+              <svg class="card__icon" viewBox="0 0 24 24" aria-hidden="true" set:html={icon} />
               <span class="card__name">{name}</span>
             </li>
           ))
@@ -129,25 +153,28 @@ const STEPS = [
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
-    min-height: clamp(7rem, 16vh, 10rem);
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: clamp(8rem, 18vh, 11rem);
     padding: clamp(1rem, 2vw, 1.5rem);
     border: 1px solid var(--line-dark);
     border-radius: 18px;
     background-color: rgba(20, 25, 27, 0.6);
   }
 
-  /* the number is the card's own watermark, not a label */
-  .card__n {
-    position: absolute;
-    top: clamp(-0.5rem, -0.4vw, 0rem);
-    right: clamp(0.5rem, 1.4vw, 1.25rem);
-    font-family: var(--font-display);
-    font-size: clamp(3.5rem, 7vw, 6.5rem);
-    font-weight: 800;
-    line-height: 1;
-    letter-spacing: -0.04em;
-    color: rgba(255, 255, 255, 0.07);
+  /* Drawn here, not fetched: six line marks, no icon font and no third party.
+     They are decoration -- a crate, a lens, a truck -- and say nothing the
+     words under them do not. */
+  .card__icon {
+    width: clamp(2.25rem, 5vw, 3rem);
+    height: auto;
+    flex: none;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.35;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    color: rgba(255, 255, 255, 0.34);
   }
 
   .card__name {
@@ -260,15 +287,20 @@ const STEPS = [
       0 0 60px rgba(19, 180, 198, 0.22) inset;
   }
 
-  /* the number is the face of the card, not a corner mark: it fills it, and
-     it drifts against the belt so the card has a depth of its own */
-  .rail[data-live] .card__n {
-    top: calc(var(--card-h) * -0.06);
-    right: auto;
-    left: 0.25rem;
-    font-size: calc(var(--card-h) * 0.62);
-    color: rgba(255, 255, 255, calc(0.06 + 0.14 * var(--near)));
-    transform: translateX(calc(var(--d) * 14px));
+  /* The jump. --hop is 0 when a card is parked -- in the middle or well away
+     from it -- and 1 halfway between two positions, so an icon leaves the
+     ground only while the belt is handing over, and lands straight. Two icons
+     are in the air at once, which is what makes it read as a pass rather than
+     six separate twitches. */
+  .rail[data-live] .card__icon {
+    --h1: max(calc(var(--ad) - 0.5), calc(0.5 - var(--ad)));
+    --hop: clamp(0, calc(1 - var(--h1) * 2.6), 1);
+    width: clamp(4rem, 10.5vh, 6.75rem);
+    stroke-width: 1.2;
+    color: rgba(255, 255, 255, calc(0.22 + 0.58 * var(--near)));
+    transform: translateX(calc(var(--d) * 10px)) translateY(calc(var(--hop) * -30px))
+      rotate(calc(var(--d) * var(--hop) * 18deg)) scale(calc(1 + var(--hop) * 0.1));
+    filter: drop-shadow(0 0 18px rgba(19, 180, 198, calc(0.55 * var(--near))));
   }
 
   .rail[data-live] .card__name {
