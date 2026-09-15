@@ -12,6 +12,25 @@
  * open into the light over the first model.
  */
 const LINE = 'Să alegi mai bine, nu doar mai ieftin.';
+
+/* The client's own three, from their brief. The only edit is the one word that
+ * was in English in it -- "new names" -- which is now in the language the rest
+ * of the page is written in. Nothing has been added: what each step says about
+ * the shopper is what the brief says about the shopper. */
+const STEPS = [
+  {
+    t: 'Ieși din reflex',
+    d: 'Nu cumperi automat ce ai cumpărat mereu.',
+  },
+  {
+    t: 'Cauți alternativa bună',
+    d: 'Nu renunți la calitate. Îți lărgești opțiunile.',
+  },
+  {
+    t: 'Descoperi nume noi',
+    d: 'Nu testezi la întâmplare. Smartino alege pentru tine.',
+  },
+];
 ---
 
 <section class="think" aria-labelledby="think-title">
@@ -31,7 +50,19 @@ const LINE = 'Să alegi mai bine, nu doar mai ieftin.';
       într-un singur loc: aproape, accesibil și bine ales, pentru casă, familie și nevoile de zi cu
       zi.
     </p>
-    <p class="think__close" data-reveal style="--i: 3">
+    <ol class="think__steps">
+      {
+        STEPS.map((step, i) => (
+          <li class="step" data-reveal style={`--i: ${i + 3}`}>
+            <span class="step__n" aria-hidden="true">{i + 1}</span>
+            <p class="step__t">{step.t}</p>
+            <p class="step__d">{step.d}</p>
+          </li>
+        ))
+      }
+    </ol>
+
+    <p class="think__close" data-reveal style="--i: 6">
       Mai puțin pilot automat. Mai multe alegeri făcute cu cap.
     </p>
   </div>
@@ -108,10 +139,121 @@ const LINE = 'Să alegi mai bine, nu doar mai ieftin.';
     color: var(--fg-2);
   }
 
+  /* ---- the three, as one movement --------------------------------------- *
+   *
+   * Three numbers in three columns is a list. What makes it a sequence is the
+   * line above them: one rule across the whole width, cut into three pieces
+   * that open in turn from the left, each piece running on into the gap after
+   * it so the joins never show. The numerals arrive as outlines and fill as
+   * the line reaches them.
+   *
+   * All of it hangs off the reveal the rest of the page already uses, so it
+   * costs nothing: no observer of its own, no scroll driver, and where reveals
+   * do not run -- no JavaScript, or motion turned down -- the line is simply
+   * drawn and the numerals are simply filled.
+   * ---------------------------------------------------------------------- */
+  .think__steps {
+    --gap: clamp(1.5rem, 3vw, 3rem);
+    margin: clamp(2.5rem, 6vh, 4rem) 0 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--gap);
+  }
+
+  .step {
+    position: relative;
+    padding-top: clamp(1.125rem, 2.4vh, 1.625rem);
+  }
+
+  .step::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: calc(-1 * var(--gap));
+    top: 0;
+    height: 1px;
+    background-color: var(--line);
+    transform-origin: left;
+  }
+
+  .step:last-child::before {
+    right: 0;
+  }
+
+  .step__n {
+    display: block;
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 1.7rem + 2.6vw, 4rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    font-variant-numeric: tabular-nums;
+    color: var(--t-deep);
+  }
+
+  .step__t {
+    margin-top: clamp(0.625rem, 1.4vh, 1rem);
+    font-family: var(--font-display);
+    font-size: clamp(1.0625rem, 0.95rem + 0.5vw, 1.375rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    color: var(--fg);
+  }
+
+  .step__d {
+    margin-top: 0.4375rem;
+    max-width: 32ch;
+    font-size: 0.9375rem;
+    line-height: 1.55;
+    color: var(--fg-2);
+  }
+
+  @media (max-width: 759px) {
+    .think__steps {
+      --gap: clamp(1.75rem, 4vh, 2.5rem);
+      grid-template-columns: 1fr;
+    }
+
+    .step::before {
+      right: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    [data-js] .step::before {
+      transform: scaleX(0);
+      transition: transform 760ms var(--ease-out);
+      transition-delay: calc(var(--i, 0) * var(--stagger));
+    }
+
+    [data-js] .step[data-in]::before {
+      transform: scaleX(1);
+    }
+
+    /* the fill only where the outline can be drawn at all: without the stroke
+       a transparent numeral is no numeral */
+    @supports (-webkit-text-stroke: 1px currentColor) {
+      [data-js] .step__n {
+        color: transparent;
+        -webkit-text-stroke: 1.5px var(--t-deep);
+        transition: color 520ms var(--ease-out);
+        transition-delay: calc(var(--i, 0) * var(--stagger) + 300ms);
+      }
+
+      [data-js] .step[data-in] .step__n {
+        color: var(--t-deep);
+      }
+    }
+  }
+
+  /* No rule of its own any more: the three above it already put one across the
+     whole width, and a second one underneath at a third of that length reads
+     as a mistake rather than as a break. The space does the work instead. */
   .think__close {
-    margin-top: clamp(2rem, 5vh, 3rem);
-    padding-top: clamp(1.25rem, 3vh, 2rem);
-    border-top: 1px solid var(--line);
+    margin-top: clamp(2.75rem, 7vh, 4.25rem);
     max-width: 34ch;
     font-family: var(--font-display);
     font-size: clamp(1.0625rem, 0.95rem + 0.6vw, 1.5rem);
