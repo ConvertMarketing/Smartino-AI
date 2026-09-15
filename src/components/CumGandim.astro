@@ -15,9 +15,7 @@ const LINE = 'Să alegi mai bine, nu doar mai ieftin.';
 ---
 
 <section class="think" aria-labelledby="think-title">
-  <span class="think__dawn" aria-hidden="true"></span>
   <span class="think__glow" aria-hidden="true"></span>
-  <span class="think__dither" aria-hidden="true"></span>
 
   <div class="think__inner">
     <p class="think__kicker" data-reveal>Cum gândim</p>
@@ -43,37 +41,23 @@ const LINE = 'Să alegi mai bine, nu doar mai ieftin.';
   .think {
     position: relative;
     z-index: 1;
-    /* clipped sideways, open upwards: the drifting glow must not widen the
-       page, but the dawn sheet above this box has to stay visible */
-    overflow: clip visible;
+    /* clipped sideways: the drifting glow must not widen the page. clip, not
+       hidden -- hidden would make this a scroll container and the scroll-driven
+       animations inside would stop measuring. */
+    overflow: clip;
     background-color: var(--paper);
     color: var(--fg);
     padding-block: clamp(6rem, 16vh, 11rem) clamp(4rem, 10vh, 7rem);
   }
 
-  /* the long soft front the white arrives on */
-  .think__dawn {
-    position: absolute;
-    inset: auto 0 100% 0;
-    z-index: 0;
-    /* shorter than the runway the map leaves above it, so the front rises
-       through empty dark and never washes over the footnote up there */
-    height: clamp(14rem, 34vh, 22rem);
-    pointer-events: none;
-    background-image: linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0) 0%,
-      rgba(255, 255, 255, 0.08) 34%,
-      rgba(255, 255, 255, 0.3) 58%,
-      rgba(255, 255, 255, 0.72) 80%,
-      rgba(255, 255, 255, 0.95) 93%,
-      #fff 100%
-    );
-  }
-
+  /* Nothing of this section is drawn outside this section. The white front it
+     arrives on is painted by the map above, on the map's own ground -- an
+     element hung over a neighbour has no backdrop to sit on, and everything
+     that went wrong here went wrong for that one reason. So: the ground starts
+     white at the top edge, because by then the page already is. */
   .think__glow {
     position: absolute;
-    inset: -25% -10%;
+    inset: 0 -10%;
     z-index: 0;
     pointer-events: none;
     background-image:
@@ -85,20 +69,6 @@ const LINE = 'Să alegi mai bine, nu doar mai ieftin.';
     .think__glow {
       animation: drift-b 30s var(--ease-in-out) infinite alternate;
     }
-  }
-
-  /* the dawn above this section is the longest soft ramp on the page, so it
-     bands like any other; the same dither that keeps the map clean keeps it
-     clean too */
-  .think__dither {
-    position: absolute;
-    inset: -34vh 0 0 0;
-    z-index: 0;
-    pointer-events: none;
-    mix-blend-mode: overlay;
-    opacity: 0.12;
-    background-image: var(--grain);
-    background-size: 200px 200px;
   }
 
   .think__inner {

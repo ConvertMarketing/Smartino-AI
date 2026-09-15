@@ -36,9 +36,9 @@ import { ORIGIN } from '../lib/data';
   </div>
 
   <span class="romap__light" aria-hidden="true"></span>
-  <span class="romap__dither" aria-hidden="true"></span>
 
   <div class="romap__stage" data-romap-stage>
+    <span class="romap__bed" aria-hidden="true"></span>
     <div class="romap__canvas" data-romap-canvas aria-hidden="true"></div>
     <Image
       class="romap__poster"
@@ -51,6 +51,8 @@ import { ORIGIN } from '../lib/data';
     <div class="romap__labels" data-romap-labels aria-hidden="true"></div>
   </div>
 
+  <span class="romap__dawn" aria-hidden="true"></span>
+  <span class="romap__dither" aria-hidden="true"></span>
 </section>
 
 <style>
@@ -131,8 +133,55 @@ import { ORIGIN } from '../lib/data';
     );
   }
 
-  /* The dither, over everything the section draws -- the gradient above and the
-     3D scene alike, since both quantise the same way.
+  /* The bed the plate lies in. This used to be a plane inside the 3D scene, and
+     that was the other half of the problem: a glow drawn on the drawing surface
+     runs off the edges of the drawing surface, so the map sat in a rectangle of
+     light with four cut sides. Out here it is aimed at the plate the same way --
+     the stage is its box, so it follows the map at every size -- but it is drawn
+     on the page, overflows its box on all four sides and is transparent long
+     before it reaches any of them. It has no edges left to show. */
+  .romap__bed {
+    position: absolute;
+    inset: -45% -10%;
+    pointer-events: none;
+    background-image: radial-gradient(
+      48% 46% at 50% 52%,
+      rgba(78, 150, 160, 0.122),
+      rgba(78, 150, 160, 0.048) 42%,
+      transparent 76%
+    );
+  }
+
+  /* The white arrives here, not in the section below.
+     It used to be drawn by the light band as a sheet hung above its own box,
+     and that was the line: an element that paints outside its section's
+     background has no backdrop there, so the dither hung with it stopped
+     blending and turned into flat grey -- ten luminance levels of it, straight
+     across the page, exactly where the sheet began. Drawn here it lies on this
+     section's own ground, inside this section's own dither, and there is
+     nothing left to draw an edge with. */
+  .romap__dawn {
+    position: absolute;
+    inset: auto 0 0 0;
+    /* always shorter than the runway above it, so the front rises through
+       empty dark and never reaches the plate */
+    height: clamp(14rem, 34vh, 22rem);
+    pointer-events: none;
+    background-image: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.08) 34%,
+      rgba(255, 255, 255, 0.3) 58%,
+      rgba(255, 255, 255, 0.72) 80%,
+      rgba(255, 255, 255, 0.95) 93%,
+      #fff 100%
+    );
+  }
+
+  /* The dither, last, over everything the section draws -- both gradients and
+     the 3D scene alike, since all three quantise the same way. One noise field
+     over the lot: two of them stacked would make their own box where they
+     overlapped, which is the kind of thing we are here to get rid of.
      Overlay, not opacity: mid-grey through overlay leaves a pixel exactly where
      it was, so this noise has no average brightness of its own and therefore no
      edge of its own, and it can cover the whole section unmasked. It also
@@ -154,10 +203,12 @@ import { ORIGIN } from '../lib/data';
     /* The plate is about twice as wide as it is tall once the camera looks down
        at it, so the stage is cut to that shape: any other ratio makes the
        framing search back the camera off and leaves the map small in the middle
-       of an empty box. The 160vh cap is what keeps a 2:1 box off the bottom of
-       a short laptop, by narrowing it rather than by changing its shape --
-       which would cost the poster its exact fit. */
-    width: min(100%, 1520px, 160vh);
+       of an empty box. The vh cap is what keeps a 2:1 box off the bottom of a
+       short laptop, by narrowing it rather than by changing its shape -- which
+       would cost the poster its exact fit. There is no pixel cap any more: on a
+       wide screen it left the stage short of both edges, and nothing in here
+       may stop before the window does. */
+    width: min(100%, 176vh);
     aspect-ratio: 2 / 1;
     margin-inline: auto;
     margin-top: clamp(0.5rem, 2vh, 1.5rem);

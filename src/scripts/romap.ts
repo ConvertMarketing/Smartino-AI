@@ -272,17 +272,12 @@ export function mount(section: HTMLElement): void {
   tiltGroup.add(mapGroup);
 
   /* ---- the table under the map ------------------------------------------ */
-  const poolTex = radialTexture(512, [
-    [0, 'rgba(90,175,182,0.20)'],
-    [0.45, 'rgba(70,140,148,0.06)'],
-    [1, 'rgba(0,0,0,0)'],
-  ]);
-  const pool = new Mesh(
-    new PlaneGeometry(26, 26),
-    new MeshBasicMaterial({ map: poolTex, transparent: true, depthWrite: false })
-  );
-  pool.position.set(CAM_TARGET.x, CAM_TARGET.y, -0.02);
-  tiltGroup.add(pool); // the table tilts with the map, or the plate sinks under it
+  /* There is no pool of light in here any more. A glow drawn inside the canvas
+     is a glow inside a rectangle: it ran off all four edges of the drawing
+     surface and cut, which is what read as a band under the map and as the
+     section "not being full screen". The light the plate sits in is CSS now --
+     it belongs to the page, so it has no box to be cut by. What stays in the
+     canvas is only what the map itself casts: its shadow. */
   if (shadows) {
     const sh = new Mesh(new PlaneGeometry(30, 30), new ShadowMaterial({ opacity: 0.5 }));
     sh.receiveShadow = true;

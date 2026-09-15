@@ -48,8 +48,12 @@ await page.goto(URL, { waitUntil: 'networkidle' });
 
 await page.addStyleTag({
   content: `
-    html, body, .zone { background: transparent !important; }
-    .romap__glow, .romap__labels, .romap__poster { visibility: hidden !important; }
+    html, body, .zone, .romap { background: transparent !important; }
+    /* everything the page draws behind and over the plate stays out of the shot:
+       the ground, the room light, the bed, the white front and the dither are
+       all painted live around this picture at whatever size it lands on */
+    .romap__light, .romap__bed, .romap__dawn, .romap__dither,
+    .romap__labels, .romap__poster { visibility: hidden !important; }
     /* exactly the shape the stage has in the page, so object-fit lines the
        poster up with the live camera instead of scaling it by a few percent */
     .romap__stage { width: 1600px !important; max-width: none !important; height: 800px !important; aspect-ratio: auto !important; }
