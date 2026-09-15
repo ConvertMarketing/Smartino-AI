@@ -92,9 +92,12 @@ const ROW_MOTION = [
                        and every scroll-driven animation inside would then
                        measure against a box that never scrolls */
     color: var(--fg-inv);
-    /* the bottom padding is a runway, not a margin: the wall sinks through it
-       while the first chapter of the story is already rising over it */
-    padding-block: clamp(4rem, 10vh, 7rem) clamp(9rem, 34vh, 20rem);
+    /* The bottom used to be a runway of up to 34vh, for a section that rose
+       over it -- and that section was deleted when the page was rewritten to
+       the brief. Nothing has risen over it since, so it was simply a hole:
+       363px of nothing under the wall on a phone, against a wall 266px tall.
+       The rhythm of every other dark section instead. */
+    padding-block: clamp(4rem, 10vh, 7rem) clamp(3rem, 8vh, 5rem);
   }
 
   .brands__head {
