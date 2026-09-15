@@ -203,7 +203,10 @@ const STEPS = [
    * scroll has got. Each card works out its own distance from the middle from
    * that and its index, and leans, lifts and lights by it. */
   .rail[data-live] {
-    --travel: 40vh;
+    /* how much scroll one card costs. Six cards used to want three and a half
+       screens of scrolling to walk past, which is a long time to hold someone
+       on one idea; at 24vh the same walk is 2.4 screens. */
+    --travel: 24vh;
     --card-w: clamp(230px, 24vw, 340px);
     --card-h: clamp(15.5rem, 35vh, 21rem);
     --card-gap: clamp(12px, 1.4vw, 24px);
@@ -241,12 +244,22 @@ const STEPS = [
     gap: var(--card-gap);
     /* the first and the last card can both reach the middle of the screen */
     padding-inline: calc(50% - var(--card-w) / 2);
-    perspective: 1400px;
+    /* a long lens, not a wide one. At 1400px a card two places out was already
+       standing on its edge -- not because it was turned much, but because this
+       far off-axis a short perspective crushes it on its own. */
+    perspective: 2600px;
     transform: translate3d(calc(var(--p, 0) * var(--span) * -1), 0, 0);
     will-change: transform;
   }
 
   .rail[data-live] .card {
+    /* No transition on anything here. Every card carries data-reveal, and the
+       page-wide reveal puts one on transform -- which on this card IS the belt.
+       So each card was easing toward where the scroll had already put it, a
+       tenth of a second behind, each with its own stagger delay: the belt
+       lagged the wheel and the mark landed beside its ghost. Scroll-driven
+       means scroll-driven. */
+    transition: none;
     /* distance from the middle, in cards: 0 is dead centre */
     --d: calc(var(--p, 0) * 5 - var(--s));
     /* the same, without a sign. abs() is too new to rely on. */
@@ -260,16 +273,26 @@ const STEPS = [
     justify-content: flex-end;
     padding: clamp(1.25rem, 2vw, 1.75rem);
     border-radius: 22px;
-    border-color: rgba(38, 48, 51, calc(0.5 + 0.5 * var(--near)));
+    /* the halo below belongs outside the card, and the static card clips it */
+    overflow: visible;
+    border-color: rgba(38, 48, 51, calc(0.4 + 0.6 * var(--near)));
     background-color: rgba(20, 25, 27, calc(0.45 + 0.35 * var(--near)));
-    opacity: calc(0.3 + 0.7 * var(--near));
-    background-image: linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.05) 0%,
-      transparent 42%,
-      rgba(19, 180, 198, calc(0.16 * var(--near))) 100%
-    );
-    transform: rotateY(calc(var(--d) * -9deg)) translateZ(calc(var(--near) * 34px))
+    opacity: calc(0.22 + 0.78 * var(--near));
+    /* the light in the room falls on one card. Everything here is multiplied by
+       --near, so the six do not all glow faintly: the one in front of you gets
+       the whole of it and the rest get a dark plate. */
+    background-image:
+      radial-gradient(
+        112% 72% at 50% 110%,
+        rgba(19, 180, 198, calc(0.48 * var(--near))),
+        transparent 70%
+      ),
+      linear-gradient(
+        180deg,
+        rgba(255, 255, 255, calc(0.02 + 0.1 * var(--near))) 0%,
+        transparent 38%
+      );
+    transform: rotateY(calc(var(--d) * -5deg)) translateZ(calc(var(--near) * 60px))
       translateY(calc(var(--near) * -10px));
     transform-origin: 50% 60%;
   }
@@ -282,10 +305,11 @@ const STEPS = [
     border-radius: inherit;
     pointer-events: none;
     opacity: var(--near);
-    border: 1px solid rgba(75, 216, 232, 0.7);
+    border: 1px solid rgba(75, 216, 232, 0.85);
     box-shadow:
-      0 26px 70px rgba(0, 0, 0, 0.5),
-      0 0 60px rgba(19, 180, 198, 0.22) inset;
+      0 30px 80px rgba(0, 0, 0, 0.55),
+      0 0 64px rgba(19, 180, 198, 0.3) inset,
+      0 0 74px rgba(19, 180, 198, 0.34);
   }
 
   /* On the belt, a card keeps only a ghost of its own mark: it says where the
@@ -326,7 +350,7 @@ const STEPS = [
 
   .rail[data-live] .card__name {
     font-size: clamp(1.25rem, 1rem + 0.9vw, 1.875rem);
-    text-shadow: 0 0 30px rgba(19, 180, 198, calc(0.5 * var(--near)));
+    text-shadow: 0 0 34px rgba(19, 180, 198, calc(0.7 * var(--near)));
   }
 
   /* how far along the line you are */
@@ -352,7 +376,7 @@ const STEPS = [
 
   @media (max-width: 899px) {
     .rail[data-live] {
-      --travel: 34vh;
+      --travel: 20vh;
       --card-w: clamp(210px, 62vw, 280px);
       --card-h: clamp(15rem, 34vh, 20rem);
     }

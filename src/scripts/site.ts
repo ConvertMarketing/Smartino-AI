@@ -391,65 +391,42 @@ function rails(): void {
 
     const ico = rail.querySelector<SVGSVGElement>('[data-rail-ico]');
     const paths = ico ? [...ico.querySelectorAll('path')] : [];
-    const track = cards[0].parentElement;
+    const belt = ico?.parentElement ?? null;
+    const ghosts = cards.map((c) => c.querySelector<HTMLElement>('[data-rail-ghost]'));
+    const aimable = !!ico && !!belt && n > 1 && ghosts.every((g) => g !== null);
 
-    /* The same three constants the CSS uses for the belt. If one of them moves
-     * there, it has to move here, or the mark lands beside its ghost. */
-    const PERSPECTIVE = 1400;
-    const Z_NEAR = 34;
-    const LIFT_NEAR = 10;
-
-    /* Resting places, in track coordinates. Read from layout -- offsetLeft
-     * ignores transforms, which is the whole reason it is used and not a rect:
-     * the cards lean and lift, and a rect would carry that with it. */
-    type Geo = { x: number; y: number; size: number };
-    let geo: Geo[] = [];
-    let span = 0;
-    let ox = 0;
-    let oy = 0;
+    /* The mark is not aimed at a model of the belt any more -- it is aimed at
+     * the belt. Every card keeps a ghost of its own mark, and wherever that
+     * ghost has ended up on screen, after the lean and the lift and the
+     * perspective its card is under, is exactly where the mark has to be. So
+     * read it. Two rects a frame, and nothing in here has to agree with a
+     * number in the stylesheet: the lean, the lens and the push toward the
+     * viewer can all be retuned over there without moving the mark off its
+     * ghost over here, which is what went wrong the last time they were. */
+    let size = 0;
     const measure = (): void => {
-      geo = cards.map((c) => {
-        const g = c.querySelector<HTMLElement>('[data-rail-ghost]');
-        const size = g?.offsetWidth ?? 0;
-        return {
-          x: c.offsetLeft + (g?.offsetLeft ?? 0) + size / 2,
-          y: c.offsetTop + (g?.offsetTop ?? 0) + size / 2,
-          size,
-        };
-      });
-      // the belt advances one card per step, n-1 steps for n cards
-      span = n > 1 ? (cards[1].offsetLeft - cards[0].offsetLeft) * (n - 1) : 0;
-      // the point the perspective is looked from: the middle of the track
-      ox = (track?.offsetWidth ?? 0) / 2;
-      oy = (track?.offsetHeight ?? 0) / 2;
+      const g = ghosts[0];
+      // computed, not offsetWidth: the slot is a vh size and lands on a half
+      // pixel, and offsetWidth rounds it away
+      size = g ? parseFloat(getComputedStyle(g).width) || g.offsetWidth : 0;
     };
 
-    /** The same curve the CSS uses for --near, so both agree on what "in front
-     *  of you" means. */
-    const nearOf = (j: number, t: number): number =>
-      Math.min(1, Math.max(0, 1.25 - Math.abs(t - j) * 0.9));
-
     /* Held, thrown, held: the mark stands still for the first third of a
-     * hand-over and the last fifth of it, and crosses in between. */
+     * hand-over and the last seventh of it, and crosses in between. */
     const ease = (x: number): number => x * x * (3 - 2 * x);
     const flight = (f: number): number =>
-      f <= 0.3 ? 0 : f >= 0.78 ? 1 : ease((f - 0.3) / 0.48);
+      f <= 0.3 ? 0 : f >= 0.86 ? 1 : ease((f - 0.3) / 0.56);
 
-    /** Where card j's ghost actually appears.
-     *
-     *  A card pushed toward the viewer does not simply grow: it also slides
-     *  away from the point the perspective is looked from, and that point is
-     *  the middle of the track, not the middle of the card. Projecting about
-     *  the card's own origin -- the obvious thing -- puts the mark ten pixels
-     *  off its ghost on every card except the middle one. */
-    const place = (j: number, t: number): { x: number; y: number; s: number } => {
-      const c = geo[j];
-      const near = nearOf(j, t);
-      const s = PERSPECTIVE / (PERSPECTIVE - Z_NEAR * near);
+    /** Where card j's ghost is this frame, in the mark's own coordinates. */
+    const place = (j: number, o: DOMRect): { x: number; y: number; s: number } => {
+      const r = ghosts[j]!.getBoundingClientRect();
       return {
-        x: ox + (c.x - ox) * s,
-        y: oy + (c.y - LIFT_NEAR * near - oy) * s,
-        s,
+        x: r.left + r.width / 2 - o.left,
+        y: r.top + r.height / 2 - o.top,
+        /* height, not width: a card turning on its vertical axis loses width
+           and keeps height, so height carries the perspective and nothing
+           else -- which is the one thing the mark should copy. */
+        s: size > 0 ? r.height / size : 1,
       };
     };
 
@@ -462,15 +439,19 @@ function rails(): void {
       rail.style.setProperty('--p', p.toFixed(4));
       rail.dataset.step = String(Math.min(n - 1, Math.round(p * (n - 1))));
 
-      if (!ico || geo.length !== n || n < 2) return;
+      if (!aimable || !size) return;
+      /* read after the write above on purpose: the cards have to be where this
+         frame puts them before the mark is told where to land, or it trails
+         them by a frame on every flick of the wheel */
+      const origin = belt!.getBoundingClientRect();
       const t = p * (n - 1);
       const i = Math.min(n - 2, Math.floor(t));
       const e = flight(Math.min(1, Math.max(0, t - i)));
       const lift = Math.sin(e * Math.PI);
-      const a = place(i, t);
-      const b = place(i + 1, t);
-      const half = geo[i].size / 2;
-      const x = a.x + (b.x - a.x) * e - p * span - half;
+      const a = place(i, origin);
+      const b = place(i + 1, origin);
+      const half = size / 2;
+      const x = a.x + (b.x - a.x) * e - half;
       const y = a.y + (b.y - a.y) * e - lift * 52 - half;
       const s = (a.s + (b.s - a.s) * e) * (1 + lift * 0.14);
       ico.style.transform =
@@ -492,6 +473,11 @@ function rails(): void {
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onResize);
     onResize();
+    /* Measure again once the display face has landed. One of the six names is
+     * long enough to take a second line in it and not in the fallback, and the
+     * card that happens to is the one whose slot then sits a line higher --
+     * so without this the mark flies to where that slot used to be. */
+    void document.fonts?.ready.then(onResize);
   }
 }
 
