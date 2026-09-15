@@ -35,8 +35,9 @@ import { ORIGIN } from '../lib/data';
     </p>
   </div>
 
+  <span class="romap__glow" aria-hidden="true"></span>
+
   <div class="romap__stage" data-romap-stage>
-    <span class="romap__glow" aria-hidden="true"></span>
     <div class="romap__canvas" data-romap-canvas aria-hidden="true"></div>
     <Image
       class="romap__poster"
@@ -54,9 +55,12 @@ import { ORIGIN } from '../lib/data';
 <style>
   .romap {
     position: relative;
-    /* clip, not hidden: hidden would make this a scroll container and every
-       scroll-driven animation inside the dark room would stop measuring */
-    overflow: clip;
+    /* Clipped sideways, open top and bottom: nothing may widen the page, but
+       the light below belongs to the room and has to reach into the sections
+       either side of this one instead of stopping at its edges.
+       clip, not hidden: hidden would make this a scroll container and every
+       scroll-driven animation inside the dark room would stop measuring. */
+    overflow: clip visible;
     color: var(--fg-inv);
     /* The bottom padding is a runway, not a margin: the light band below sends
        a long white front up over this section, and it has to rise through dark
@@ -123,23 +127,32 @@ import { ORIGIN } from '../lib/data';
     height: 100% !important;
   }
 
-  /* The light the plate stands in. It belongs to the room, so it reaches past
-     the stage on every side and is cut only by the section itself -- the
-     standalone page darkened the corners of its own box instead, which here
-     would draw a rectangle across a room that has no rectangles in it. */
+  /* The light the plate stands in.
+   *
+   * It belongs to the section, not to the stage. Tied to the stage it was a
+   * 1520 px box of light in the middle of a wider screen, with two visible
+   * vertical edges where it stopped -- a patch, not a ground. Now it runs the
+   * full width, is centred on the plate, and fades out well inside its own box
+   * on every side, so there is no edge to find. Top and bottom it reaches past
+   * the section, which is what makes this section share a room with the ones
+   * above and below rather than sit in its own frame. */
   .romap__glow {
     position: absolute;
-    inset: -14% -6%;
+    inset: -18% 0 -24% 0;
+    z-index: -1;
     pointer-events: none;
     background-image:
-      radial-gradient(46% 44% at 50% 54%, rgba(19, 180, 198, 0.17), transparent 74%),
-      radial-gradient(30% 22% at 14% 30%, rgba(75, 216, 232, 0.1), transparent 76%);
+      radial-gradient(54% 42% at 50% 52%, rgba(19, 180, 198, 0.2), transparent 76%),
+      radial-gradient(86% 62% at 50% 54%, rgba(19, 180, 198, 0.07), transparent 78%),
+      linear-gradient(
+        180deg,
+        transparent 0%,
+        rgba(19, 180, 198, 0.05) 32%,
+        rgba(19, 180, 198, 0.05) 64%,
+        transparent 100%
+      );
   }
 
-  /* The poster is the section until the scene has painted a frame: no
-     JavaScript, no WebGL, or reduced motion, and it is all there ever is. It
-     is rendered on transparency, so it drops onto the same ground and the same
-     light as the live canvas and the join never shows. */
   .romap__poster {
     position: absolute;
     inset: 0;
