@@ -1,5 +1,5 @@
 ---
-import { TIMELINE, MOLDOVA_OPERATOR } from '../lib/data';
+import { TIMELINE } from '../lib/data';
 
 /**
  * The group, drawn.
@@ -14,9 +14,9 @@ import { TIMELINE, MOLDOVA_OPERATOR } from '../lib/data';
  * every breakpoint to keep its line weights honest.
  *
  * The Moldovan shop appears under e-commerce because the client's brief puts it
- * there, and it is labelled as a partner's, because that is what it is. The
- * footnote under the diagram says who operates it. That line is not decoration
- * and must not be removed.
+ * there, and its own line says it is the partner's, because that is what it is.
+ * The sentence naming the operator is not repeated here -- it is in the footer,
+ * once, which is where it belongs.
  */
 const PILLARS = [
   {
@@ -84,7 +84,6 @@ const PILLARS = [
       </ol>
     </div>
 
-    <p class="arh__note">{MOLDOVA_OPERATOR}</p>
   </div>
 </section>
 
@@ -242,12 +241,6 @@ const PILLARS = [
 
   .kid__note {
     font-size: 0.75rem;
-    color: var(--fg-inv-2);
-  }
-
-  .arh__note {
-    margin-top: clamp(1.5rem, 4vh, 2.25rem);
-    font-size: 0.8125rem;
     color: var(--fg-inv-2);
   }
 

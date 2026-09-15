@@ -1,7 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import poster from '../assets/photos/harta-smartino.png';
-import { ORIGIN, MOLDOVA_OPERATOR } from '../lib/data';
+import { ORIGIN } from '../lib/data';
 
 /**
  * The map: both countries as one lit plate.
@@ -49,11 +49,6 @@ import { ORIGIN, MOLDOVA_OPERATOR } from '../lib/data';
     <div class="romap__labels" data-romap-labels aria-hidden="true"></div>
   </div>
 
-  <p class="romap__note">
-    Hartă ilustrativă: contururi simplificate, trasee simbolice — nu rute de livrare. {
-      MOLDOVA_OPERATOR
-    }
-  </p>
 </section>
 
 <style>
@@ -64,9 +59,9 @@ import { ORIGIN, MOLDOVA_OPERATOR } from '../lib/data';
     overflow: clip;
     color: var(--fg-inv);
     /* The bottom padding is a runway, not a margin: the light band below sends
-       a long white front up over this section, and the footnote has to stand
-       clear of it or it is read through a sheet of white. */
-    padding-block: clamp(3rem, 7vh, 5rem) clamp(17rem, 40vh, 26rem);
+       a long white front up over this section, and it has to rise through dark
+       rather than over the plate. */
+    padding-block: clamp(3rem, 7vh, 5rem) clamp(15rem, 36vh, 24rem);
   }
 
   .romap__inner {
@@ -198,18 +193,6 @@ import { ORIGIN, MOLDOVA_OPERATOR } from '../lib/data';
   .romap__labels :global(.romap__name--origin) {
     letter-spacing: 0.3em;
     font-weight: 700;
-  }
-
-  .romap__note {
-    position: relative;
-    z-index: 1;
-    max-width: var(--content);
-    margin-inline: auto;
-    margin-top: clamp(1rem, 3vh, 1.75rem);
-    padding-inline: var(--gutter);
-    font-size: 0.8125rem;
-    line-height: 1.5;
-    color: var(--fg-inv-2);
   }
 
   @media (max-width: 699px) {
