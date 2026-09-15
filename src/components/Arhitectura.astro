@@ -2,23 +2,41 @@
 import { TIMELINE } from '../lib/data';
 
 /**
- * The group, drawn.
+ * The group, drawn as what it actually is: a circuit.
  *
- * This replaces the old index of the four units. They are already introduced in
- * the hero as four doors; repeating them a second time as four cards said
- * nothing new. What was missing is the shape of the business -- one company,
- * four pillars, and the units hanging off the two that have them.
+ * The first version of this was an org chart -- a head and four branches -- and
+ * it argued against its own headline. The title says the four are not
+ * independent and that they feed each other; a tree says the opposite, four
+ * things hanging off a company, and no amount of animation over the top of it
+ * changes what the picture means.
  *
- * The diagram is CSS, not SVG: a root, a bus, and four branches, which reflows
- * into a left spine on a narrow screen. An SVG would have had to be redrawn at
- * every breakpoint to keep its line weights honest.
+ * So the picture is the claim now. Import and distribution open the access;
+ * retail and e-commerce are where the consumer is met, in parallel, not one
+ * after the other; brand development is what comes back out of that contact and
+ * returns into what we import. That last leg is a closed loop, and a light runs
+ * it: one stage at a time, wire by wire, for ever.
+ *
+ * Nothing is claimed here that the client did not write. The only thing the
+ * drawing adds is the direction of the arrows, and every arrow follows a
+ * sentence that is on the page: "importul ne da acces", "ne pune direct in
+ * contact", "se intoarce in brandurile pe care le reprezentam". The return leg
+ * carries no label for that reason -- the sentence in the last card is the
+ * label.
+ *
+ * Still CSS and not SVG. The wires are boxes placed against the same grid the
+ * cards are in, so they touch the cards exactly at any width, which a viewBox
+ * stretched over a fluid grid cannot do. The travelling light is two background
+ * layers on each wire -- the wire itself, and a band sliding along it -- so
+ * there is nothing to run per frame and it costs nothing when it is off screen.
+ *
+ * Three states. With no JavaScript and with no CSS animation it is the same
+ * diagram, still readable: the arrowheads carry the direction on their own and
+ * every card is at full strength. Under reduced motion the light does not run.
  *
  * The Moldovan shop appears under e-commerce because the client's brief puts it
  * there, and its own line says it is the partner's, because that is what it is.
- * The sentence naming the operator is not repeated here -- it is in the footer,
- * once, which is where it belongs.
  */
-const PILLARS = [
+const STAGES = [
   {
     name: 'Import & distribuție',
     line: 'Importul ne dă acces la produse și branduri. Distribuția construiește piața.',
@@ -57,33 +75,62 @@ const PILLARS = [
     </h2>
     <p class="arh__lead" data-reveal style="--i: 2">Componentele se alimentează reciproc.</p>
 
-    <div class="arh__tree">
+    <div class="arh__loop">
       <p class="arh__root" data-reveal style="--i: 2">SMARTINO INTERNATIONAL</p>
-      <span class="arh__drop" aria-hidden="true"></span>
-      <span class="arh__bus" aria-hidden="true"></span>
 
-      <ol class="arh__branches">
-        {
-          PILLARS.map((p, i) => (
-            <li class="pil" data-reveal style={`--i: ${i + 1}`}>
-              <p class="pil__name">{p.name}</p>
-              <p class="pil__line">{p.line}</p>
-              {p.children.length > 0 && (
-                <ul class="pil__kids">
-                  {p.children.map((c) => (
-                    <li class="kid">
-                      <span class="kid__name">{c.name}</span>
-                      <span class="kid__note">{c.note}</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </li>
-          ))
-        }
-      </ol>
+      <div class="arh__frame">
+        {/* the company's own feed into the circuit: drawn, never lit -- it is
+            not a stage, it is what the stages belong to */}
+        <i class="seg seg--v f1" aria-hidden="true"></i>
+        <i class="seg seg--h f2" aria-hidden="true"></i>
+        <i class="seg seg--v f3" aria-hidden="true"></i>
+
+        <ol class="arh__stages">
+          {
+            STAGES.map((s, i) => (
+              <li class="pil" data-reveal style={`--i: ${i + 1}`}>
+                <p class="pil__name">{s.name}</p>
+                <p class="pil__line">{s.line}</p>
+                {s.children.length > 0 && (
+                  <ul class="pil__kids">
+                    {s.children.map((c) => (
+                      <li class="kid">
+                        <span class="kid__name">{c.name}</span>
+                        <span class="kid__note">{c.note}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            ))
+          }
+        </ol>
+
+        {/* the split: one stage in, two in parallel out */}
+        <span class="lane lane--fork" aria-hidden="true">
+          <i class="seg seg--h k1"></i>
+          <i class="seg seg--v seg--up k2"></i>
+          <i class="seg seg--v k3"></i>
+          <i class="seg seg--h k4 a-r"></i>
+          <i class="seg seg--h k5 a-r"></i>
+        </span>
+
+        {/* and the join */}
+        <span class="lane lane--join" aria-hidden="true">
+          <i class="seg seg--h j1"></i>
+          <i class="seg seg--h j2"></i>
+          <i class="seg seg--v j3"></i>
+          <i class="seg seg--v seg--up j4"></i>
+          <i class="seg seg--h j5 a-r"></i>
+        </span>
+
+        {/* the leg that closes it */}
+        <i class="seg seg--v b1" aria-hidden="true"></i>
+        <i class="seg seg--h b2" aria-hidden="true"></i>
+        <i class="seg seg--v seg--up b3 a-u" aria-hidden="true"></i>
+        <i class="seg seg--h b4 a-l" aria-hidden="true"></i>
+      </div>
     </div>
-
   </div>
 </section>
 
@@ -138,12 +185,31 @@ const PILLARS = [
     color: var(--fg-inv-2);
   }
 
-  /* ---- the diagram ------------------------------------------------------- */
-  .arh__tree {
-    /* one gap value for the grid and for the bus above it: the bus has to end
-       on the centre of the first and last branch, and that centre depends on
-       the gap. Eyeballed percentages missed it by a few pixels. */
+  /* ---- the circuit ------------------------------------------------------- *
+   *
+   * Every measurement the wires need is a variable the grid also uses, so a
+   * wire cannot end up a few pixels off a card at some width nobody tested:
+   *   --lane  the empty column a fork or a join is drawn in
+   *   --col   one card column, derived from it
+   *   --spine where the leg down the left runs, and where the feed comes down
+   *   --tap   how far below a card's top edge a wire meets its side
+   * ---------------------------------------------------------------------- */
+  .arh__loop {
+    --lane: clamp(30px, 4.6vw, 72px);
     --gap: clamp(10px, 1.2vw, 18px);
+    --col: calc((100% - 2 * var(--lane)) / 3);
+    --spine: calc(var(--col) / 2);
+    --tap: clamp(26px, 3.4vh, 36px);
+    /* the middle of each of the pair, in the frame's own height: the rows are
+       equal halves less the gap between them, so both are exact at any height
+       and a wire always meets a card where a wire should meet a card */
+    --rowA: calc(25% - var(--gap) / 4);
+    --rowB: calc(75% + var(--gap) / 4);
+    --feed: clamp(24px, 4vh, 38px);
+    --ret: clamp(30px, 5vh, 54px);
+    --wire: var(--line-dark-strong);
+    /* one turn of the light around the whole circuit */
+    --turn: 9s;
     margin-top: clamp(2.5rem, 6vh, 4rem);
   }
 
@@ -162,32 +228,45 @@ const PILLARS = [
     color: var(--fg-inv);
   }
 
-  .arh__drop {
-    display: block;
-    width: 1px;
-    height: 26px;
-    margin-inline: auto;
-    background-image: linear-gradient(180deg, rgba(75, 216, 232, 0.6), var(--line-dark-strong));
-  }
-
-  /* the bus: one line across the four branches, from the first stub to the
-     last, so the tree reads as one split rather than four loose cards */
-  .arh__bus {
-    display: block;
-    height: 1px;
-    /* half a column: (100% - 3 gaps) / 4 / 2 */
-    margin-inline: calc((100% - 3 * var(--gap)) / 8);
-    background-color: var(--line-dark-strong);
-  }
-
-  .arh__branches {
+  .arh__frame {
     position: relative;
-    margin: 22px 0 0;
+    /* room above for the feed, below for the leg that closes the loop */
+    margin-top: calc(var(--feed) + 22px);
+    margin-bottom: var(--ret);
+  }
+
+  .arh__stages {
+    margin: 0;
     padding: 0;
     list-style: none;
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: var(--gap);
+    grid-template-columns: 1fr var(--lane) 1fr var(--lane) 1fr;
+    row-gap: var(--gap);
+  }
+
+  /* first and last hold both rows: the pair in the middle is one stage split in
+     two, not two stages */
+  .pil:nth-child(1) {
+    grid-area: 1 / 1 / 3 / 2;
+  }
+  .pil:nth-child(2) {
+    grid-area: 1 / 3 / 2 / 4;
+  }
+  .pil:nth-child(3) {
+    grid-area: 2 / 3 / 3 / 4;
+  }
+  .pil:nth-child(4) {
+    grid-area: 1 / 5 / 3 / 6;
+  }
+
+  /* The two that hold both rows keep the full height of the pair beside them,
+     because three wires meet them on their own edges -- the feed at the top,
+     the circuit at half height, the return at the bottom -- and a card that
+     stops short of its span leaves all three pointing at nothing. What they do
+     instead is carry their words in the middle of that height. */
+  .pil:nth-child(1),
+  .pil:nth-child(4) {
+    justify-content: center;
   }
 
   .pil {
@@ -201,15 +280,25 @@ const PILLARS = [
     background-color: rgba(20, 25, 27, 0.6);
   }
 
-  /* the stub up to the bus */
-  .pil::before {
+  /* The light on the stage the pulse is at. One overlay, one property: the card
+     underneath never changes, so nothing here can make its text harder to
+     read. */
+  .pil::after {
     content: '';
     position: absolute;
-    left: 50%;
-    top: -22px;
-    width: 1px;
-    height: 22px;
-    background-color: var(--line-dark-strong);
+    inset: -1px;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    border: 1px solid rgba(75, 216, 232, 0.8);
+    background-image: radial-gradient(
+      112% 66% at 50% 110%,
+      rgba(19, 180, 198, 0.3),
+      transparent 70%
+    );
+    box-shadow:
+      0 0 64px rgba(19, 180, 198, 0.26) inset,
+      0 0 58px rgba(19, 180, 198, 0.24);
   }
 
   .pil__name {
@@ -254,43 +343,505 @@ const PILLARS = [
     color: var(--fg-inv-2);
   }
 
-  /* ---- narrow: the tree turns on its side -------------------------------- */
+  /* ---- the wires --------------------------------------------------------- *
+   *
+   * Two background layers on one box: the wire, and a band of light three times
+   * the box's own length sliding along it. Outside its turn the band sits past
+   * the end, where it is transparent, so a wire that is not lit needs nothing
+   * switched off -- and the whole thing is one animated property that the
+   * compositor handles.
+   * ---------------------------------------------------------------------- */
+  .lane {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: var(--lane);
+  }
+
+  .lane--fork {
+    left: var(--col);
+  }
+
+  .lane--join {
+    right: var(--col);
+  }
+
+  .seg {
+    position: absolute;
+    background-repeat: no-repeat;
+    /* Four times the wire, and the light confined to the middle fifth of that,
+       so the quarter of the image a resting wire shows is entirely transparent
+       and only the wire's own colour is left. Get this wrong -- and at three
+       times with a wider band it is wrong -- and every wire sits permanently
+       half lit, which is exactly what a circuit must not look like. */
+    background-image:
+      linear-gradient(var(--dir, 90deg), transparent 0 40%, var(--t-glow) 50%, transparent 60% 100%),
+      linear-gradient(var(--wire), var(--wire));
+  }
+
+  .seg--h {
+    height: 1px;
+    background-size:
+      400% 100%,
+      100% 100%;
+    background-position:
+      100% 0,
+      0 0;
+  }
+
+  .seg--v {
+    width: 1px;
+    --dir: 180deg;
+    background-size:
+      100% 400%,
+      100% 100%;
+    background-position:
+      0 100%,
+      0 0;
+  }
+
+  /* the direction, for anyone who is not watching the light: no motion needed,
+     no JavaScript needed, and it is all reduced motion leaves behind */
+  .a-r::before,
+  .a-l::before,
+  .a-u::before {
+    content: '';
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-top: 1px solid var(--wire);
+    border-right: 1px solid var(--wire);
+  }
+
+  .a-r::before {
+    right: 0;
+    top: -3px;
+    transform: rotate(45deg);
+  }
+
+  .a-l::before {
+    left: 0;
+    top: -3px;
+    transform: rotate(-135deg);
+  }
+
+  .a-u::before {
+    top: 0;
+    left: -3px;
+    transform: rotate(-45deg);
+  }
+
+  /* the feed from the company: root centre, across, down into the first stage */
+  .f1 {
+    left: 50%;
+    bottom: calc(100% + var(--feed));
+    height: 22px;
+  }
+
+  .f2 {
+    left: var(--spine);
+    right: 50%;
+    bottom: calc(100% + var(--feed));
+  }
+
+  .f3 {
+    left: var(--spine);
+    bottom: 100%;
+    height: var(--feed);
+  }
+
+  /* the fork: in at the middle, up and down, out to each of the pair */
+  .k1 {
+    top: 50%;
+    left: 0;
+    width: 50%;
+  }
+  .k2 {
+    left: 50%;
+    top: var(--rowA);
+    height: calc(50% - var(--rowA));
+  }
+  .k3 {
+    left: 50%;
+    top: 50%;
+    height: calc(var(--rowB) - 50%);
+  }
+  .k4 {
+    top: var(--rowA);
+    left: 50%;
+    width: 50%;
+  }
+  .k5 {
+    top: var(--rowB);
+    left: 50%;
+    width: 50%;
+  }
+
+  /* the join: the mirror of it */
+  .j1 {
+    top: var(--rowA);
+    left: 0;
+    width: 50%;
+  }
+  .j2 {
+    top: var(--rowB);
+    left: 0;
+    width: 50%;
+  }
+  .j3 {
+    left: 50%;
+    top: var(--rowA);
+    height: calc(50% - var(--rowA));
+  }
+  .j4 {
+    left: 50%;
+    top: 50%;
+    height: calc(var(--rowB) - 50%);
+  }
+  .j5 {
+    top: 50%;
+    left: 50%;
+    width: 50%;
+  }
+
+  /* and back */
+  .b1 {
+    left: calc(100% - var(--spine));
+    top: 100%;
+    height: var(--ret);
+  }
+  .b2 {
+    left: var(--spine);
+    right: var(--spine);
+    top: calc(100% + var(--ret));
+  }
+  .b3 {
+    left: var(--spine);
+    top: 100%;
+    height: var(--ret);
+  }
+  .b4 {
+    display: none;
+  }
+
+  /* ---- the light, and only where motion is allowed ----------------------- */
+  @media (prefers-reduced-motion: no-preference) {
+    /* --o is the point in the turn at which a wire or a stage takes the light,
+       as a fraction of it. A positive delay, not a negative one: negative winds
+       the animation FORWARD, so every --o below would have had to be written as
+       one minus itself and the order of the circuit would be unreadable in the
+       source. The cost is that each one waits out its offset once, on the first
+       turn, in a state that is dark anyway. */
+    .seg {
+      animation: var(--turn) linear infinite;
+      animation-delay: calc(var(--o, 0) * var(--turn));
+    }
+
+    /* the company's feed is not a stage and never lights */
+    .f1,
+    .f2,
+    .f3 {
+      animation: none;
+    }
+
+    .seg--h {
+      animation-name: run-r;
+    }
+    .seg--v {
+      animation-name: run-d;
+    }
+    .seg--up {
+      animation-name: run-u;
+    }
+    .a-l {
+      animation-name: run-l;
+    }
+
+    /* a band crosses its own wire in a tenth of the turn, and the order of the
+       delays is the order of the circuit */
+    @keyframes run-r {
+      0% {
+        background-position:
+          100% 0,
+          0 0;
+      }
+      12%,
+      100% {
+        background-position:
+          0% 0,
+          0 0;
+      }
+    }
+
+    @keyframes run-l {
+      0% {
+        background-position:
+          0% 0,
+          0 0;
+      }
+      12%,
+      100% {
+        background-position:
+          100% 0,
+          0 0;
+      }
+    }
+
+    @keyframes run-d {
+      0% {
+        background-position:
+          0 100%,
+          0 0;
+      }
+      12%,
+      100% {
+        background-position:
+          0 0%,
+          0 0;
+      }
+    }
+
+    @keyframes run-u {
+      0% {
+        background-position:
+          0 0%,
+          0 0;
+      }
+      12%,
+      100% {
+        background-position:
+          0 100%,
+          0 0;
+      }
+    }
+
+    .pil::after {
+      animation: stage var(--turn) linear infinite;
+      animation-delay: calc(var(--o, 0) * var(--turn));
+    }
+
+    @keyframes stage {
+      0% {
+        opacity: 0;
+      }
+      5% {
+        opacity: 1;
+      }
+      25% {
+        opacity: 1;
+      }
+      33%,
+      100% {
+        opacity: 0;
+      }
+    }
+
+    /* the turn, in order */
+    .pil:nth-child(1) {
+      --o: 0;
+    }
+    .pil:nth-child(2),
+    .pil:nth-child(3) {
+      --o: 0.25;
+    }
+    .pil:nth-child(4) {
+      --o: 0.53;
+    }
+
+    .k1 {
+      --o: 0.22;
+    }
+    .k2,
+    .k3 {
+      --o: 0.25;
+    }
+    .k4,
+    .k5 {
+      --o: 0.28;
+    }
+
+    .j1,
+    .j2 {
+      --o: 0.5;
+    }
+    .j3,
+    .j4 {
+      --o: 0.53;
+    }
+    .j5 {
+      --o: 0.55;
+    }
+
+    .b1 {
+      --o: 0.76;
+    }
+    .b2 {
+      --o: 0.8;
+    }
+    .b3 {
+      --o: 0.88;
+    }
+
+    /* Point at a stage and the turn stops, with the light on that stage and
+       nowhere else. Not paused -- paused freezes whatever happened to be lit at
+       that instant, which can be three things at once and says nothing about
+       what you are pointing at. Taken off instead: everything falls back to
+       dark, and the one under the pointer is lit. A tap lands the same state on
+       a phone. */
+    .arh__loop:has(.pil:hover) .seg,
+    .arh__loop:has(.pil:hover) .pil + .pil::before,
+    .arh__loop:has(.pil:hover) .pil::after {
+      animation: none;
+    }
+
+    .pil::after {
+      transition: opacity 240ms var(--ease-out);
+    }
+
+    .pil:hover::after {
+      opacity: 1;
+    }
+  }
+
+  /* the ones that run against their box's own direction */
+  .k2,
+  .j4,
+  .b3 {
+    --dir: 0deg;
+    background-position:
+      0 0%,
+      0 0;
+  }
+
+  /* ---- narrow: the same circuit, stood on its end ------------------------ *
+   *
+   * Not four cards in a column with a line beside them. The spine comes down
+   * the left through all four, and the leg that closes the loop climbs the
+   * right-hand side and comes back in at the top -- so on a phone it still
+   * reads as a circuit, and it is the height of one card at a time.
+   * ---------------------------------------------------------------------- */
   @media (max-width: 899px) {
-    .arh__bus {
+    .arh__loop {
+      --lane: 24px;
+      --col: 100%;
+      /* the line down through the stages runs inside the cards' own left edge,
+         so it meets every card instead of passing beside it */
+      --stub: 28px;
+      --spine: calc(var(--lane) + var(--stub));
+      --rspine: 11px;
+      --gap: clamp(30px, 5vh, 46px);
+      --ret: clamp(26px, 4vh, 40px);
+    }
+
+    .arh__stages {
+      grid-template-columns: 1fr;
+      padding-inline: var(--lane);
+      row-gap: var(--gap);
+    }
+
+    .pil:nth-child(1),
+    .pil:nth-child(2),
+    .pil:nth-child(3),
+    .pil:nth-child(4) {
+      grid-area: auto;
+    }
+
+    /* the wire between two stages: each card draws the one that arrives at it,
+       because only the card knows where its own top edge has ended up */
+    .pil + .pil::before {
+      content: '';
+      position: absolute;
+      left: var(--stub);
+      top: calc(var(--gap) * -1);
+      width: 1px;
+      height: var(--gap);
+      background-repeat: no-repeat;
+      background-image:
+        linear-gradient(180deg, transparent 0 40%, var(--t-glow) 50%, transparent 60% 100%),
+        linear-gradient(var(--wire), var(--wire));
+      background-size:
+        100% 400%,
+        100% 100%;
+      background-position:
+        0 100%,
+        0 0;
+    }
+
+    /* no fork and no join down here: the pair is a sequence on a phone */
+    .lane {
       display: none;
     }
 
-    .arh__branches {
-      grid-template-columns: 1fr;
-      margin-top: 0;
-      padding-left: 26px;
+    /* down out of the last stage, across, up the right, and back in at the top */
+    .b1 {
+      left: var(--spine);
+      top: 100%;
+      height: var(--ret);
     }
 
-    /* one spine down the left, stubs across to each branch */
-    .arh__branches::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: -26px;
-      bottom: 50%;
-      width: 1px;
-      background-color: var(--line-dark-strong);
+    .b2 {
+      left: var(--spine);
+      right: var(--rspine);
+      top: calc(100% + var(--ret));
     }
 
-    .pil::before {
-      left: -26px;
-      top: 28px;
-      width: 26px;
-      height: 1px;
+    .b3 {
+      left: auto;
+      right: var(--rspine);
+      top: var(--tap);
+      height: calc(100% - var(--tap) + var(--ret));
     }
 
-    .arh__drop {
-      margin-inline: 0 auto;
-      margin-left: 0;
+    .b4 {
+      display: block;
+      right: var(--rspine);
+      top: var(--tap);
+      width: calc(var(--lane) - var(--rspine));
     }
 
-    .arh__root {
-      margin-inline: 0;
+    .f2 {
+      left: var(--spine);
+      right: 50%;
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .pil + .pil::before {
+        animation: run-d var(--turn) linear infinite;
+        animation-delay: calc(var(--od, 0) * var(--turn));
+      }
+
+      /* one stage per quarter turn here: the pair is a sequence on a phone, and
+         the light says so */
+      .pil:nth-child(1) {
+        --o: 0;
+      }
+      .pil:nth-child(2) {
+        --o: 0.2;
+        --od: 0.18;
+      }
+      .pil:nth-child(3) {
+        --o: 0.4;
+        --od: 0.38;
+      }
+      .pil:nth-child(4) {
+        --o: 0.58;
+        --od: 0.56;
+      }
+
+      /* the whole return has to finish inside the turn: a leg that starts after
+         0.88 runs off the end of it and is never seen */
+      .b1 {
+        --o: 0.76;
+      }
+      .b2 {
+        --o: 0.79;
+      }
+      .b3 {
+        --o: 0.82;
+      }
+      .b4 {
+        --o: 0.87;
+      }
     }
   }
 </style>
