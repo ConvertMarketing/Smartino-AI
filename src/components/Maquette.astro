@@ -93,7 +93,6 @@ const { id, model, poster, posterAlt, kicker, title, lead, pins, spots, keys, di
       ))
     }
 
-    <p class="mq__hint" data-mq-hint>Trage ca să rotești · derulează ca să zbori</p>
   </div>
 </section>
 
@@ -345,33 +344,6 @@ const { id, model, poster, posterAlt, kicker, title, lead, pins, spots, keys, di
     font-size: 0.6875rem;
     letter-spacing: 0.04em;
     color: var(--fg-inv-2);
-  }
-
-  /* ---- hint ------------------------------------------------------------ */
-  .mq__hint {
-    display: none;
-    position: absolute;
-    z-index: 3;
-    left: 50%;
-    bottom: 1.25rem;
-    transform: translateX(-50%);
-    font-family: var(--font-display);
-    font-size: 0.625rem;
-    font-weight: 700;
-    letter-spacing: 0.3em;
-    text-transform: uppercase;
-    white-space: nowrap;
-    color: var(--fg-inv-2);
-    pointer-events: none;
-    transition: opacity 600ms var(--ease-out);
-  }
-
-  :global([data-js]) .mq__hint {
-    display: block;
-  }
-
-  .mq[data-dragged] .mq__hint {
-    opacity: 0;
   }
 
   @media (max-width: 899px) {

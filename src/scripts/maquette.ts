@@ -245,7 +245,6 @@ export function mount(section: HTMLElement): void {
       const dy = e.clientY - y0;
       if (Math.abs(dx) + Math.abs(dy) > 5) {
         dragged = true;
-        section.setAttribute('data-dragged', '');
       }
       uYawT = yaw0 + dx * 0.006;
       uPitchT = pitch0 + dy * 0.004;

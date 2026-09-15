@@ -69,7 +69,7 @@ for (const model of sections) {
 
   // Only the model goes into the poster: the words, labels and hint are real
   // DOM layered on top of it, and would otherwise appear twice.
-  await page.addStyleTag({ content: '.mq__copy, .mq__pin, .mq__hint { visibility: hidden !important; }' });
+  await page.addStyleTag({ content: '.mq__copy, .mq__pin { visibility: hidden !important; }' });
   await page.waitForTimeout(200);
   const file = model === 'snagov-plaza' ? 'snagov-plaza-macheta.png' : `${model}-macheta.png`;
   await page.locator(`[data-mq-model="${model}"] [data-mq-canvas]`).screenshot({ path: `src/assets/photos/${file}` });
