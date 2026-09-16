@@ -66,8 +66,8 @@ const cards = [
             class="hero__mark"
             src={wordmark}
             alt="Smartino"
-            widths={[360, 540, 720, 1080]}
-            sizes="(min-width: 900px) 30rem, (min-width: 700px) 34vw, 62vw"
+            widths={[240, 360, 480, 560, 840]}
+            sizes="(min-width: 1725px) 280px, (min-width: 540px) calc(2.41rem + 14vw), 114px"
             loading="eager"
             fetchpriority="high"
           />
@@ -402,9 +402,14 @@ const cards = [
      own turquoise (#0fb3c3 -- what --t was drawn from).
      TODO(client): swap in the master artwork when it arrives, preferably a
      vector. Nothing here changes but that one file. */
+  /* Sized off the title, not off the viewport: this clamp is the title's own
+     clamp multiplied by 4.375, so the mark's letters land just under the cap
+     height of the line below it at every width -- a name set slightly smaller
+     than the sentence it opens, instead of a banner over it. Change the title
+     size and this follows without a second thought. */
   .hero__mark {
     display: block;
-    width: clamp(15rem, 5rem + 24vw, 30rem);
+    width: clamp(7.11rem, 2.41rem + 14vw, 17.5rem);
     height: auto;
     margin-inline: auto;
   }
