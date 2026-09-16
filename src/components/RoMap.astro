@@ -1,15 +1,15 @@
 ---
 import { Image } from 'astro:assets';
 import poster from '../assets/photos/harta-smartino.png';
-import { ORIGIN } from '../lib/data';
+import { ORIGIN, ONLINE_MARKETS } from '../lib/data';
 
 /**
  * The map: both countries as one lit plate.
  *
- * It follows the warehouse on purpose. That section ends with "de aici pleacă
- * marfa"; this one is where it goes -- Romania and the Republic of Moldova,
- * drawn county by county and raion by raion, with light leaving the two points
- * the brand starts from.
+ * It follows the warehouse on purpose. That section is where the goods are;
+ * this one is where they go -- Romania and the Republic of Moldova, drawn
+ * county by county and raion by raion, with light leaving the two points the
+ * brand works from.
  *
  * The scene was built by the client in Claude Code as a standalone page and is
  * ported in src/scripts/romap.ts. Everything before it -- and instead of it,
@@ -32,10 +32,9 @@ import { ORIGIN } from '../lib/data';
         <p class="romap__kicker" data-reveal>România și Republica Moldova</p>
         <h2 class="romap__title" id="romap-title" data-reveal>Două țări, pe aceeași hartă.</h2>
         <p class="romap__lead" data-reveal>
-          Numele Smartino a pornit în {ORIGIN.year} în Republica Moldova și a ajuns în România în {
-            ORIGIN.romania
-          }. Astăzi e prezent în amândouă: magazinele de la Snagov, depozitul de la Otopeni și cele
-          două magazine online.
+          Numele Smartino a pornit în România în {ORIGIN.romania}. La moment activează fizic în
+          România și Republica Moldova, cu distribuție la nivel național și operațiuni online care
+          acoperă {ONLINE_MARKETS.slice(0, -1).join(', ')} și {ONLINE_MARKETS.at(-1)}.
         </p>
       </div>
 
@@ -84,8 +83,13 @@ import { ORIGIN } from '../lib/data';
        purpose -- the words wrap by WIDTH, so their height barely moves with the
        height of the screen, and a vh floor ran 39px short on a 700px-tall one
        and pushed the kicker off the top. The floor is the tallest the words
-       measured, 204px, plus the gap and a little air; the vh term gives the
-       scene room to breathe on a tall screen instead of filling it. */
+       measured plus the gap and a little air; the vh term gives the scene room
+       to breathe on a tall screen instead of filling it.
+       The sentence has since grown a country list, so those words now measure
+       228px where they measured 204px, and the air above the kicker is down
+       from ~45px to ~20px on a short landscape screen (measured at 1024x600
+       through 1920x800: nothing clips, nothing overflows). Lengthen the
+       sentence again and this floor is the number to raise. */
     --reserve: clamp(15.5rem, 31vh, 20rem);
     /* and how tall the same front is when it cannot hold the screen: without
        JavaScript, or where someone asked the machine to stop moving */

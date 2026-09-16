@@ -156,19 +156,29 @@ export const UNITS: Unit[] = [
  */
 export const MOLDOVA_OPERATOR = 'smartino.md este operat de RINCOM-GRUP SRL, Chișinău.';
 
-/** The brand's own timeline, as stated by the client (years only for the first
- *  three -- exact dates were not available and are not invented here).
+/** The brand's own timeline, as stated by the client (years only -- exact dates
+ *  were not available and are not invented here).
  *
- *  The relationship the client confirmed: the name is born in the Republic of
- *  Moldova in 2001 and is brought to Romania in 2017, where SMARTINO
- *  INTERNATIONAL SRL operates it under partnership. smartino.md stays with
- *  RINCOM-GRUP SRL, Chișinău -- so the story may say where the brand comes
- *  from, and may never say the Moldovan shop is ours. */
+ *  The client has since revised the story this held: the name starts in Romania
+ *  in 2017. The earlier version -- born in the Republic of Moldova in 2001,
+ *  brought to Romania in 2017 -- is gone, and with it the "25 ani de brand"
+ *  that was counted from it. What has not changed: smartino.md is operated by
+ *  RINCOM-GRUP SRL, Chișinău, and this site never says that shop is ours. */
 export const ORIGIN = {
-  year: '2001',
   romania: '2017',
   online: '2020',
 } as const;
+
+/** The countries the client says the group's online operations reach. Physical
+ *  presence is a shorter list -- Romania and the Republic of Moldova -- and the
+ *  two are never merged into one number on the page. */
+export const ONLINE_MARKETS = [
+  'România',
+  'Republica Moldova',
+  'Bulgaria',
+  'Ungaria',
+  'Grecia',
+] as const;
 
 
 /** Mandatory for a Romanian company selling online. Linked as text, with marks
@@ -183,10 +193,11 @@ export const CONSUMER_LINKS = [
 export const HOME_AREA = '1.200 m²';
 
 export const FACTS = [
-  /* 2001 -> 2026. Counted, not rounded: the brand's first year is ORIGIN.year
-   * below, and the label says "ani de brand", not "ani de firmă" -- the
-   * Romanian company is younger than the name it carries. */
-  { value: '25', n: 25, suffix: '', label: 'ani de brand' },
+  /* 2017 -> 2026, counted from ORIGIN.romania and not rounded. This used to
+   * read 25, from a 2001 start the client has since revised away. Nothing on
+   * the page renders this list today; it is kept true so that the day it is
+   * rendered it does not contradict the sentence over the map. */
+  { value: '9', n: 9, suffix: '', label: 'ani de brand' },
   { value: '2', n: 2, suffix: '', label: 'magazine fizice' },
   { value: HOME_AREA, n: 1200, suffix: ' m²', label: 'Smartino Home' },
   { value: '2', n: 2, suffix: '', label: 'țări' },
