@@ -88,15 +88,36 @@ const STEPS = [
      over a neighbour has no backdrop to sit on, and everything that ever went
      wrong here went wrong for that one reason. Two lamps of its own, then, at
      the strength the dark zones use: on white they were a tint, and a tint is
-     invisible on ink. */
+     invisible on ink.
+     Which is also why each lamp has to END inside this box, top and bottom.
+     The first one used to sit at 18% of the height with a reach of 21%, so it
+     was still four luminance levels strong where the section stops -- and a
+     clip is a straight line across the full width, which is the one thing the
+     eye catches in a dark room. Both are now centred deep enough that they are
+     at zero before either edge. Sideways they are not: the box is 20% wider
+     than the section on purpose, so what gets cut off there is cut off past
+     the window, where there is nothing to see it against.
+     Three stops, not two, for the same reason the map's light has three: a
+     straight ramp to transparent leaves a corner in the falloff, and a corner
+     in a gradient this wide draws its own faint ring. */
   .think__glow {
     position: absolute;
     inset: 0 -10%;
     z-index: 0;
     pointer-events: none;
     background-image:
-      radial-gradient(32% 30% at 78% 18%, rgba(19, 180, 198, 0.22), transparent 70%),
-      radial-gradient(28% 26% at 8% 82%, rgba(75, 216, 232, 0.14), transparent 72%);
+      radial-gradient(
+        38% 44% at 78% 46%,
+        rgba(19, 180, 198, 0.2),
+        rgba(19, 180, 198, 0.064) 44%,
+        transparent 78%
+      ),
+      radial-gradient(
+        32% 30% at 6% 74%,
+        rgba(75, 216, 232, 0.13),
+        rgba(75, 216, 232, 0.042) 44%,
+        transparent 78%
+      );
   }
 
   @media (prefers-reduced-motion: no-preference) {
