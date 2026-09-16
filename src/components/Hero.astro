@@ -1,5 +1,6 @@
 ---
 import { Image } from 'astro:assets';
+import wordmark from '../assets/logo/smartino-wordmark.png';
 import supermarket from '../assets/photos/smartino-supermarket-interior.jpg';
 import homeCladire from '../assets/photos/smartino-home-cladire.jpg';
 import shopSite from '../assets/photos/smartinoshop-site.jpg';
@@ -58,9 +59,20 @@ const cards = [
   <div class="hero__floor" data-animate="floor" aria-hidden="true"></div>
 
   <div class="hero__head">
-    <p class="hero__over" data-reveal>Smartino International</p>
     <h1 class="hero__title" data-animate="lines">
-      <span class="line"><span class="line__in">Smartino.</span></span>
+      <span class="line line--mark">
+        <span class="line__in">
+          <Image
+            class="hero__mark"
+            src={wordmark}
+            alt="Smartino"
+            widths={[360, 540, 720, 1080]}
+            sizes="(min-width: 900px) 30rem, (min-width: 700px) 34vw, 62vw"
+            loading="eager"
+            fetchpriority="high"
+          />
+        </span>
+      </span>
       <span class="line"><span class="line__in">Mai multe feluri</span></span>
       <span class="line"><span class="line__in line__in--t">de a-l descoperi.</span></span>
     </h1>
@@ -380,17 +392,25 @@ const cards = [
     padding: clamp(1.25rem, 3.5vh, 2.5rem) var(--gutter) 0;
   }
 
-  .hero__over {
-    font-family: var(--font-display);
-    font-size: clamp(0.9375rem, 0.7rem + 0.8vw, 1.375rem);
-    font-weight: 700;
-    letter-spacing: 0.32em;
-    text-transform: uppercase;
-    color: var(--t-glow);
+  /* The name is set as the mark, not as type: the group's own wordmark stands
+     where the word used to, and the two lines under it finish the sentence it
+     starts. It is the first line of the heading, so it rises out of the same
+     mask on the same beat, and it carries the accessible name -- to a screen
+     reader and to a search engine the <h1> still opens on the word "Smartino"
+     and runs into the two lines under it.
+     The file is the wordmark taken off the group's own lockup, at the brand's
+     own turquoise (#0fb3c3 -- what --t was drawn from).
+     TODO(client): swap in the master artwork when it arrives, preferably a
+     vector. Nothing here changes but that one file. */
+  .hero__mark {
+    display: block;
+    width: clamp(15rem, 5rem + 24vw, 30rem);
+    height: auto;
+    margin-inline: auto;
   }
 
   .hero__title {
-    margin-top: 0.75rem;
+    margin-top: 0;
     font-family: var(--font-display);
     font-size: clamp(1.625rem, 0.55rem + 3.2vw, 4rem);
     font-weight: 800;
@@ -409,6 +429,13 @@ const cards = [
     overflow: hidden;
     padding-bottom: 0.26em;
     margin-bottom: -0.22em;
+  }
+
+  /* an image has no descenders, so this mask can sit on the glyph bounds, and
+     the room under the mark is set here rather than left over from the type */
+  .line--mark {
+    padding-bottom: 0;
+    margin-bottom: clamp(0.75rem, 2vh, 1.5rem);
   }
 
   .line__in {
