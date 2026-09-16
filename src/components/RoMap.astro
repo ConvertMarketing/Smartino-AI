@@ -24,21 +24,21 @@ import { ORIGIN } from '../lib/data';
 ---
 
 <section class="romap" id="harta" aria-labelledby="romap-title" data-romap>
-  <div class="romap__inner">
-    <p class="romap__kicker" data-reveal>România și Republica Moldova</p>
-    <h2 class="romap__title" id="romap-title" data-reveal>Două țări, pe aceeași hartă.</h2>
-    <p class="romap__lead" data-reveal>
-      Numele Smartino a pornit în {ORIGIN.year} în Republica Moldova și a ajuns în România în {
-        ORIGIN.romania
-      }. Astăzi e prezent în amândouă: magazinele de la Snagov, depozitul de la Otopeni și cele
-      două magazine online.
-    </p>
-  </div>
-
   <span class="romap__dither" aria-hidden="true"></span>
 
   <div class="romap__hold" data-pin>
     <div class="romap__pin">
+      <div class="romap__inner">
+        <p class="romap__kicker" data-reveal>România și Republica Moldova</p>
+        <h2 class="romap__title" id="romap-title" data-reveal>Două țări, pe aceeași hartă.</h2>
+        <p class="romap__lead" data-reveal>
+          Numele Smartino a pornit în {ORIGIN.year} în Republica Moldova și a ajuns în România în {
+            ORIGIN.romania
+          }. Astăzi e prezent în amândouă: magazinele de la Snagov, depozitul de la Otopeni și cele
+          două magazine online.
+        </p>
+      </div>
+
       <span class="romap__light" aria-hidden="true"></span>
 
       <div class="romap__stage" data-romap-stage>
@@ -79,6 +79,14 @@ import { ORIGIN } from '../lib/data';
     /* how much scroll the section holds the screen for while the light comes up
        over the plate */
     --wash: 30vh;
+    /* What the words above the plate take out of the held screen, plus the gap
+       under them: the plate gets the rest. The floor is in rem and not in vh on
+       purpose -- the words wrap by WIDTH, so their height barely moves with the
+       height of the screen, and a vh floor ran 39px short on a 700px-tall one
+       and pushed the kicker off the top. The floor is the tallest the words
+       measured, 204px, plus the gap and a little air; the vh term gives the
+       scene room to breathe on a tall screen instead of filling it. */
+    --reserve: clamp(15.5rem, 31vh, 20rem);
     /* and how tall the same front is when it cannot hold the screen: without
        JavaScript, or where someone asked the machine to stop moving */
     --dawn-h: clamp(15rem, 38vh, 25rem);
@@ -116,8 +124,10 @@ import { ORIGIN } from '../lib/data';
     position: sticky;
     top: 0;
     height: 100dvh;
-    display: grid;
-    place-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: clamp(0.75rem, 2.5vh, 1.75rem);
   }
 
   .romap__inner {
@@ -332,8 +342,23 @@ import { ORIGIN } from '../lib/data';
     margin-top: clamp(0.5rem, 2vh, 1.5rem);
   }
 
+  /* Held, the plate shares the screen with the words above it, so its height is
+     capped by what they leave -- and the cap is applied to the WIDTH, because
+     width is what the ratio is derived from: cap the height directly and the
+     ratio breaks, which costs the poster its exact fit and backs the camera
+     off. The reserve is measured, not guessed: see the comment on --reserve. */
+  /* A flex item with an auto margin on the cross axis does not stretch -- so in
+     the held screen the words shrank to their own longest line and centred
+     themselves in the page instead of starting at its edge. Full width, and
+     their own max-width and auto margins centre the measure again. */
+  .romap__hold[data-pinned] .romap__inner {
+    width: 100%;
+  }
+
   .romap__hold[data-pinned] .romap__stage {
     margin-top: 0;
+    flex: 0 0 auto;
+    width: min(100%, 176vh, calc(2 * (100dvh - var(--reserve))));
   }
 
   .romap__canvas {
@@ -409,6 +434,10 @@ import { ORIGIN } from '../lib/data';
        same size either way, so the extra height is air around it, not waste */
     .romap__stage {
       aspect-ratio: 3 / 2;
+    }
+
+    .romap__hold[data-pinned] .romap__stage {
+      width: min(100%, calc(1.5 * (100dvh - var(--reserve))));
     }
 
     /* the plate is a third of the size here; the names have to follow it down
