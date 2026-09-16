@@ -39,11 +39,22 @@ const CRITERIA = ['Calitate', 'Valoare', 'Design', 'Utilitate', 'Relevanță', '
 </section>
 
 <style>
+  /* One lamp, low and to the right, so the two dark bands either side of this
+     one are not lit from the same place: the section above throws its light
+     high on the right and low on the left, the zone below opens with a wide one
+     across the middle. Painted on the section itself rather than on an element
+     of its own -- nothing here is over anything, so there is nothing to blend
+     with and no box to give away. */
   .pick {
     position: relative;
     overflow: clip;
-    background-color: var(--paper);
-    color: var(--fg);
+    background-color: var(--ink);
+    color: var(--fg-inv);
+    background-image: radial-gradient(
+      44% 38% at 84% 72%,
+      rgba(19, 180, 198, 0.16),
+      transparent 74%
+    );
     padding-block: clamp(3rem, 8vh, 5rem) clamp(5rem, 13vh, 8rem);
   }
 
@@ -61,7 +72,7 @@ const CRITERIA = ['Calitate', 'Valoare', 'Design', 'Utilitate', 'Relevanță', '
     font-weight: 700;
     letter-spacing: 0.3em;
     text-transform: uppercase;
-    color: var(--t-deep);
+    color: var(--t-glow);
   }
 
   .pick__title {
@@ -78,7 +89,7 @@ const CRITERIA = ['Calitate', 'Valoare', 'Design', 'Utilitate', 'Relevanță', '
     margin-top: clamp(1.25rem, 3vh, 2rem);
     max-width: 52ch;
     line-height: 1.6;
-    color: var(--fg-2);
+    color: var(--fg-inv-2);
   }
 
   /* ---- the threshold ------------------------------------------------------
@@ -102,14 +113,14 @@ const CRITERIA = ['Calitate', 'Valoare', 'Design', 'Utilitate', 'Relevanță', '
     display: grid;
     grid-template-columns: repeat(6, minmax(0, 1fr));
     gap: 1px;
-    background-color: var(--line);
+    background-color: var(--line-dark-strong);
   }
 
   .crit {
     display: grid;
     place-items: center;
     padding: clamp(1.125rem, 2.6vh, 1.75rem) 0.625rem;
-    background-color: var(--paper);
+    background-color: var(--ink);
     font-family: var(--font-display);
     font-size: clamp(0.9375rem, 0.8rem + 0.45vw, 1.25rem);
     font-weight: 700;
@@ -117,7 +128,7 @@ const CRITERIA = ['Calitate', 'Valoare', 'Design', 'Utilitate', 'Relevanță', '
     line-height: 1.1;
     text-align: center;
     text-wrap: balance;
-    color: var(--fg);
+    color: var(--fg-inv);
   }
 
   @media (max-width: 899px) {
@@ -130,16 +141,19 @@ const CRITERIA = ['Calitate', 'Valoare', 'Design', 'Utilitate', 'Relevanță', '
     /* the pass: each compartment takes the light in turn, and the reveal the
        band already has is what starts the count */
     :global([data-js]) .crit {
-      color: var(--fg-2);
+      color: var(--fg-inv-2);
       transition:
         background-color 560ms var(--ease-out),
         color 560ms var(--ease-out);
       transition-delay: calc(var(--k, 0) * 90ms + 240ms);
     }
 
+    /* 7% of the turquoise was enough to read as a tint on paper; on ink the
+       same 7% is nothing, so the mix is twice that and the compartment still
+       stays well under the rule that separates it from its neighbour. */
     :global([data-js]) .pick__crit[data-in] .crit {
-      background-color: color-mix(in srgb, var(--t) 7%, var(--paper));
-      color: var(--fg);
+      background-color: color-mix(in srgb, var(--t) 15%, var(--ink));
+      color: var(--fg-inv);
     }
   }
 
@@ -150,6 +164,6 @@ const CRITERIA = ['Calitate', 'Valoare', 'Design', 'Utilitate', 'Relevanță', '
     font-weight: 800;
     letter-spacing: -0.035em;
     line-height: 1;
-    color: var(--fg);
+    color: var(--fg-inv);
   }
 </style>

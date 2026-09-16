@@ -91,27 +91,23 @@ import { ORIGIN, ONLINE_MARKETS } from '../lib/data';
        through 1920x800: nothing clips, nothing overflows). Lengthen the
        sentence again and this floor is the number to raise. */
     --reserve: clamp(15.5rem, 31vh, 20rem);
-    /* and how tall the same front is when it cannot hold the screen: without
-       JavaScript, or where someone asked the machine to stop moving */
-    --dawn-h: clamp(15rem, 38vh, 25rem);
   }
 
   /* ---- the hold ---------------------------------------------------------- *
    *
    * The plate stops and the page keeps scrolling, and what that scroll buys is
-   * the light coming up over it. data-pinned is written by site.ts, so there is
-   * no pin without JavaScript and none under reduced motion -- in both cases
-   * this is a plain block, the plate scrolls past like anything else, and the
-   * white arrives in the runway underneath it instead.
+   * the dark closing over it. data-pinned is written by site.ts, so there is no
+   * pin without JavaScript and none under reduced motion -- in both cases this
+   * is a plain block, the plate scrolls past like anything else, and since what
+   * follows is the same ink there is nothing to hand over: the section simply
+   * ends and the next one starts on the same ground.
    * ---------------------------------------------------------------------- */
   .romap__hold {
     position: relative;
-    padding-bottom: var(--dawn-h);
   }
 
   .romap__hold[data-pinned] {
     height: calc(100dvh + var(--wash));
-    padding-bottom: 0;
   }
 
   .romap__pin {
@@ -216,53 +212,33 @@ import { ORIGIN, ONLINE_MARKETS } from '../lib/data';
     );
   }
 
-  /* ---- the white front ---------------------------------------------------
+  /* ---- the front ---------------------------------------------------------
+   *
+   * It used to be white, because the band under this one was. That band is ink
+   * now, so the front is ink: what the hold buys is no longer a sunrise but the
+   * dark closing back over the plate, and the section below starts out of it on
+   * the same ground. Same ramp, same easing, one colour changed.
    *
    * It is drawn in this section, on this section's own ground and under this
-   * section's own dither. It used to be hung above the light band's box
+   * section's own dither. It used to be hung above the next section's box
    * instead, and that was the line: an element that paints outside its
    * section's background has no backdrop there, so the dither hung with it
    * stopped blending and turned into flat grey, straight across the page.
    *
-   * The ramp is the same shape in both states, and the shape is the point. A
-   * white front over a dark ground that goes from nothing to solid in a couple
-   * of hundred pixels reads as a bar someone laid across the screen. This one
-   * is eased -- slow to start, slow to finish -- and it is given half a
-   * screen: enough that it has no edge to start or stop on, short enough that
+   * The ramp's shape is the point. A front that goes from nothing to solid in a
+   * couple of hundred pixels reads as a bar someone laid across the screen.
+   * This one is eased -- slow to start, slow to finish -- and it is given half
+   * a screen: enough that it has no edge to start or stop on, short enough that
    * it is never spread over the whole of what you are looking at.
    *
-   * And it never becomes a field. The hold ends with the front laid across the
-   * bottom third of the screen and reaching pure white on the last pixel of it
-   * -- there is no band of plain white anywhere, because a band of plain white
-   * is a piece of page with nothing on it. The white the band below is made of
-   * arrives as the band below, not before it. What the front does is meet the
-   * plate at its lower edge and hand over there.
+   * Only pinned. Without JavaScript, or with motion turned down, there is no
+   * front at all: both sides of the join are the same ink, and a fade from ink
+   * to ink over a quarter of a screen is a quarter of a screen of nothing.
    * -------------------------------------------------------------------- */
   .romap__dawn {
     position: absolute;
-    left: 0;
-    right: 0;
-    top: 100%;
-    height: var(--dawn-h);
+    inset: 0;
     pointer-events: none;
-    /* eleven stops off one curve, half linear and half smoothstep: eased at
-       both ends so the front has no edge to start or stop on, and no steeper
-       than a quarter of a luminance level per pixel in the middle, which is
-       where a white front over a dark ground gives itself away as a bar. */
-    background-image: linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0) 0%,
-      rgba(255, 255, 255, 0.064) 10%,
-      rgba(255, 255, 255, 0.152) 20%,
-      rgba(255, 255, 255, 0.258) 30%,
-      rgba(255, 255, 255, 0.376) 40%,
-      rgba(255, 255, 255, 0.5) 50%,
-      rgba(255, 255, 255, 0.624) 60%,
-      rgba(255, 255, 255, 0.742) 70%,
-      rgba(255, 255, 255, 0.848) 80%,
-      rgba(255, 255, 255, 0.936) 90%,
-      #fff 100%
-    );
   }
 
   /* Pinned, the front is a sheet a little over a screen tall and the screen is
@@ -270,27 +246,29 @@ import { ORIGIN, ONLINE_MARKETS } from '../lib/data';
      the travel, and its ramp runs to the sheet's own bottom edge: so the front
      is exactly at the screen's bottom edge on the first pixel of scroll and
      has risen a bit over a third of the screen by the last, still touching
-     that bottom edge, still reaching white only there. Nothing is ever held
+     that bottom edge, still reaching solid ink only there. Nothing is ever held
      with nothing happening on it, and nothing above the lower third is ever
-     touched. */
+     touched.
+     Eleven stops off one curve, half linear and half smoothstep, so the front
+     is no steeper than a quarter of a luminance level per pixel in the middle
+     -- which is where a front over a ground of its own colour would otherwise
+     give itself away as a bar across the plate. */
   .romap__hold[data-pinned] .romap__dawn {
-    inset: 0;
-    height: auto;
     background-size: 100% 138%;
     background-position: 0 calc(var(--p, 0) * 100%);
     background-image: linear-gradient(
       180deg,
-      rgba(255, 255, 255, 0) 0 72.5%,
-      rgba(255, 255, 255, 0.064) 75.25%,
-      rgba(255, 255, 255, 0.152) 78%,
-      rgba(255, 255, 255, 0.258) 80.75%,
-      rgba(255, 255, 255, 0.376) 83.5%,
-      rgba(255, 255, 255, 0.5) 86.25%,
-      rgba(255, 255, 255, 0.624) 89%,
-      rgba(255, 255, 255, 0.742) 91.75%,
-      rgba(255, 255, 255, 0.848) 94.5%,
-      rgba(255, 255, 255, 0.936) 97.25%,
-      #fff 100%
+      rgba(11, 15, 16, 0) 0 72.5%,
+      rgba(11, 15, 16, 0.064) 75.25%,
+      rgba(11, 15, 16, 0.152) 78%,
+      rgba(11, 15, 16, 0.258) 80.75%,
+      rgba(11, 15, 16, 0.376) 83.5%,
+      rgba(11, 15, 16, 0.5) 86.25%,
+      rgba(11, 15, 16, 0.624) 89%,
+      rgba(11, 15, 16, 0.742) 91.75%,
+      rgba(11, 15, 16, 0.848) 94.5%,
+      rgba(11, 15, 16, 0.936) 97.25%,
+      var(--ink) 100%
     );
   }
 
@@ -315,20 +293,14 @@ import { ORIGIN, ONLINE_MARKETS } from '../lib/data';
     background-size: 200px 200px;
   }
 
-  /* Two of them, and never both over the same pixel. The held screen paints its
-     own ground, so it hides the section's grain exactly where its own starts:
-     the seam between them is the pin's own edge, the two sides are the same
-     noise at the same strength, and there is nothing there to see. One alone
-     could not do it -- inside the pin it has no section ground to blend with
-     (a sticky box is a stacking context), and outside it, it would crawl over a
-     plate that is standing still. */
-  .romap__grain {
-    bottom: calc(-1 * var(--dawn-h));
-  }
-
-  .romap__hold[data-pinned] .romap__grain {
-    bottom: 0;
-  }
+  /* Two of them, and never both over the same pixel. The pin paints its own
+     opaque ground, so it hides the section's dither exactly where its own grain
+     starts: the seam between them is the pin's own edge, the two sides are the
+     same noise at the same strength, and there is nothing there to see. One
+     alone could not do it -- inside the pin it has no section ground to blend
+     with (a sticky box is a stacking context), and outside it, it would crawl
+     over a plate that is standing still. The runway under the pin is gone with
+     the white it used to carry, so neither of them needs an offset any more. */
 
   .romap__stage {
     position: relative;

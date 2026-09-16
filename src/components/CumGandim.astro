@@ -76,26 +76,27 @@ const STEPS = [
        hidden -- hidden would make this a scroll container and the scroll-driven
        animations inside would stop measuring. */
     overflow: clip;
-    background-color: var(--paper);
-    color: var(--fg);
-    /* the map hands the white over already made, so this band does not have to
-       open with a screenful of it before it says anything */
-    padding-block: clamp(2.5rem, 6vh, 4rem) clamp(4rem, 10vh, 7rem);
+    background-color: var(--ink);
+    color: var(--fg-inv);
+    /* the rhythm of every other dark section on the page: this band used to
+       open tight because the map handed it a screenful of white already made,
+       and there is no white to hand over any more */
+    padding-block: clamp(4rem, 10vh, 7rem);
   }
 
-  /* Nothing of this section is drawn outside this section. The white front it
-     arrives on is painted by the map above, on the map's own ground -- an
-     element hung over a neighbour has no backdrop to sit on, and everything
-     that went wrong here went wrong for that one reason. So: the ground starts
-     white at the top edge, because by then the page already is. */
+  /* Nothing of this section is drawn outside this section -- an element hung
+     over a neighbour has no backdrop to sit on, and everything that ever went
+     wrong here went wrong for that one reason. Two lamps of its own, then, at
+     the strength the dark zones use: on white they were a tint, and a tint is
+     invisible on ink. */
   .think__glow {
     position: absolute;
     inset: 0 -10%;
     z-index: 0;
     pointer-events: none;
     background-image:
-      radial-gradient(32% 30% at 78% 18%, rgba(19, 180, 198, 0.1), transparent 70%),
-      radial-gradient(28% 26% at 8% 82%, rgba(19, 180, 198, 0.07), transparent 72%);
+      radial-gradient(32% 30% at 78% 18%, rgba(19, 180, 198, 0.22), transparent 70%),
+      radial-gradient(28% 26% at 8% 82%, rgba(75, 216, 232, 0.14), transparent 72%);
   }
 
   @media (prefers-reduced-motion: no-preference) {
@@ -118,7 +119,7 @@ const STEPS = [
     font-weight: 700;
     letter-spacing: 0.3em;
     text-transform: uppercase;
-    color: var(--t-deep);
+    color: var(--t-glow);
   }
 
   /* the same head as every other section on the page: this one used to be set
@@ -139,7 +140,7 @@ const STEPS = [
     max-width: 46ch;
     font-size: clamp(1rem, 0.95rem + 0.3vw, 1.1875rem);
     line-height: 1.6;
-    color: var(--fg-2);
+    color: var(--fg-inv-2);
   }
 
   /* ---- the three, as one movement --------------------------------------- *
@@ -177,7 +178,7 @@ const STEPS = [
     right: calc(-1 * var(--gap));
     top: 0;
     height: 1px;
-    background-color: var(--line);
+    background-color: var(--line-dark-strong);
     transform-origin: left;
   }
 
@@ -193,7 +194,7 @@ const STEPS = [
     line-height: 1;
     letter-spacing: -0.04em;
     font-variant-numeric: tabular-nums;
-    color: var(--t-deep);
+    color: var(--t);
   }
 
   .step__t {
@@ -203,7 +204,7 @@ const STEPS = [
     font-weight: 700;
     letter-spacing: -0.02em;
     line-height: 1.2;
-    color: var(--fg);
+    color: var(--fg-inv);
   }
 
   .step__d {
@@ -211,7 +212,7 @@ const STEPS = [
     max-width: 32ch;
     font-size: 0.9375rem;
     line-height: 1.55;
-    color: var(--fg-2);
+    color: var(--fg-inv-2);
   }
 
   @media (max-width: 759px) {
@@ -241,13 +242,13 @@ const STEPS = [
     @supports (-webkit-text-stroke: 1px currentColor) {
       :global([data-js]) .step__n {
         color: transparent;
-        -webkit-text-stroke: 1.5px var(--t-deep);
+        -webkit-text-stroke: 1.5px var(--t);
         transition: color 520ms var(--ease-out);
         transition-delay: calc(var(--i, 0) * var(--stagger) + 300ms);
       }
 
       :global([data-js]) .step[data-in] .step__n {
-        color: var(--t-deep);
+        color: var(--t);
       }
     }
   }
@@ -263,6 +264,6 @@ const STEPS = [
     font-weight: 700;
     letter-spacing: -0.02em;
     line-height: 1.25;
-    color: var(--fg);
+    color: var(--fg-inv);
   }
 </style>
