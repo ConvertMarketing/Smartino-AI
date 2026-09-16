@@ -24,6 +24,12 @@ import { COMPANY, UNITS, TIMELINE, HOME_HOURS, HOME_AREA } from '../lib/data';
  * is actually shown, which is here, in the diagram, and in the address block. */
 const [, home] = UNITS;
 
+/* U+2060 WORD JOINER right after the hyphen. A hyphen is a line-break
+ * opportunity, so at every width where this head takes three lines the browser
+ * broke it as "E-" / "Commerce", which reads as a typo. The joiner has no
+ * glyph of its own, so it needs nothing from the font. */
+const otopeniTitle = 'Smartino HQ — Distribuție și E-⁠Commerce';
+
 const title = 'Smartino International — import, distribuție, retail și e-commerce';
 const description =
   'Grupul Smartino: import direct și distribuție, magazinele Smartino Supermarket și Smartino Home ' +
@@ -83,8 +89,8 @@ const description =
         poster={otopeniPoster}
         posterAlt="Macheta ilustrativă a platformei din Otopeni: hala de depozitare Smartino și clădirea de birouri Smartino International"
         kicker="Distribuție & logistică"
-        title="De aici pleacă marfa."
-        lead="Depozitul grupului și birourile Smartino International, în parcul industrial de la Otopeni. Aici ajung brandurile importate și de aici pleacă spre magazine și spre comenzile online."
+        title={otopeniTitle}
+        lead="Birourile și depozitele Smartino International, e-commerce și operațiuni de distribuție și logistică, peste 6.200 m² în parcul industrial de la Otopeni. Aici ajung brandurile importate și de aici pleacă spre toate canalele de retail, magazinele proprii și comenzile online."
         spots={spots.otopeni}
         dissolve
         keys={[
@@ -97,19 +103,19 @@ const description =
             key: 'depozit',
             plaque: 'pin_placa_hala_4000',
             match: 'smartino_4000',
-            name: 'Depozit',
-            meta: 'marfa pentru toate magazinele',
+            name: 'Depozit & Logistică',
+            meta: '4.000 m²',
             href: '#snagov-plaza',
-            label: 'Depozitul Smartino din Otopeni — vezi datele de contact',
+            label: 'Depozitul și logistica Smartino din Otopeni, 4.000 m² — vezi datele de contact',
           },
           {
             key: 'birouri',
             plaque: 'pin_placa_smartino',
             match: 'smartino_international,smartino_birouri',
-            name: 'Birouri',
-            meta: 'Smartino International',
+            name: 'Birouri și E-commerce',
+            meta: '2.200 m²',
             href: '#snagov-plaza',
-            label: 'Birourile Smartino International — vezi datele de contact',
+            label: 'Birourile și e-commerce Smartino International, 2.200 m² — vezi datele de contact',
           },
         ]}
       />

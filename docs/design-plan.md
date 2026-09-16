@@ -428,10 +428,12 @@ Modelul procesat: 207 KB, ~74.000 de triunghiuri, 64 de noduri, din care 32 cu
 nume — cele trei volume Smartino și cei doi pini. Restul parcului (halele
 vecinilor, camioanele, copacii) e decor și intră în loturi anonime.
 
+Suprafețele au venit de la client și sunt acum în pagină: 4.000 m² depozit și
+logistică, 2.200 m² birouri și e-commerce, peste 6.200 m² în total — deci
+`smartino_4000`, numele nodului din model, chiar era o suprafață.
+
 Ce lipsește, pentru client: adresa exactă a platformei (acum scrie doar
-„Otopeni, Ilfov"), suprafața halei și, dacă există, numărul de rampe — nodul
-din model se cheamă `smartino_4000`, dar nu am confirmarea că 4000 e o
-suprafață, deci cifra nu apare nicăieri în pagină.
+„Otopeni, Ilfov") și, dacă există, numărul de rampe.
 
 ## Harta celor două țări
 
