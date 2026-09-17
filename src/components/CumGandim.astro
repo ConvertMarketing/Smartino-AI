@@ -53,7 +53,7 @@ const STEPS = [
     <ol class="think__steps">
       {
         STEPS.map((step, i) => (
-          <li class="step" data-reveal style={`--i: ${i + 3}`}>
+          <li class="step" data-reveal style={`--i: ${i + 3}; --k: ${i}`}>
             <span class="step__n" aria-hidden="true">{i + 1}</span>
             <p class="step__t">{step.t}</p>
             <p class="step__d">{step.d}</p>
@@ -172,13 +172,31 @@ const STEPS = [
    * it so the joins never show. The numerals arrive as outlines and fill as
    * the line reaches them.
    *
+   * Then the line is live. Every --turn, one light leaves the left end of the
+   * rule and runs its whole length, and each numeral flares as it passes: a
+   * bloom around the figure and a bright sweep through it, in that order,
+   * settling back to the solid turquoise it sits at the rest of the time. It
+   * is the same light that runs the wires in the architecture diagram and the
+   * partnership equation -- two background layers on one box, moved by
+   * background-position alone -- so the page keeps one vocabulary for "this
+   * is connected", and the compositor does all of it.
+   *
+   * The rule is three pieces, so the light is three runs, each handed to the
+   * next: a piece runs on into the gap after it, which is exactly where the
+   * next piece begins, so a run that leaves piece k on its right edge is one
+   * that enters piece k+1 on its left edge -- the same moment, by the delay,
+   * and the two halves of the streak add up to one across the join. Stacked
+   * on a phone, the same three delays read as a cascade down the column.
+   *
    * All of it hangs off the reveal the rest of the page already uses, so it
    * costs nothing: no observer of its own, no scroll driver, and where reveals
    * do not run -- no JavaScript, or motion turned down -- the line is simply
-   * drawn and the numerals are simply filled.
+   * drawn, the numerals are simply filled, and nothing runs.
    * ---------------------------------------------------------------------- */
   .think__steps {
     --gap: clamp(1.5rem, 3vw, 3rem);
+    /* one cycle of the light: a third of it is the run, the rest is quiet */
+    --turn: 8s;
     margin: clamp(2.5rem, 6vh, 4rem) 0 0;
     padding: 0;
     list-style: none;
@@ -192,23 +210,55 @@ const STEPS = [
     padding-top: clamp(1.125rem, 2.4vh, 1.625rem);
   }
 
-  .step::before {
+  /* ::before is the rule; ::after is the light that runs along it. Same box
+     both, so the light is on the line at every width and every gap. */
+  .step::before,
+  .step::after {
     content: '';
     position: absolute;
     left: 0;
     right: calc(-1 * var(--gap));
+    pointer-events: none;
+  }
+
+  .step::before {
     top: 0;
     height: 1px;
     background-color: var(--line-dark-strong);
     transform-origin: left;
   }
 
-  .step:last-child::before {
+  /* The streak: a soft ellipse of the glow colour, drawn once in the middle of
+     an image four boxes wide, so the box's own window on to it is empty at
+     both ends of the travel and the wrap from one cycle to the next never
+     shows. 16px tall and centred on the 1px rule, because a light has a body
+     and a line does not. Off until the rule under it is drawn. */
+  .step::after {
+    top: -11px;
+    height: 22px;
+    opacity: 0;
+    background-image: radial-gradient(
+      4.5% 50% at 50% 50%,
+      rgba(75, 216, 232, 1),
+      rgba(19, 180, 198, 0.5) 40%,
+      transparent 100%
+    );
+    background-size: 400% 100%;
+    background-position: 100% 0;
+    background-repeat: no-repeat;
+  }
+
+  .step:last-child::before,
+  .step:last-child::after {
     right: 0;
   }
 
+  /* max-content, not block: the flare's sweep is a background the numeral is
+     cut out of, and a background the width of the column would cross the
+     figure in a blink and spend the rest of its travel on nothing */
   .step__n {
     display: block;
+    width: max-content;
     font-family: var(--font-display);
     font-size: clamp(2.5rem, 1.7rem + 2.6vw, 4rem);
     font-weight: 800;
@@ -242,7 +292,8 @@ const STEPS = [
       grid-template-columns: 1fr;
     }
 
-    .step::before {
+    .step::before,
+    .step::after {
       right: 0;
     }
   }
@@ -258,6 +309,24 @@ const STEPS = [
       transform: scaleX(1);
     }
 
+    /* The light starts once the LAST piece of the rule is in -- one clock for
+       all three runs and all three flares, so their delays mean something
+       relative to each other. :has() is what asks the list about its last
+       child; where it is not understood, nothing runs and the line is still
+       drawn, still filled. */
+    :global([data-js]) .think__steps:has(.step:last-child[data-in]) .step::after {
+      opacity: 1;
+      animation: rule-run var(--turn) linear infinite;
+      animation-delay: calc(var(--k, 0) * var(--turn) * 0.1);
+    }
+
+    /* and the piece of rule under the light warms while the light is on it,
+       then cools: the line remembers where the light has been, for a moment */
+    :global([data-js]) .think__steps:has(.step:last-child[data-in]) .step::before {
+      animation: rule-warm var(--turn) linear infinite;
+      animation-delay: calc(var(--k, 0) * var(--turn) * 0.1);
+    }
+
     /* the fill only where the outline can be drawn at all: without the stroke
        a transparent numeral is no numeral */
     @supports (-webkit-text-stroke: 1px currentColor) {
@@ -271,6 +340,108 @@ const STEPS = [
       :global([data-js]) .step[data-in] .step__n {
         color: var(--t);
       }
+    }
+
+    /* The flare needs the figure to be cut out of its own background, so
+       that the sweep can cross it: fill becomes background-color (which
+       background-clip: text clips just the same, and which transitions just
+       the same), and the sweep is a second layer over it, parked off the
+       glyph until its turn. */
+    @supports ((-webkit-text-stroke: 1px currentColor) and (-webkit-background-clip: text)) {
+      :global([data-js]) .step__n {
+        color: var(--t);
+        -webkit-text-fill-color: transparent;
+        background-color: transparent;
+        background-image: linear-gradient(
+          100deg,
+          transparent 0 42%,
+          rgba(255, 255, 255, 0.92) 50%,
+          transparent 58% 100%
+        );
+        background-size: 400% 100%;
+        background-position: 100% 0;
+        background-repeat: no-repeat;
+        -webkit-background-clip: text;
+        background-clip: text;
+        transition: background-color 520ms var(--ease-out);
+        transition-delay: calc(var(--i, 0) * var(--stagger) + 300ms);
+      }
+
+      :global([data-js]) .step[data-in] .step__n {
+        background-color: var(--t);
+      }
+
+      /* Timed to the run. The streak's centre reaches the left end of piece k
+         a third of the way into that piece's run, and each run starts a tenth
+         of a turn after the one before: (k + 1) / 10 of the turn. The flare
+         starts a hair BEFORE that, because its bloom takes a fiftieth of the
+         turn to peak and the peak should land while the streak is still on
+         the figure, not a hundred pixels past it. Same period as the run, so
+         they never drift apart. */
+      :global([data-js]) .think__steps:has(.step:last-child[data-in]) .step__n {
+        animation: n-flare var(--turn) linear infinite;
+        animation-delay: calc(var(--turn) * ((var(--k, 0) + 1) * 0.1 - 0.008));
+      }
+    }
+  }
+
+  /* Position 100% shows the image's right quarter, 0% its left; the streak is
+     in the middle, so it crosses the box while the window slides over it --
+     left to right on screen -- and both ends of the travel are empty. The run
+     is three tenths of the turn; the last seven tenths it sits, unseen, at
+     the far end, and the jump back at the wrap is from empty to empty. */
+  @keyframes rule-run {
+    0% {
+      background-position: 100% 0;
+    }
+    30% {
+      background-position: 0% 0;
+    }
+    100% {
+      background-position: 0% 0;
+    }
+  }
+
+  /* The streak is on a piece from a tenth to two tenths of the piece's run;
+     the piece is warmest in the middle of that and has cooled by the time the
+     next piece is warmest, so at any moment only the lit third glows. */
+  @keyframes rule-warm {
+    0%,
+    8% {
+      background-color: var(--line-dark-strong);
+    }
+    15% {
+      background-color: color-mix(in srgb, var(--t) 55%, var(--line-dark-strong));
+    }
+    34%,
+    100% {
+      background-color: var(--line-dark-strong);
+    }
+  }
+
+  /* The bloom leads by a hair and the sweep follows through the figure; the
+     bloom then takes four times as long to die as it took to rise, which is
+     what makes it read as light rather than as a blink. filter, not
+     text-shadow: with the figure cut from its background a text-shadow shows
+     through the cut-out and tints the whole glyph, while a drop-shadow is
+     drawn from what is actually painted and stays outside it. */
+  @keyframes n-flare {
+    0% {
+      background-position: 100% 0;
+      filter: drop-shadow(0 0 0 rgba(75, 216, 232, 0)) drop-shadow(0 0 0 rgba(19, 180, 198, 0));
+    }
+    2.5% {
+      filter: drop-shadow(0 0 6px rgba(75, 216, 232, 1)) drop-shadow(0 0 40px rgba(19, 180, 198, 0.85));
+    }
+    7% {
+      background-position: 0% 0;
+    }
+    14% {
+      filter: drop-shadow(0 0 0 rgba(75, 216, 232, 0)) drop-shadow(0 0 0 rgba(19, 180, 198, 0));
+    }
+    100% {
+      background-position: 0% 0;
+      filter: drop-shadow(0 0 0 rgba(75, 216, 232, 0)) drop-shadow(0 0 0 rgba(19, 180, 198, 0));
     }
   }
 
