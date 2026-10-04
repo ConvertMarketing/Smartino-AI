@@ -59,18 +59,19 @@ export const TIMELINE = {
   yearMark: 365,
 } as const;
 
-/** Both stores' hours, as given by the client. Smartino Home's were the last
- *  open TODO on this page: it is open every day, 10:00-21:00.
+/** Both stores' hours, as given by the client -- last updated by them on
+ *  2026-10-04 (Home closes an hour earlier; the Supermarket opens half an hour
+ *  later on weekdays and closes an hour earlier every day).
  *  TODO(client): public-holiday exceptions for both stores. */
 export const HOME_HOURS = [
-  { days: 'Zilnic', open: '10:00', close: '21:00', dow: [0, 1, 2, 3, 4, 5, 6] },
+  { days: 'Zilnic', open: '10:00', close: '20:00', dow: [0, 1, 2, 3, 4, 5, 6] },
 ] as const;
 
 export const SUPERMARKET_HOURS = [
   /* dow: JavaScript day numbers (0 = duminică). They exist so the "deschis
    * acum" line can be computed without parsing Romanian day names. */
-  { days: 'Luni – Vineri', open: '07:00', close: '22:00', dow: [1, 2, 3, 4, 5] },
-  { days: 'Sâmbătă – Duminică', open: '08:00', close: '21:00', dow: [6, 0] },
+  { days: 'Luni – Vineri', open: '07:30', close: '21:00', dow: [1, 2, 3, 4, 5] },
+  { days: 'Sâmbătă – Duminică', open: '08:00', close: '20:00', dow: [6, 0] },
 ] as const;
 
 export const UNITS: Unit[] = [
